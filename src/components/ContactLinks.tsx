@@ -3,7 +3,7 @@ import path from "node:path";
 import { site } from "@/content/site";
 
 /** Resume is linked only once public/resume.pdf exists, so the link never 404s. */
-const hasResume = existsSync(path.join(process.cwd(), "public", "resume.pdf"));
+export const hasResume = existsSync(path.join(process.cwd(), "public", "resume.pdf"));
 
 export function ContactLinks() {
   const { github, linkedin, x, email } = site.links;

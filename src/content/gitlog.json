@@ -1,0 +1,57 @@
+[
+  {
+    "hash": "82b8a23",
+    "date": "2026-11-04",
+    "subject": "Rewrite the About paragraph in plain terms"
+  },
+  {
+    "hash": "f2aa870",
+    "date": "2026-11-04",
+    "subject": "Point site URL at sahaj-alatage.vercel.app; ignore Vercel local files"
+  },
+  {
+    "hash": "663b230",
+    "date": "2026-11-04",
+    "subject": "Measure the island a frame after hydration"
+  },
+  {
+    "hash": "31c1e49",
+    "date": "2026-11-04",
+    "subject": "Phase 7 (part 1): pause motion, 404, README, startup cost"
+  },
+  {
+    "hash": "01571ea",
+    "date": "2026-11-04",
+    "subject": "Regenerate portrait tokens to include the particle engine's own code"
+  },
+  {
+    "hash": "cdfe4d0",
+    "date": "2026-11-04",
+    "subject": "Phase 6: the code-token portrait"
+  },
+  {
+    "hash": "ff6e976",
+    "date": "2026-11-04",
+    "subject": "Phase 5: code-token particle data pipeline"
+  },
+  {
+    "hash": "aa49e8d",
+    "date": "2026-11-04",
+    "subject": "Phase 4: cursor physics for the liquid island"
+  },
+  {
+    "hash": "1df91f7",
+    "date": "2026-11-04",
+    "subject": "Phase 3: WebGL2 liquid island"
+  },
+  {
+    "hash": "c4fedf3",
+    "date": "2026-11-04",
+    "subject": "Phase 2: spring-driven CSS island"
+  },
+  {
+    "hash": "15bba34",
+    "date": "2026-11-04",
+    "subject": "Phase 1: plain-view portfolio site"
+  }
+]

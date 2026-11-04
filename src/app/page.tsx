@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { ContactLinks } from "@/components/ContactLinks";
+import { ContactLinks, hasResume } from "@/components/ContactLinks";
 import { PortraitParticles } from "@/components/PortraitParticles";
+import { ProjectCard } from "@/components/ProjectCard";
+import { Terminal } from "@/components/Terminal";
 import { alsoBuilt, projects, timeline } from "@/content/projects";
 import { site } from "@/content/site";
 
@@ -60,7 +62,7 @@ export default function Home() {
           </div>
           <div className="work-grid">
             {projects.map((p) => (
-              <Link key={p.slug} href={`/work/${p.slug}`} className={`work-card ${cardSize[p.slug] ?? ""}`}>
+              <ProjectCard key={p.slug} slug={p.slug} className={`work-card ${cardSize[p.slug] ?? ""}`}>
                 <div>
                   <h3>{p.name}</h3>
                   <p className="tagline">{p.tagline}</p>
@@ -75,7 +77,7 @@ export default function Home() {
                   ))}
                 </div>
                 <span className="more">Read the case study →</span>
-              </Link>
+              </ProjectCard>
             ))}
           </div>
         </div>
@@ -204,21 +206,7 @@ export default function Home() {
               {site.stack.map((s) => <li key={s}>{s}</li>)}
             </ul>
           </div>
-          <div className="terminal" role="img" aria-label="Terminal showing Sahaj's profile and developer-mode jokes">
-            <div className="terminal-bar" aria-hidden="true"><i /><i /><i /><span>~/sahaj — zsh</span></div>
-            <pre aria-hidden="true">
-              <span className="p">sahaj@github</span> <span className="k">~ %</span> <span className="v">cat profile.txt</span>{"\n"}
-              <span className="k">name     </span> <span className="v">Sahaj Alatage</span>{"\n"}
-              <span className="k">role     </span> <span className="v">Full-stack &amp; AI engineer</span>{"\n"}
-              <span className="k">ships    </span> <span className="v">desktop · mobile · web · AI</span>{"\n"}
-              <span className="k">status   </span> <span className="g">● open to work</span>{"\n\n"}
-              <span className="p">sahaj@github</span> <span className="k">~ %</span> <span className="v">sudo mode --developer</span>{"\n"}
-              <span className="k">sleep          </span> <span className="r">command not found</span>{"\n"}
-              <span className="k">side_projects  </span> <span className="v">11 and counting</span>{"\n"}
-              <span className="k">built_for_fun  </span> <span className="v">a Dynamic Island for Windows</span>{"\n"}
-              <span className="k">git push -f    </span> <span className="v">never on main</span>
-            </pre>
-          </div>
+          <Terminal hasResume={hasResume} />
         </div>
       </section>
 

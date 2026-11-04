@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { IslandRenderer, type Shape } from "@/lib/islandGL";
 import { Spring, SpringLoop, calmSpring, ghostSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
+import { type Activity, useActivity } from "@/lib/islandBus";
 import { useMotionPaused } from "@/lib/motion";
 import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
 
@@ -15,9 +16,46 @@ import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
  * Hover, focus or tap always opens the navigation state.
  */
 
-type View = "nav" | "work" | "float-media" | "float-banner" | "float-orb" | "portrait" | "timeline" | "terminal" | "case";
+type View =
+  | "nav"
+  | "work"
+  | "float-media"
+  | "float-banner"
+  | "float-orb"
+  | "portrait"
+  | "timeline"
+  | "terminal"
+  | "case"
+  | "act-harika"
+  | "act-mtb"
+  | "act-pie"
+  | "notify";
 
-const VIEWS: View[] = ["nav", "work", "float-media", "float-banner", "float-orb", "portrait", "timeline", "terminal", "case"];
+const VIEWS: View[] = [
+  "nav",
+  "work",
+  "float-media",
+  "float-banner",
+  "float-orb",
+  "portrait",
+  "timeline",
+  "terminal",
+  "case",
+  "act-harika",
+  "act-mtb",
+  "act-pie",
+  "notify",
+];
+
+/** Island views for activities sent from elsewhere on the page (see lib/islandBus). */
+const ACTIVITY_VIEW: Record<Activity["kind"], View> = {
+  float: "float-media",
+  harika: "act-harika",
+  mothertongue: "act-mtb",
+  pie: "act-pie",
+  orb: "float-orb",
+  notify: "notify",
+};
 
 const SLOT_VIEW: Record<string, View> = {
   hero: "nav",
@@ -82,9 +120,17 @@ export function Island() {
   const canvasWidth = useRef(CANVAS.w);
 
   // Which view the island should show right now.
+  const activity = useActivity();
   const slotView = SLOT_VIEW[slot] ?? "nav";
-  const view: View = expanded ? "nav" : slotView === "float-media" ? FLOAT_CYCLE[floatStep].view : slotView;
+  const view: View = expanded
+    ? "nav"
+    : activity
+      ? ACTIVITY_VIEW[activity.kind]
+      : slotView === "float-media"
+        ? FLOAT_CYCLE[floatStep].view
+        : slotView;
   const caseTitle = slotEl?.dataset.islandTitle ?? "";
+  const notice = activity?.kind === "notify" ? activity : null;
 
   // Write spring values straight to the element — no React re-render per frame.
   const paint = useCallback(() => {
@@ -341,7 +387,7 @@ export function Island() {
     if (!measured.current) return;
     measure();
     retarget();
-  }, [view, caseTitle, measure, retarget]);
+  }, [view, caseTitle, notice?.title, notice?.body, measure, retarget]);
 
   // FLOAT chapter: cycle through FLOAT's states while the section is on screen.
   useEffect(() => {
@@ -515,6 +561,57 @@ export function Island() {
         <div className="island-content">
           <span className="i-meta">← All work</span>
           <span className="i-label">{caseTitle}</span>
+        </div>,
+      )}
+
+      {/* Project activities, shown while a project card is hovered or focused. */}
+      {layer(
+        "act-harika",
+        <div className="island-content">
+          <span className="i-core" />
+          <span className="i-stack">
+            <span className="i-label">HARIKA</span>
+            <span className="i-meta i-cycle">
+              <span>Remembering you…</span>
+              <span>Planning the task…</span>
+              <span>Acting on it.</span>
+            </span>
+          </span>
+        </div>,
+      )}
+
+      {layer(
+        "act-mtb",
+        <div className="island-content">
+          <span className="i-book"><i /><i /></span>
+          <span className="i-stack">
+            <span className="i-label">MotherTongue Books</span>
+            <span className="i-meta" lang="te">ఒకప్పుడు, ఒక అడవిలో…</span>
+          </span>
+        </div>,
+      )}
+
+      {layer(
+        "act-pie",
+        <div className="island-content">
+          <span className="i-doc" />
+          <span className="i-stack">
+            <span className="i-label">PIE</span>
+            <span className="i-meta i-fix">
+              Please <s>recieve</s> <b>receive</b> the signed PDF
+            </span>
+          </span>
+        </div>,
+      )}
+
+      {layer(
+        "notify",
+        <div className="island-content i-banner">
+          <span className="island-mark">S</span>
+          <span className="i-stack">
+            <span className="i-label">{notice?.title ?? ""}</span>
+            <span className="i-meta">{notice?.body ?? ""}</span>
+          </span>
         </div>,
       )}
     </header>
