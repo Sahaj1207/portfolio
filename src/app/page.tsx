@@ -196,8 +196,9 @@ export default function Home() {
               Professional by default. <em>Developer at heart.</em>
             </h2>
             <p>
-              I like software that feels native to the machine it runs on — a notch for Windows, a PDF engine in C++,
-              agents that write stories in Telugu. Most of what I build starts as something I wanted to exist.
+              I&rsquo;m a software engineer who builds across the stack: desktop apps in Rust and Tauri, mobile apps in
+              React Native and C++, AI systems in Python, and the web. I care about software that feels fast, native and
+              effortless to use.
             </p>
             <ul className="chips" aria-label="Stack">
               {site.stack.map((s) => <li key={s}>{s}</li>)}
