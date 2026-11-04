@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { IslandRenderer, type Shape } from "@/lib/islandGL";
-import { Spring, SpringLoop, calmSpring, ghostSpring, islandSpring } from "@/lib/spring";
+import { Spring, SpringLoop, calmSpring, ghostSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
 import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
 
@@ -65,7 +65,15 @@ export function Island() {
     gw: new Spring(INITIAL.w, ghostSpring),
     gh: new Spring(INITIAL.h, ghostSpring),
     bubble: new Spring(0, islandSpring),
+    // Cursor gravity: a gooey nub that reaches toward the pointer, the surface bulge,
+    // and a ripple that spreads from a click or tap.
+    nx: new Spring(CANVAS.w / 2, nubSpring),
+    ny: new Spring(TOP + INITIAL.h / 2, nubSpring),
+    nr: new Spring(0, nubSpring),
+    pull: new Spring(0, nubSpring),
+    ripple: new Spring(1, rippleSpring),
   });
+  const pointer = useRef({ x: -999, y: -999, rx: 0, ry: 0, dragging: false });
   const loop = useRef<SpringLoop | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderer = useRef<IslandRenderer | null>(null);
@@ -80,7 +88,7 @@ export function Island() {
   const paint = useCallback(() => {
     const el = shellRef.current;
     if (!el) return;
-    const { w, h, s, gw, gh, bubble } = springs.current;
+    const { w, h, s, gw, gh, bubble, nx, ny, nr, pull, ripple } = springs.current;
     el.style.width = `${w.value}px`;
     el.style.height = `${h.value}px`;
     el.style.borderRadius = `${Math.min(h.value / 2, 26)}px`;
@@ -91,7 +99,16 @@ export function Island() {
     const cx = canvasWidth.current / 2;
     const radius = (hh: number) => Math.min(hh, 26);
     const smooth = (x: number) => x * x * (3 - 2 * x);
-    const main: Shape = { cx, cy: TOP + h.value / 2, hw: (w.value / 2) * s.value, hh: (h.value / 2) * s.value, r: 0, k: 0 };
+    // Squash and stretch: widening fast makes the island a little flatter, like a liquid.
+    const stretch = Math.max(-0.08, Math.min(0.08, w.velocity / 6000));
+    const main: Shape = {
+      cx,
+      cy: TOP + h.value / 2,
+      hw: (w.value / 2) * s.value,
+      hh: (h.value / 2) * s.value * (1 - stretch),
+      r: 0,
+      k: 0,
+    };
     main.r = radius(main.hh);
 
     // The ghost melts in only while it differs from the island, so a settled island never swells.
@@ -114,7 +131,50 @@ export function Island() {
         ? { cx, cy: main.cy, hw: 0, hh: 0, r: 0, k: 0 }
         : { cx: right - BUBBLE_R + (BUBBLE_R + 30) * b, cy: TOP + BUBBLE_R, hw: bubbleR, hh: bubbleR, r: bubbleR, k: 18 * Math.min(b, 1) };
 
-    gl.render([main, ghost, bubbleShape]);
+    const r = Math.max(nr.value, 0);
+    const nub: Shape =
+      r < 0.5
+        ? { cx, cy: main.cy, hw: 0, hh: 0, r: 0, k: 0 }
+        : { cx: nx.value, cy: ny.value, hw: r, hh: r, r, k: 24 * Math.min(r / 6, 1) };
+
+    const p = pointer.current;
+    gl.render([main, ghost, bubbleShape, nub], { px: p.x, py: p.y, pull: pull.value, rx: p.rx, ry: p.ry, rp: ripple.value });
+  }, []);
+
+  /**
+   * Retargets the cursor-gravity springs from a pointer position (canvas CSS px).
+   * Uses the island's spring geometry, never the DOM, so it cannot force layout.
+   */
+  const aim = useCallback((px: number, py: number) => {
+    const { w, h, nx, ny, nr, pull } = springs.current;
+    const p = pointer.current;
+    p.x = px;
+    p.y = py;
+    const cx = canvasWidth.current / 2;
+    const hw = w.value / 2;
+    const ex = Math.min(Math.max(px, cx - hw), cx + hw);
+    const ey = Math.min(Math.max(py, TOP), TOP + h.value);
+    const dx = px - ex;
+    const dy = py - ey;
+    const dist = Math.hypot(dx, dy);
+    const range = p.dragging ? 260 : 150;
+
+    if (dist > 0 && dist < range) {
+      const near = 1 - dist / range;
+      const reach = Math.min(dist, p.dragging ? 72 : 30) * Math.sqrt(near);
+      const radius = (p.dragging ? 9 : 5) + 9 * near;
+      nx.target = ex + (dx / dist) * reach;
+      ny.target = Math.min(ey + (dy / dist) * reach, CANVAS.h - radius - 6);
+      nr.target = radius;
+      pull.target = near;
+    } else {
+      // Retract into the nearest edge.
+      nx.target = ex;
+      ny.target = ey;
+      nr.target = 0;
+      pull.target = 0;
+    }
+    loop.current?.kick();
   }, []);
 
   useEffect(() => {
@@ -128,6 +188,52 @@ export function Island() {
     for (const s of [sp.w, sp.h, sp.s, sp.bubble]) s.config = reduced ? calmSpring : islandSpring;
     for (const s of [sp.gw, sp.gh]) s.config = reduced ? calmSpring : ghostSpring;
   }, [reduced]);
+
+  // Cursor gravity (live view, full motion only). Touch gets the same physics by dragging.
+  const physics = mode === "live" && !reduced;
+  useEffect(() => {
+    if (!physics) {
+      const p = pointer.current;
+      p.dragging = false;
+      aim(-999, -999);
+      return;
+    }
+    const toCanvas = (e: PointerEvent) => [e.clientX - (window.innerWidth - canvasWidth.current) / 2, e.clientY] as const;
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse" && !pointer.current.dragging) return;
+      aim(...toCanvas(e));
+    };
+    const onUp = () => {
+      if (!pointer.current.dragging) return;
+      pointer.current.dragging = false;
+      aim(-999, -999);
+    };
+    const onLeave = () => aim(-999, -999);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    document.documentElement.addEventListener("pointerleave", onLeave);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      document.documentElement.removeEventListener("pointerleave", onLeave);
+    };
+  }, [physics, aim]);
+
+  const touchDown = (e: React.PointerEvent) => {
+    if (!physics) return;
+    const p = pointer.current;
+    const x = e.clientX - (window.innerWidth - canvasWidth.current) / 2;
+    p.rx = x;
+    p.ry = e.clientY;
+    const { ripple } = springs.current;
+    ripple.value = 0;
+    ripple.velocity = 0;
+    ripple.target = 1;
+    if (e.pointerType !== "mouse") p.dragging = true;
+    loop.current?.kick();
+  };
 
   // Live view: start the WebGL renderer; any failure drops back to the CSS island.
   useEffect(() => {
@@ -296,7 +402,10 @@ export function Island() {
         if (e.pointerType === "mouse") setExpanded(false);
         press(false);
       }}
-      onPointerDown={() => press(true)}
+      onPointerDown={(e) => {
+        press(true);
+        touchDown(e);
+      }}
       onPointerUp={() => press(false)}
       onClick={() => !expanded && setExpanded(true)}
       onFocus={() => setExpanded(true)}

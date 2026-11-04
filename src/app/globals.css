@@ -143,8 +143,10 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   white-space: nowrap;
   max-width: calc(100vw - 24px);
   cursor: default;
-  touch-action: manipulation;
+  /* Dragging the island stretches it instead of scrolling the page. */
+  touch-action: none;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
   user-select: none;
 }
 

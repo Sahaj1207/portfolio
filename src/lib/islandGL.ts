@@ -1,6 +1,7 @@
 /**
  * WebGL2 renderer for the liquid island: one full-canvas quad, a 2D signed distance
- * field of up to three rounded boxes merged with a smooth minimum.
+ * field of up to four rounded boxes merged with a smooth minimum, plus cursor
+ * gravity (a domain warp toward the pointer) and a click ripple.
  *
  * Shapes are given in CSS pixels relative to the canvas. Nothing here reads the DOM,
  * so drawing never forces layout; the caller renders only while springs are moving.
@@ -13,7 +14,20 @@
  */
 export type Shape = { cx: number; cy: number; hw: number; hh: number; r: number; k: number };
 
-export const MAX_SHAPES = 3;
+export const MAX_SHAPES = 4;
+
+/** Cursor gravity and touch feedback, all in canvas CSS px. */
+export type Field = {
+  /** Pointer position. */
+  px: number;
+  py: number;
+  /** 0..1: how strongly the surface bulges toward the pointer. */
+  pull: number;
+  /** Ripple origin and progress 0..1 (1 = finished). */
+  rx: number;
+  ry: number;
+  rp: number;
+};
 
 const VERT = /* glsl */ `#version 300 es
 in vec2 aPos;
@@ -29,8 +43,20 @@ uniform vec4 uBox[${MAX_SHAPES}];   // cx, cy, half-w, half-h (CSS px, y down)
 uniform float uRad[${MAX_SHAPES}];
 uniform int uCount;
 uniform float uK[${MAX_SHAPES}];   // per-shape blend thickness, px
+uniform vec2 uPointer;
+uniform float uPull;
+uniform vec3 uRipple;         // x, y, progress
 
 out vec4 outColor;
+
+// Cursor gravity: sample the field slightly away from the pointer, so the side of the
+// island facing it bulges toward it. Kept to a few px so the SDF stays well behaved.
+vec2 warp(vec2 p) {
+  if (uPull < 0.001) return p;
+  vec2 toP = uPointer - p;
+  float f = exp(-dot(toP, toP) / (2.0 * 70.0 * 70.0));
+  return p - normalize(toP + 1e-4) * f * uPull * 7.0;
+}
 
 // Rounded box with superellipse ("continuous") corners. Not an exact distance near the
 // corners, which is fine: it only feeds anti-aliasing and shading.
@@ -54,6 +80,7 @@ vec2 smin(float a, float b, float k) {
 
 // Distance plus "seam" amount: how much this point sits inside a liquid merge.
 vec2 scene(vec2 p) {
+  p = warp(p);
   float d = sdIsland(p - uBox[0].xy, uBox[0].zw, uRad[0]);
   float seam = 0.0;
   for (int i = 1; i < ${MAX_SHAPES}; i++) {
@@ -106,6 +133,13 @@ void main() {
   // Seam tint hugs the surface where shapes merge; deep inside, overlapping shapes stay black.
   col += ramp * sc.y * 0.45 * (1.0 - smoothstep(1.5, 9.0, -d));
 
+  // Click/tap ripple: a soft ring of light spreading across the surface.
+  if (uRipple.z < 1.0) {
+    float rr = uRipple.z * 140.0;
+    float band = exp(-pow((length(p - uRipple.xy) - rr) / 7.0, 2.0));
+    col += ramp * band * (1.0 - uRipple.z) * 0.5;
+  }
+
   float a = body;
   vec3 premul = col * a;
   float sa = shadow * (1.0 - a);
@@ -127,7 +161,7 @@ function compile(gl: WebGL2RenderingContext, type: number, src: string) {
 
 export class IslandRenderer {
   private gl: WebGL2RenderingContext;
-  private loc: Record<"res" | "dpr" | "box" | "rad" | "count" | "k", WebGLUniformLocation | null>;
+  private loc: Record<"res" | "dpr" | "box" | "rad" | "count" | "k" | "pointer" | "pull" | "ripple", WebGLUniformLocation | null>;
   private box = new Float32Array(MAX_SHAPES * 4);
   private rad = new Float32Array(MAX_SHAPES);
   private ks = new Float32Array(MAX_SHAPES);
@@ -161,6 +195,9 @@ export class IslandRenderer {
       rad: gl.getUniformLocation(prog, "uRad"),
       count: gl.getUniformLocation(prog, "uCount"),
       k: gl.getUniformLocation(prog, "uK"),
+      pointer: gl.getUniformLocation(prog, "uPointer"),
+      pull: gl.getUniformLocation(prog, "uPull"),
+      ripple: gl.getUniformLocation(prog, "uRipple"),
     };
   }
 
@@ -174,7 +211,7 @@ export class IslandRenderer {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  render(shapes: Shape[]) {
+  render(shapes: Shape[], field: Field = { px: 0, py: 0, pull: 0, rx: 0, ry: 0, rp: 1 }) {
     const { gl, loc } = this;
     const n = Math.min(shapes.length, MAX_SHAPES);
     for (let i = 0; i < n; i++) {
@@ -189,6 +226,9 @@ export class IslandRenderer {
     gl.uniform1fv(loc.rad, this.rad);
     gl.uniform1i(loc.count, n);
     gl.uniform1fv(loc.k, this.ks);
+    gl.uniform2f(loc.pointer, field.px, field.py);
+    gl.uniform1f(loc.pull, Math.max(field.pull, 0));
+    gl.uniform3f(loc.ripple, field.rx, field.ry, Math.min(Math.max(field.rp, 0), 1));
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
