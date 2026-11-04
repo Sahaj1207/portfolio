@@ -312,10 +312,15 @@ export function Island() {
     [view, reduced, paint],
   );
 
-  // First measurement: snap into place without animating from the placeholder size.
-  useLayoutEffect(() => {
-    measure();
-    retarget(true);
+  // First measurement, a frame after hydration so its forced layout doesn't extend React's
+  // startup task; it snaps into place without animating from the placeholder size.
+  const measured = useRef(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      measure();
+      retarget(true);
+      measured.current = true;
+    });
     document.fonts?.ready.then(() => {
       measure();
       retarget(true);
@@ -325,11 +330,15 @@ export function Island() {
       retarget();
     };
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
   }, []); // mount only; later changes go through the effect below
 
   // Content of the case view changes with the route, so re-measure it.
   useLayoutEffect(() => {
+    if (!measured.current) return;
     measure();
     retarget();
   }, [view, caseTitle, measure, retarget]);
