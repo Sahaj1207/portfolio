@@ -44,6 +44,9 @@ uniform float uProgress;
 uniform float uTime;
 uniform float uScale;    // target height / source portrait height
 uniform float uDensity;  // sqrt(max / count): fewer particles draw larger, keeping coverage
+uniform sampler2D uPhoto;
+uniform float uRecolor;  // 0 brand colours → 1 the photo's real colour under each glyph
+uniform float uDust;     // 0 glyphs → 1 glyphs shrunk to dust as the real photo takes over
 
 out vec2 vUV;
 out vec3 vColor;
@@ -63,10 +66,11 @@ void main() {
   vec2 start = uIsland.xy + vec2((h1 * 2.0 - 1.0) * uIsland.z * 0.92, (h2 * 2.0 - 1.0) * uIsland.w * 0.7);
   vec2 target = uTarget.xy + aTarget * uTarget.zw;
 
-  // Staggered timeline: burst out between ~6% and ~48%, hold, collapse back from ~78%.
+  // Staggered timeline: burst out between ~4% and ~42%, resolve into the photo and back
+  // (driven from JS through uRecolor/uDust), collapse back into the island from ~86%.
   float delay = h3 * 0.22 + aTarget.y * 0.08;
-  float form = smoothstep(0.06 + delay, 0.30 + delay, uProgress);
-  float back = smoothstep(0.78 + h4 * 0.10, 0.97, uProgress);
+  float form = smoothstep(0.04 + delay * 0.8, 0.24 + delay * 0.8, uProgress);
+  float back = smoothstep(0.86 + h4 * 0.06, 0.98, uProgress);
   float a = form * (1.0 - back);
   float flight = sin(PI * a);   // 0 at both ends, 1 mid-flight
 
@@ -79,7 +83,7 @@ void main() {
   pos += vec2(sin(uTime * 1.3 + f), cos(uTime * 1.1 + f)) * 0.6 * smoothstep(0.9, 1.0, a);
 
   // Large, readable code in flight; small, tone-scaled glyphs in the portrait.
-  float settled = (2.6 + tone * 5.6) * uScale * uDensity;
+  float settled = (2.6 + tone * 5.6) * uScale * uDensity * mix(1.0, 0.22, uDust);
   float size = mix(mix(3.0, settled, a), 10.0 + 4.0 * h3, flight * 0.85);
 
   float angle = (h2 - 0.5) * 1.4 * flight;
@@ -92,8 +96,11 @@ void main() {
 
   vec3 violet = vec3(0.486, 0.361, 1.0), cyan = vec3(0.0, 0.831, 1.0);
   vec3 ramp = mix(violet, cyan, aTarget.y);
-  vColor = mix(min(ramp * (0.8 + 1.0 * tone), vec3(1.0)), vec3(0.92, 0.95, 1.0), flight * 0.35);
-  vAlpha = min(smoothstep(0.0, 0.06, a) * (0.7 + 0.3 * tone + 0.3 * flight), 1.0);
+  vec3 brand = mix(min(ramp * (0.8 + 1.0 * tone), vec3(1.0)), vec3(0.92, 0.95, 1.0), flight * 0.35);
+  // The photo's own colour at this glyph, slightly lifted so dark suits stay visible as code.
+  vec3 real = texture(uPhoto, aTarget).rgb * 1.15 + 0.04;
+  vColor = mix(brand, min(real, vec3(1.0)), uRecolor * smoothstep(0.9, 1.0, a));
+  vAlpha = min(smoothstep(0.0, 0.06, a) * (0.7 + 0.3 * tone + 0.3 * flight), 1.0) * (1.0 - 0.9 * uDust);
 }
 `;
 
@@ -113,6 +120,51 @@ void main() {
 }
 `;
 
+/** The real photo, drawn as one quad over the portrait's box while the code resolves into it. */
+const PHOTO_VERT = /* glsl */ `#version 300 es
+layout(location = 0) in vec2 aCorner;
+uniform vec2 uView;
+uniform vec4 uTarget;
+out vec2 vUV;
+void main() {
+  vUV = aCorner + 0.5;
+  vec2 p = uTarget.xy + vUV * uTarget.zw;
+  gl_Position = vec4(p.x / uView.x * 2.0 - 1.0, 1.0 - p.y / uView.y * 2.0, 0.0, 1.0);
+}
+`;
+
+const PHOTO_FRAG = /* glsl */ `#version 300 es
+precision mediump float;
+uniform sampler2D uPhoto;
+uniform float uAlpha;
+in vec2 vUV;
+out vec4 outColor;
+void main() {
+  vec4 c = texture(uPhoto, vUV);
+  float a = c.a * uAlpha;
+  outColor = vec4(c.rgb * a, a);
+}
+`;
+
+const smoothstep = (a: number, b: number, x: number) => {
+  const t = Math.min(Math.max((x - a) / (b - a), 0), 1);
+  return t * t * (3 - 2 * t);
+};
+
+/**
+ * Photo reveal timeline, as fractions of scroll progress through the chapter:
+ * glyphs take the photo's colours, shrink to dust as the real photo sharpens in,
+ * hold, then break back into code before collapsing into the island.
+ */
+export function revealAt(p: number) {
+  const out = 1 - smoothstep(0.76, 0.82, p);
+  return {
+    recolor: smoothstep(0.52, 0.6, p) * (1 - smoothstep(0.8, 0.85, p)),
+    dust: smoothstep(0.6, 0.66, p) * out,
+    photo: smoothstep(0.62, 0.68, p) * out,
+  };
+}
+
 function shader(gl: WebGL2RenderingContext, type: number, src: string) {
   const s = gl.createShader(type)!;
   gl.shaderSource(s, src);
@@ -122,14 +174,17 @@ function shader(gl: WebGL2RenderingContext, type: number, src: string) {
 }
 
 export async function loadParticleData(base = "/particles") {
-  const [manifest, targets, atlas] = await Promise.all([
+  const [manifest, targets, atlas, photo] = await Promise.all([
     fetch(`${base}/tokens.json`).then((r) => r.json() as Promise<Manifest>),
     fetch(`${base}/targets.bin`).then((r) => r.arrayBuffer()),
     fetch(`${base}/atlas.png`)
       .then((r) => r.blob())
       .then((b) => createImageBitmap(b)),
+    fetch(`${base}/photo.webp`)
+      .then((r) => r.blob())
+      .then((b) => createImageBitmap(b, { premultiplyAlpha: "none" })),
   ]);
-  return { manifest, targets, atlas };
+  return { manifest, targets, atlas, photo };
 }
 
 export type ParticleData = Awaited<ReturnType<typeof loadParticleData>>;
@@ -137,6 +192,11 @@ export type ParticleData = Awaited<ReturnType<typeof loadParticleData>>;
 export class ParticleRenderer {
   private gl: WebGL2RenderingContext;
   private u: Record<string, WebGLUniformLocation | null> = {};
+  private pu: Record<string, WebGLUniformLocation | null> = {};
+  private prog: WebGLProgram;
+  private photoProg: WebGLProgram;
+  private vao: WebGLVertexArrayObject | null;
+  private photoVao: WebGLVertexArrayObject | null;
   private dpr = 1;
   private view = { w: 1, h: 1 };
   readonly max: number;
@@ -151,19 +211,28 @@ export class ParticleRenderer {
     if (!gl) throw new Error("WebGL2 unavailable");
     this.gl = gl;
 
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, shader(gl, gl.VERTEX_SHADER, VERT));
-    gl.attachShader(prog, shader(gl, gl.FRAGMENT_SHADER, FRAG));
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) ?? "link error");
+    const link = (vs: string, fs: string) => {
+      const p = gl.createProgram()!;
+      gl.attachShader(p, shader(gl, gl.VERTEX_SHADER, vs));
+      gl.attachShader(p, shader(gl, gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) ?? "link error");
+      return p;
+    };
+    const prog = link(VERT, FRAG);
+    this.prog = prog;
+    this.photoProg = link(PHOTO_VERT, PHOTO_FRAG);
+    for (const n of ["uView", "uTarget", "uPhoto", "uAlpha"]) this.pu[n] = gl.getUniformLocation(this.photoProg, n);
     gl.useProgram(prog);
-    for (const n of ["uView", "uIsland", "uTarget", "uProgress", "uTime", "uScale", "uDensity", "uAtlas"]) this.u[n] = gl.getUniformLocation(prog, n);
+    for (const n of ["uView", "uIsland", "uTarget", "uProgress", "uTime", "uScale", "uDensity", "uAtlas", "uPhoto", "uRecolor", "uDust"])
+      this.u[n] = gl.getUniformLocation(prog, n);
 
-    const { manifest, targets, atlas } = data;
+    const { manifest, targets, atlas, photo } = data;
     this.max = manifest.portrait.count;
     this.aspect = manifest.portrait.aspect;
 
     const vao = gl.createVertexArray();
+    this.vao = vao;
     gl.bindVertexArray(vao);
 
     // Quad corners.
@@ -219,6 +288,28 @@ export class ParticleRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.uniform1i(this.u.uAtlas, 0);
 
+    // The real photo (straight alpha): sampled per glyph for colour and drawn as the reveal.
+    const photoTex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, photoTex);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, photo);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.uniform1i(this.u.uPhoto, 1);
+
+    // Photo quad shares the corner buffer, without instancing.
+    this.photoVao = gl.createVertexArray();
+    gl.bindVertexArray(this.photoVao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.useProgram(this.photoProg);
+    gl.uniform1i(this.pu.uPhoto, 1);
+
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   }
@@ -243,6 +334,22 @@ export class ParticleRenderer {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     if (f.progress <= 0.0 || f.progress >= 1.0) return;
+    const reveal = revealAt(f.progress);
+
+    // The real photo first, so the last specks of code dissolve on top of it.
+    if (reveal.photo > 0.001) {
+      gl.useProgram(this.photoProg);
+      gl.bindVertexArray(this.photoVao);
+      gl.uniform2f(this.pu.uView, this.view.w, this.view.h);
+      gl.uniform4f(this.pu.uTarget, f.target.x, f.target.y, f.target.w, f.target.h);
+      gl.uniform1f(this.pu.uAlpha, reveal.photo);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    gl.useProgram(this.prog);
+    gl.bindVertexArray(this.vao);
+    gl.uniform1f(u.uRecolor, reveal.recolor);
+    gl.uniform1f(u.uDust, reveal.dust);
     gl.uniform2f(u.uView, this.view.w, this.view.h);
     gl.uniform4f(u.uIsland, f.island.cx, f.island.cy, f.island.hw, f.island.hh);
     gl.uniform4f(u.uTarget, f.target.x, f.target.y, f.target.w, f.target.h);

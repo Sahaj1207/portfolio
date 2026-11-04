@@ -33,6 +33,7 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
         <Link href="/#work" className="case-back">← All work</Link>
         <p className="eyebrow">{p.context ?? p.year}</p>
         <h1 className="display">{p.name}</h1>
+        {p.fullName && <p className="full-name">{p.fullName}</p>}
         <p className="lede" style={{ maxWidth: "30ch" }}>{p.tagline}</p>
         <ul className="chips" aria-label="Stack">
           {p.stack.map((s) => <li key={s}>{s}</li>)}

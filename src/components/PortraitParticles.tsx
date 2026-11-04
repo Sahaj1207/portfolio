@@ -69,7 +69,7 @@ export function PortraitParticles() {
       const island = document.querySelector<HTMLElement>("[data-island]")?.getBoundingClientRect();
       const progress = Math.min(Math.max(-s.top / (s.height - window.innerHeight), 0), 1);
 
-      root.style.setProperty("--dissolve", (smooth(0.05, 0.14, progress) * (1 - smooth(0.9, 0.98, progress))).toFixed(3));
+      root.style.setProperty("--dissolve", (smooth(0.05, 0.14, progress) * (1 - smooth(0.93, 0.99, progress))).toFixed(3));
 
       if (!isMotionPaused()) clock = now / 1000;
       renderer.render({

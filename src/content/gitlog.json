@@ -1,5 +1,10 @@
 [
   {
+    "hash": "5ffa11f",
+    "date": "2026-11-04",
+    "subject": "Command palette: the island expands into a search box"
+  },
+  {
     "hash": "13934e7",
     "date": "2026-11-04",
     "subject": "Hero: the island wraps the name and docks into the nav on scroll"
@@ -53,10 +58,5 @@
     "hash": "1df91f7",
     "date": "2026-11-04",
     "subject": "Phase 3: WebGL2 liquid island"
-  },
-  {
-    "hash": "c4fedf3",
-    "date": "2026-11-04",
-    "subject": "Phase 2: spring-driven CSS island"
   }
 ]

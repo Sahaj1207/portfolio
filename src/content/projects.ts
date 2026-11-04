@@ -10,6 +10,8 @@ export type Link = { label: string; href: string };
 export type Project = {
   slug: string;
   name: string;
+  /** Expansion of an acronym name, shown small under the title. */
+  fullName?: string;
   tagline: string;
   /** One line for cards on the home page. */
   summary: string;
@@ -196,8 +198,9 @@ export const projects: Project[] = [
   {
     slug: "harika",
     name: "HARIKA",
+    fullName: "Human-Aware Responsive Intelligent Kernel Anima",
     tagline: "An open-source AI layer for your desktop.",
-    summary: "Human-Aware Responsive Intelligent Kernel Anima — an assistant that remembers you, understands context, plans tasks and acts on your behalf.",
+    summary: "An assistant that remembers you, understands context, plans tasks and acts on your behalf.",
     year: "2026",
     context: "In active development",
     stack: ["Python", "FastAPI", "React", "TypeScript", "Zustand"],

@@ -541,6 +541,17 @@ html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: 
   line-height: 1.05;
 }
 
+/* Expansion of an acronym project name, e.g. HARIKA. */
+.full-name {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.case-hero .full-name { margin-top: -10px; font-size: 13px; }
+
 .work-card .tagline { color: var(--ink-soft); font-size: 18px; max-width: 34ch; margin-top: 10px; }
 .work-card .context { color: var(--ink-mute); font-size: 14px; margin-top: 12px; }
 
@@ -633,7 +644,7 @@ html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: 
   pointer-events: none;
 }
 
-html[data-view="live"] .portrait-scroll { height: 280vh; padding: 0; }
+html[data-view="live"] .portrait-scroll { height: 360vh; padding: 0; }
 html[data-view="live"] .portrait-sticky {
   position: sticky;
   top: 0;

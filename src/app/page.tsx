@@ -65,6 +65,7 @@ export default function Home() {
               <ProjectCard key={p.slug} slug={p.slug} className={`work-card ${cardSize[p.slug] ?? ""}`}>
                 <div>
                   <h3>{p.name}</h3>
+                  {p.fullName && <p className="full-name">{p.fullName}</p>}
                   <p className="tagline">{p.tagline}</p>
                   {p.context && <p className="context">{p.context}</p>}
                 </div>
@@ -158,7 +159,7 @@ export default function Home() {
                 the web on top — designed, engineered and shipped myself.
               </p>
               <p className="portrait-note">
-                This portrait is drawn from tens of thousands of tokens of the code that renders this page.{" "}
+                This portrait is drawn from tens of thousands of tokens of the code that renders this page — keep scrolling and the code becomes the photo.{" "}
                 <a href="#timeline">Skip animation</a>
               </p>
             </div>
