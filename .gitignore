@@ -9,3 +9,4 @@ next-env.d.ts
 __pycache__/
 tools/portrait/*.png
 .claude/
+tools/particles/preview.png
