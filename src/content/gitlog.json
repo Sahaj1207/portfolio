@@ -1,5 +1,10 @@
 [
   {
+    "hash": "e457748",
+    "date": "2026-11-04",
+    "subject": "Apple-style sound and haptics; a heartbeat when the code becomes you"
+  },
+  {
     "hash": "3771600",
     "date": "2026-11-04",
     "subject": "The sound of sahaj.os"
@@ -53,10 +58,5 @@
     "hash": "f2aa870",
     "date": "2026-11-04",
     "subject": "Point site URL at sahaj-alatage.vercel.app; ignore Vercel local files"
-  },
-  {
-    "hash": "663b230",
-    "date": "2026-11-04",
-    "subject": "Measure the island a frame after hydration"
   }
 ]

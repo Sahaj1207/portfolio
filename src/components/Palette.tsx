@@ -53,7 +53,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
     const sections: [string, string, string][] = [
       ["work", "Work", "projects selected"],
       ["float", "FLOAT chapter", "dynamic island windows"],
-      ["portrait", "Code portrait", "particles photo behind the island"],
+      ["portrait", "Code portrait", "particles photo who made this"],
       ["timeline", "Timeline", "history year"],
       ["about", "About & terminal", "shell bio"],
       ["contact", "Contact", "email reach hire"],

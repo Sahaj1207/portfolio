@@ -150,7 +150,7 @@ export default function Home() {
               <img src="/portrait.webp" alt="Sahaj Alatage in a dark suit, hand on chin" width={800} height={1000} loading="lazy" decoding="async" />
             </div>
             <div className="chapter-head" style={{ marginBottom: 0 }}>
-              <p className="eyebrow">the person behind it</p>
+              <p className="eyebrow">who made all this</p>
               <h2 id="portrait-title" className="headline">
                 One person. <em>Every layer.</em>
               </h2>

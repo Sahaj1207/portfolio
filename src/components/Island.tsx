@@ -709,7 +709,7 @@ export function Island() {
         <div className="island-content">
           <img className="i-avatar" src="/portrait.webp" alt="" width={30} height={30} />
           <span className="i-label">Sahaj Alatage</span>
-          <span className="i-meta">Behind the island</span>
+          <span className="i-meta">made this world</span>
         </div>,
       )}
 
