@@ -28,7 +28,7 @@ export default function Home() {
       <section className="hero" data-island-slot="hero" aria-labelledby="hero-title">
         <div className="wrap hero-grid">
           <div className="hero-copy">
-            <p className="eyebrow">{site.role}</p>
+            <p className="eyebrow">a software engineer</p>
             <h1 id="hero-title" className="display" data-island-hero>
               Sahaj <em>Alatage</em>
             </h1>
@@ -36,7 +36,7 @@ export default function Home() {
             <ContactLinks />
           </div>
           <div>
-            <p className="eyebrow" style={{ marginBottom: 14 }}>Selected work</p>
+            <p className="eyebrow" style={{ marginBottom: 14 }}>the ones I&rsquo;m proudest of</p>
             <ul className="flagships">
               {flagships.map((p) => (
                 <li key={p.slug}>
@@ -55,9 +55,9 @@ export default function Home() {
       <section id="work" className="chapter" data-island-slot="work" aria-labelledby="work-title">
         <div className="wrap">
           <div className="chapter-head">
-            <p className="eyebrow">Work</p>
+            <p className="eyebrow">the work</p>
             <h2 id="work-title" className="headline">
-              Things I&rsquo;ve <em>built</em>.
+              Things I&rsquo;ve <em>made</em>.
             </h2>
           </div>
           <div className="work-grid">
@@ -88,7 +88,7 @@ export default function Home() {
       <section id="float" className="chapter" data-island-slot="float" aria-labelledby="float-title">
         <div className="wrap">
           <div className="chapter-head">
-            <p className="eyebrow">FLOAT</p>
+            <p className="eyebrow">where the island began</p>
             <h2 id="float-title" className="headline">
               The island at the top of this page <em>started on Windows</em>.
             </h2>
@@ -150,9 +150,9 @@ export default function Home() {
               <img src="/portrait.webp" alt="Sahaj Alatage in a dark suit, hand on chin" width={800} height={1000} loading="lazy" decoding="async" />
             </div>
             <div className="chapter-head" style={{ marginBottom: 0 }}>
-              <p className="eyebrow">Behind the island</p>
+              <p className="eyebrow">the person behind it</p>
               <h2 id="portrait-title" className="headline">
-                Built by one person, <em>end to end</em>.
+                One person. <em>Every layer.</em>
               </h2>
               <p className="lede">
                 Rust and Tauri on the desktop, C++ under React Native on mobile, multi-agent pipelines in Python, and
@@ -172,8 +172,8 @@ export default function Home() {
       <section id="timeline" className="chapter" data-island-slot="timeline" aria-labelledby="timeline-title">
         <div className="wrap">
           <div className="chapter-head">
-            <p className="eyebrow">Timeline</p>
-            <h2 id="timeline-title" className="headline">A busy year.</h2>
+            <p className="eyebrow">the story so far</p>
+            <h2 id="timeline-title" className="headline">A <em>busy</em> year.</h2>
           </div>
           <ol className="timeline">
             {timeline.map((t) => (
@@ -194,7 +194,7 @@ export default function Home() {
       <section id="about" className="chapter" data-island-slot="terminal" aria-labelledby="about-title">
         <div className="wrap about-grid">
           <div className="about-copy">
-            <p className="eyebrow">About</p>
+            <p className="eyebrow">a little about me</p>
             <h2 id="about-title" className="headline" style={{ color: "var(--ink)" }}>
               Professional by default. <em>Developer at heart.</em>
             </h2>
@@ -215,7 +215,7 @@ export default function Home() {
       <section className="chapter" aria-labelledby="also-title">
         <div className="wrap">
           <div className="chapter-head">
-            <p className="eyebrow">Also built</p>
+            <p className="eyebrow">and a few more</p>
             <h2 id="also-title" className="headline" style={{ fontSize: "clamp(28px, 3.6vw, 44px)" }}>On the web.</h2>
           </div>
           <ul className="also">
@@ -236,7 +236,7 @@ export default function Home() {
       {/* 7 · Contact — the island closes back into a capsule */}
       <section id="contact" className="chapter" data-island-slot="contact" aria-labelledby="contact-title">
         <div className="wrap contact">
-          <p className="eyebrow">Contact</p>
+          <p className="eyebrow">say hello</p>
           <h2 id="contact-title" className="headline">
             Let&rsquo;s build something <em>that feels effortless</em>.
           </h2>

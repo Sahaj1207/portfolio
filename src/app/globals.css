@@ -83,27 +83,27 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   padding: 0 var(--gutter);
 }
 
+/* Quiet italic phrases instead of tracked capitals — spoken, not stamped. */
 .eyebrow {
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(18px, 1.6vw, 21px);
+  line-height: 1.2;
   color: var(--ink-mute);
 }
 
 .display {
   font-family: var(--serif);
-  font-size: clamp(44px, 8vw, 104px);
-  line-height: 0.98;
-  letter-spacing: -0.02em;
+  font-size: clamp(56px, 10vw, 136px);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
 }
 
 .headline {
   font-family: var(--serif);
-  font-size: clamp(34px, 5.2vw, 64px);
-  line-height: 1.04;
-  letter-spacing: -0.015em;
+  font-size: clamp(40px, 6.2vw, 80px);
+  line-height: 0.98;
+  letter-spacing: -0.005em;
 }
 
 .headline em, .display em { font-style: italic; color: var(--accent); }
@@ -271,11 +271,9 @@ html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: 
   scrollbar-width: thin;
 }
 .palette-group {
-  margin: 10px 10px 6px;
-  font: 600 11px/1 var(--sans);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #7a7a86;
+  margin: 12px 12px 6px;
+  font: italic 400 16px/1 var(--serif);
+  color: #8b8b99;
 }
 .palette-item {
   display: flex;
@@ -537,20 +535,19 @@ html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: 
 
 .work-card h3 {
   font-family: var(--serif);
-  font-size: clamp(30px, 3.4vw, 44px);
-  line-height: 1.05;
+  font-size: clamp(36px, 4.2vw, 56px);
+  line-height: 0.98;
 }
 
 /* Expansion of an acronym project name, e.g. HARIKA. */
 .full-name {
-  margin-top: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  margin-top: 4px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
   color: var(--ink-mute);
 }
-.case-hero .full-name { margin-top: -10px; font-size: 13px; }
+.case-hero .full-name { margin-top: -8px; font-size: clamp(18px, 2vw, 24px); }
 
 .work-card .tagline { color: var(--ink-soft); font-size: 18px; max-width: 34ch; margin-top: 10px; }
 .work-card .context { color: var(--ink-mute); font-size: 14px; margin-top: 12px; }
@@ -862,6 +859,19 @@ html[data-view="live"] .island:focus-within { opacity: 1; }
 .case-nav a span { color: var(--ink-mute); font-size: 14px; }
 .case-nav a strong { font-family: var(--serif); font-size: 26px; font-weight: 400; }
 .case-nav a:last-child { text-align: right; }
+
+/* ── By-eye offsets: arranged like a designer would, not a spreadsheet ── */
+
+@media (min-width: 901px) {
+  #work .chapter-head { padding-left: clamp(0px, 5vw, 72px); }
+  #float .chapter-head { margin-left: auto; max-width: 820px; }
+  #timeline .chapter-head { padding-left: clamp(0px, 12vw, 180px); }
+  /* Cards settle at slightly different heights. */
+  .work-card:nth-child(2) { margin-top: 28px; }
+  .work-card:nth-child(4) { margin-top: -20px; }
+  .work-card:nth-child(5) { margin-top: 14px; }
+  .state:nth-child(even) { margin-top: 22px; }
+}
 
 /* ── Responsive ─────────────────────────────────────────────── */
 
