@@ -159,7 +159,7 @@ export default function Home() {
                 the web on top — designed, engineered and shipped myself.
               </p>
               <p className="portrait-note">
-                This portrait is drawn from tens of thousands of tokens of the code that renders this page — keep scrolling and the code becomes the photo.{" "}
+                This portrait is drawn from tens of thousands of tokens of the code that renders this page — keep scrolling and the code turns into the photo.{" "}
                 <a href="#timeline">Skip animation</a>
               </p>
             </div>

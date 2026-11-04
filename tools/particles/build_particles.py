@@ -8,7 +8,7 @@ Outputs (deterministic, committed to the repo):
   public/particles/atlas.png     SDF glyph atlas, 2048x2048, 8-bit
   public/particles/tokens.json   manifest: token list, atlas UV rects, metrics
   public/particles/targets.bin   per particle: u16 x, u16 y, u16 token, u8 tone, u8 seed
-  public/particles/photo.webp    the carved-out portrait (RGBA) the code resolves into
+  public/particles/photo.webp    the photo the code resolves into (RGB) + the person's matte (A)
 
 Usage:  python tools/particles/build_particles.py [--preview]
 """
@@ -190,11 +190,13 @@ def main():
     u, v, tok, tone, seed, aspect = sample_targets(len(tokens))
     write_targets(OUT / "targets.bin", u, v, tok, tone, seed)
 
-    # The real photo the code resolves into: the carved-out person with a transparent
-    # background, the same framing as the targets so it lines up with the glyphs exactly.
+    # The real photo the code resolves into, background included, in the same framing as
+    # the targets so it lines up with the glyphs exactly. The alpha channel is not
+    # transparency: it carries the person's matte so the shader can reveal the person first
+    # and the background after. `exact` keeps the colour under low-alpha pixels.
     photo = Image.open(PORTRAIT).convert("RGB")
     photo.putalpha(Image.open(MATTE).convert("L"))
-    photo.save(OUT / "photo.webp", "WEBP", quality=86, method=6)
+    photo.save(OUT / "photo.webp", "WEBP", quality=86, method=6, exact=True)
 
     manifest = {
         "version": 1,

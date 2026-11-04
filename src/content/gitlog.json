@@ -1,5 +1,10 @@
 [
   {
+    "hash": "5636a5a",
+    "date": "2026-11-04",
+    "subject": "Code resolves into the real photo; HARIKA's full name"
+  },
+  {
     "hash": "5ffa11f",
     "date": "2026-11-04",
     "subject": "Command palette: the island expands into a search box"
@@ -53,10 +58,5 @@
     "hash": "aa49e8d",
     "date": "2026-11-04",
     "subject": "Phase 4: cursor physics for the liquid island"
-  },
-  {
-    "hash": "1df91f7",
-    "date": "2026-11-04",
-    "subject": "Phase 3: WebGL2 liquid island"
   }
 ]

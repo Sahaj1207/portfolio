@@ -44,9 +44,7 @@ uniform float uProgress;
 uniform float uTime;
 uniform float uScale;    // target height / source portrait height
 uniform float uDensity;  // sqrt(max / count): fewer particles draw larger, keeping coverage
-uniform sampler2D uPhoto;
-uniform float uRecolor;  // 0 brand colours → 1 the photo's real colour under each glyph
-uniform float uDust;     // 0 glyphs → 1 glyphs shrunk to dust as the real photo takes over
+uniform float uFade;     // 0 code → 1 the glyphs have faded into the real photo beneath them
 
 out vec2 vUV;
 out vec3 vColor;
@@ -67,7 +65,7 @@ void main() {
   vec2 target = uTarget.xy + aTarget * uTarget.zw;
 
   // Staggered timeline: burst out between ~4% and ~42%, resolve into the photo and back
-  // (driven from JS through uRecolor/uDust), collapse back into the island from ~86%.
+  // (driven from JS through uFade), collapse back into the island from ~86%.
   float delay = h3 * 0.22 + aTarget.y * 0.08;
   float form = smoothstep(0.04 + delay * 0.8, 0.24 + delay * 0.8, uProgress);
   float back = smoothstep(0.86 + h4 * 0.06, 0.98, uProgress);
@@ -83,7 +81,7 @@ void main() {
   pos += vec2(sin(uTime * 1.3 + f), cos(uTime * 1.1 + f)) * 0.6 * smoothstep(0.9, 1.0, a);
 
   // Large, readable code in flight; small, tone-scaled glyphs in the portrait.
-  float settled = (2.6 + tone * 5.6) * uScale * uDensity * mix(1.0, 0.22, uDust);
+  float settled = (2.6 + tone * 5.6) * uScale * uDensity;
   float size = mix(mix(3.0, settled, a), 10.0 + 4.0 * h3, flight * 0.85);
 
   float angle = (h2 - 0.5) * 1.4 * flight;
@@ -96,11 +94,9 @@ void main() {
 
   vec3 violet = vec3(0.486, 0.361, 1.0), cyan = vec3(0.0, 0.831, 1.0);
   vec3 ramp = mix(violet, cyan, aTarget.y);
-  vec3 brand = mix(min(ramp * (0.8 + 1.0 * tone), vec3(1.0)), vec3(0.92, 0.95, 1.0), flight * 0.35);
-  // The photo's own colour at this glyph, slightly lifted so dark suits stay visible as code.
-  vec3 real = texture(uPhoto, aTarget).rgb * 1.15 + 0.04;
-  vColor = mix(brand, min(real, vec3(1.0)), uRecolor * smoothstep(0.9, 1.0, a));
-  vAlpha = min(smoothstep(0.0, 0.06, a) * (0.7 + 0.3 * tone + 0.3 * flight), 1.0) * (1.0 - 0.9 * uDust);
+  vColor = mix(min(ramp * (0.8 + 1.0 * tone), vec3(1.0)), vec3(0.92, 0.95, 1.0), flight * 0.35);
+  // Glyphs never move or change while the photo comes in; they only fade in place.
+  vAlpha = min(smoothstep(0.0, 0.06, a) * (0.7 + 0.3 * tone + 0.3 * flight), 1.0) * (1.0 - uFade);
 }
 `;
 
@@ -135,13 +131,29 @@ void main() {
 
 const PHOTO_FRAG = /* glsl */ `#version 300 es
 precision mediump float;
-uniform sampler2D uPhoto;
-uniform float uAlpha;
+uniform sampler2D uPhoto;  // rgb: the photo with its background; a: the person's matte
+uniform float uReveal;     // 0 hidden → 1 the whole photo
+uniform vec2 uSize;        // quad size in px, for the rounded frame
 in vec2 vUV;
 out vec4 outColor;
+
+float roundedBox(vec2 p, vec2 b, float r) {
+  vec2 q = abs(p) - b + r;
+  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+}
+
 void main() {
   vec4 c = texture(uPhoto, vUV);
-  float a = c.a * uAlpha;
+  // The person comes through first, exactly under the glyphs…
+  float person = c.a * smoothstep(0.0, 0.45, uReveal);
+  // …then the background blooms outward from them to the frame's edges.
+  float d = length((vUV - vec2(0.48, 0.42)) * vec2(1.0, 1.15)) / 0.72;
+  float bg = smoothstep(0.35 + 0.45 * d, 0.5 + 0.45 * d, uReveal);
+  float a = max(person, bg);
+  // Rounded frame, like the portrait card in plain view.
+  vec2 p = (vUV - 0.5) * uSize;
+  float frame = 1.0 - smoothstep(-1.0, 1.0, roundedBox(p, uSize * 0.5, 26.0));
+  a *= frame;
   outColor = vec4(c.rgb * a, a);
 }
 `;
@@ -153,16 +165,17 @@ const smoothstep = (a: number, b: number, x: number) => {
 
 /**
  * Photo reveal timeline, as fractions of scroll progress through the chapter:
- * glyphs take the photo's colours, shrink to dust as the real photo sharpens in,
- * hold, then break back into code before collapsing into the island.
+ * the glyphs hold still and fade as the real photo comes through beneath them — the person
+ * first, then the background — then the photo holds and the reverse plays before the
+ * code collapses into the island.
  */
 export function revealAt(p: number) {
-  const out = 1 - smoothstep(0.76, 0.82, p);
-  return {
-    recolor: smoothstep(0.52, 0.6, p) * (1 - smoothstep(0.8, 0.85, p)),
-    dust: smoothstep(0.6, 0.66, p) * out,
-    photo: smoothstep(0.62, 0.68, p) * out,
-  };
+  // One value rises and falls; the photo shader reveals person then background on the way up,
+  // and hides background then person on the way down, so the reverse is an exact mirror.
+  const photo = smoothstep(0.54, 0.68, p) * (1 - smoothstep(0.76, 0.86, p));
+  // Glyphs fade as the person appears beneath them.
+  const fade = smoothstep(0.04, 0.42, photo);
+  return { photo, fade };
 }
 
 function shader(gl: WebGL2RenderingContext, type: number, src: string) {
@@ -222,9 +235,9 @@ export class ParticleRenderer {
     const prog = link(VERT, FRAG);
     this.prog = prog;
     this.photoProg = link(PHOTO_VERT, PHOTO_FRAG);
-    for (const n of ["uView", "uTarget", "uPhoto", "uAlpha"]) this.pu[n] = gl.getUniformLocation(this.photoProg, n);
+    for (const n of ["uView", "uTarget", "uPhoto", "uReveal", "uSize"]) this.pu[n] = gl.getUniformLocation(this.photoProg, n);
     gl.useProgram(prog);
-    for (const n of ["uView", "uIsland", "uTarget", "uProgress", "uTime", "uScale", "uDensity", "uAtlas", "uPhoto", "uRecolor", "uDust"])
+    for (const n of ["uView", "uIsland", "uTarget", "uProgress", "uTime", "uScale", "uDensity", "uAtlas", "uFade"])
       this.u[n] = gl.getUniformLocation(prog, n);
 
     const { manifest, targets, atlas, photo } = data;
@@ -288,7 +301,7 @@ export class ParticleRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.uniform1i(this.u.uAtlas, 0);
 
-    // The real photo (straight alpha): sampled per glyph for colour and drawn as the reveal.
+    // The real photo (rgb) and the person's matte (a), uploaded without premultiplying.
     const photoTex = gl.createTexture();
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, photoTex);
@@ -299,7 +312,6 @@ export class ParticleRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.uniform1i(this.u.uPhoto, 1);
 
     // Photo quad shares the corner buffer, without instancing.
     this.photoVao = gl.createVertexArray();
@@ -336,20 +348,20 @@ export class ParticleRenderer {
     if (f.progress <= 0.0 || f.progress >= 1.0) return;
     const reveal = revealAt(f.progress);
 
-    // The real photo first, so the last specks of code dissolve on top of it.
+    // The photo beneath, so the glyphs fade in place on top of it.
     if (reveal.photo > 0.001) {
       gl.useProgram(this.photoProg);
       gl.bindVertexArray(this.photoVao);
       gl.uniform2f(this.pu.uView, this.view.w, this.view.h);
       gl.uniform4f(this.pu.uTarget, f.target.x, f.target.y, f.target.w, f.target.h);
-      gl.uniform1f(this.pu.uAlpha, reveal.photo);
+      gl.uniform2f(this.pu.uSize, f.target.w, f.target.h);
+      gl.uniform1f(this.pu.uReveal, reveal.photo);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
     gl.useProgram(this.prog);
     gl.bindVertexArray(this.vao);
-    gl.uniform1f(u.uRecolor, reveal.recolor);
-    gl.uniform1f(u.uDust, reveal.dust);
+    gl.uniform1f(u.uFade, reveal.fade);
     gl.uniform2f(u.uView, this.view.w, this.view.h);
     gl.uniform4f(u.uIsland, f.island.cx, f.island.cy, f.island.hw, f.island.hh);
     gl.uniform4f(u.uTarget, f.target.x, f.target.y, f.target.w, f.target.h);
