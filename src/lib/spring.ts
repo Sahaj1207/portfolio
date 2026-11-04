@@ -13,6 +13,8 @@ export type SpringConfig = {
 
 export const islandSpring: SpringConfig = { stiffness: 380, damping: 0.72 };
 export const calmSpring: SpringConfig = { stiffness: 520, damping: 1 };
+/** Slower follower used for the liquid "ghost" that trails the island when it changes shape. */
+export const ghostSpring: SpringConfig = { stiffness: 150, damping: 0.86 };
 
 const MAX_DT = 1 / 30;
 const REST_DELTA = 0.05;

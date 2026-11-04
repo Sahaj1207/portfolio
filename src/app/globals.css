@@ -148,6 +148,33 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   user-select: none;
 }
 
+/* Live view: the shader draws the island's body; the DOM shell keeps only its content. */
+.island-canvas {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 49;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+html[data-view="live"] .island {
+  background: transparent;
+  box-shadow: none;
+}
+
+.view-toggle {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.view-toggle:hover { color: var(--ink); }
+
 /* Every state is a layer; only the active one is visible. Size comes from springs in JS. */
 .island-layer {
   position: absolute;

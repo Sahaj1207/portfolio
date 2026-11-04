@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Spring, SpringLoop, calmSpring, islandSpring } from "@/lib/spring";
+import { IslandRenderer, type Shape } from "@/lib/islandGL";
+import { Spring, SpringLoop, calmSpring, ghostSpring, islandSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
+import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
 
 /**
  * The island. Plain view renders it as a DOM capsule whose size is driven by springs;
@@ -36,10 +38,15 @@ const FLOAT_CYCLE: { view: View; ms: number }[] = [
 ];
 
 const INITIAL = { w: 236, h: 44 };
+const TOP = 14;
+/** Canvas around the island, CSS px. Wide enough for the widest state plus FLOAT's media bubble. */
+const CANVAS = { w: 760, h: 150 };
+const BUBBLE_R = 22;
 
 export function Island() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
+  const mode = useViewMode();
   const { slot, el: slotEl } = useActiveSlot(pathname);
 
   const [expanded, setExpanded] = useState(false);
@@ -53,8 +60,16 @@ export function Island() {
     w: new Spring(INITIAL.w, islandSpring),
     h: new Spring(INITIAL.h, islandSpring),
     s: new Spring(1, islandSpring),
+    // Live view only: a slower copy of the island that the shader melts into the real one,
+    // and FLOAT's split media bubble.
+    gw: new Spring(INITIAL.w, ghostSpring),
+    gh: new Spring(INITIAL.h, ghostSpring),
+    bubble: new Spring(0, islandSpring),
   });
   const loop = useRef<SpringLoop | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderer = useRef<IslandRenderer | null>(null);
+  const canvasWidth = useRef(CANVAS.w);
 
   // Which view the island should show right now.
   const slotView = SLOT_VIEW[slot] ?? "nav";
@@ -65,23 +80,88 @@ export function Island() {
   const paint = useCallback(() => {
     const el = shellRef.current;
     if (!el) return;
-    const { w, h, s } = springs.current;
+    const { w, h, s, gw, gh, bubble } = springs.current;
     el.style.width = `${w.value}px`;
     el.style.height = `${h.value}px`;
     el.style.borderRadius = `${Math.min(h.value / 2, 26)}px`;
     el.style.transform = `translateX(-50%) scale(${s.value})`;
+
+    const gl = renderer.current;
+    if (!gl) return;
+    const cx = canvasWidth.current / 2;
+    const radius = (hh: number) => Math.min(hh, 26);
+    const smooth = (x: number) => x * x * (3 - 2 * x);
+    const main: Shape = { cx, cy: TOP + h.value / 2, hw: (w.value / 2) * s.value, hh: (h.value / 2) * s.value, r: 0, k: 0 };
+    main.r = radius(main.hh);
+
+    // The ghost melts in only while it differs from the island, so a settled island never swells.
+    const diff = Math.abs(gw.value - w.value) + Math.abs(gh.value - h.value);
+    const ghost: Shape = {
+      cx,
+      cy: TOP + gh.value / 2,
+      hw: gw.value / 2,
+      hh: gh.value / 2,
+      r: radius(gh.value / 2),
+      k: 26 * smooth(Math.min(diff / 40, 1)),
+    };
+
+    // FLOAT's split media bubble buds out of the island's right edge and sits beside it.
+    const b = Math.min(Math.max(bubble.value, 0), 1.2);
+    const right = cx + main.hw;
+    const bubbleR = BUBBLE_R * Math.min(1, b * 1.2);
+    const bubbleShape: Shape =
+      b < 0.01
+        ? { cx, cy: main.cy, hw: 0, hh: 0, r: 0, k: 0 }
+        : { cx: right - BUBBLE_R + (BUBBLE_R + 30) * b, cy: TOP + BUBBLE_R, hw: bubbleR, hh: bubbleR, r: bubbleR, k: 18 * Math.min(b, 1) };
+
+    gl.render([main, ghost, bubbleShape]);
   }, []);
 
   useEffect(() => {
-    const { w, h, s } = springs.current;
-    loop.current = new SpringLoop([w, h, s], paint);
+    const sp = springs.current;
+    loop.current = new SpringLoop(Object.values(sp), paint);
     return () => loop.current?.stop();
   }, [paint]);
 
   useEffect(() => {
-    const config = reduced ? calmSpring : islandSpring;
-    Object.values(springs.current).forEach((sp) => (sp.config = config));
+    const sp = springs.current;
+    for (const s of [sp.w, sp.h, sp.s, sp.bubble]) s.config = reduced ? calmSpring : islandSpring;
+    for (const s of [sp.gw, sp.gh]) s.config = reduced ? calmSpring : ghostSpring;
   }, [reduced]);
+
+  // Live view: start the WebGL renderer; any failure drops back to the CSS island.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (mode !== "live" || !canvas) return;
+    let r: IslandRenderer;
+    try {
+      r = new IslandRenderer(canvas);
+    } catch {
+      fallBackToPlain();
+      return;
+    }
+    renderer.current = r;
+    const size = () => {
+      canvasWidth.current = Math.min(CANVAS.w, window.innerWidth);
+      canvas.style.width = `${canvasWidth.current}px`;
+      canvas.style.height = `${CANVAS.h}px`;
+      r.resize(canvasWidth.current, CANVAS.h);
+      paint();
+    };
+    const onLost = (e: Event) => {
+      e.preventDefault();
+      fallBackToPlain();
+    };
+    size();
+    window.addEventListener("resize", size);
+    canvas.addEventListener("webglcontextlost", onLost);
+    return () => {
+      window.removeEventListener("resize", size);
+      canvas.removeEventListener("webglcontextlost", onLost);
+      renderer.current = null;
+      r.dispose();
+    };
+  }, [mode, paint]);
 
   const measure = useCallback(() => {
     for (const v of VIEWS) {
@@ -95,12 +175,14 @@ export function Island() {
       const size = sizes.current[view];
       if (!size) return;
       const max = window.innerWidth - 24;
-      const { w, h } = springs.current;
-      w.target = Math.min(size.w, max);
-      h.target = size.h;
+      const { w, h, gw, gh, bubble } = springs.current;
+      w.target = gw.target = Math.min(size.w, max);
+      h.target = gh.target = size.h;
+      // Only show the bubble where there is room beside the banner.
+      const roomForBubble = window.innerWidth / 2 + w.target / 2 + 2 * BUBBLE_R + 40 < window.innerWidth;
+      bubble.target = view === "float-banner" && roomForBubble ? 1 : 0;
       if (snap || reduced) {
-        w.snap();
-        h.snap();
+        for (const s of [w, h, gw, gh, bubble]) s.snap();
         paint();
       } else {
         loop.current?.kick();
@@ -201,6 +283,8 @@ export function Island() {
   );
 
   return (
+    <>
+    {mode === "live" && <canvas ref={canvasRef} className="island-canvas" aria-hidden="true" />}
     <header
       ref={shellRef}
       className="island"
@@ -301,5 +385,6 @@ export function Island() {
         </div>,
       )}
     </header>
+    </>
   );
 }

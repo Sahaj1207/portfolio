@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Island } from "@/components/Island";
+import { ViewToggle } from "@/components/ViewToggle";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="wrap">
             <span>© {new Date().getFullYear()} {site.name}</span>
             <span>
-              Built from scratch · <a href={site.links.github}>Source on GitHub</a>
+              Built from scratch · <a href={site.links.github}>Source on GitHub</a> · <ViewToggle />
             </span>
           </div>
         </footer>
