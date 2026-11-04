@@ -1,5 +1,10 @@
 [
   {
+    "hash": "99d7aee",
+    "date": "2026-11-04",
+    "subject": "Cinematic type and a human voice"
+  },
+  {
     "hash": "69e88f1",
     "date": "2026-11-04",
     "subject": "Seamless reveal: glyphs fade in place over the full photo"
@@ -53,10 +58,5 @@
     "hash": "cdfe4d0",
     "date": "2026-11-04",
     "subject": "Phase 6: the code-token portrait"
-  },
-  {
-    "hash": "ff6e976",
-    "date": "2026-11-04",
-    "subject": "Phase 5: code-token particle data pipeline"
   }
 ]

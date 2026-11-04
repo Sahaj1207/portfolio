@@ -40,9 +40,12 @@ html {
   scroll-padding-top: 96px;
 }
 
+html { background: var(--bg); }
+
 body {
   margin: 0;
-  background: var(--bg);
+  /* Transparent so the atmosphere layer shows through behind everything. */
+  background: transparent;
   color: var(--ink);
   font-family: var(--sans);
   font-size: 17px;
@@ -859,6 +862,167 @@ html[data-view="live"] .island:focus-within { opacity: 1; }
 .case-nav a span { color: var(--ink-mute); font-size: 14px; }
 .case-nav a strong { font-family: var(--serif); font-size: 26px; font-weight: 400; }
 .case-nav a:last-child { text-align: right; }
+
+/* ── Atmosphere: the world behind every page ───────────────────
+   Slow-drifting auras of light, fine film grain, a soft vignette and a faint light that
+   follows the cursor. Compositor-only animations; frozen by reduced motion or Pause. */
+
+.atmos {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.atmos::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, #03060c99 100%);
+}
+.aura {
+  position: absolute;
+  width: 80vmax;
+  height: 80vmax;
+  border-radius: 50%;
+  will-change: transform;
+}
+.a1 {
+  top: -38vmax;
+  left: -28vmax;
+  background: radial-gradient(circle, #7c5cff2e 0, #7c5cff00 62%);
+  animation: drift-a 46s ease-in-out infinite alternate;
+}
+.a2 {
+  bottom: -42vmax;
+  right: -30vmax;
+  background: radial-gradient(circle, #00d4ff1f 0, #00d4ff00 60%);
+  animation: drift-b 58s ease-in-out infinite alternate;
+}
+.a3 {
+  top: 30%;
+  left: 35%;
+  width: 60vmax;
+  height: 60vmax;
+  background: radial-gradient(circle, #b24bff14 0, #b24bff00 60%);
+  animation: drift-c 72s ease-in-out infinite alternate;
+}
+@keyframes drift-a { to { transform: translate(18vmax, 14vmax) scale(1.15); } }
+@keyframes drift-b { to { transform: translate(-16vmax, -12vmax) scale(0.9); } }
+@keyframes drift-c { 50% { transform: translate(-14vmax, 8vmax) scale(1.2); } to { transform: translate(10vmax, -10vmax) scale(0.95); } }
+
+/* Moved by transform (composited), so following the cursor never repaints the page. */
+.cursor-light {
+  position: absolute;
+  top: -520px;
+  left: -520px;
+  width: 1040px;
+  height: 1040px;
+  background: radial-gradient(circle, #9cc3ff12, transparent 60%);
+  transform: translate(var(--mx, 50vw), var(--my, 30vh));
+  will-change: transform;
+}
+
+.grain {
+  position: absolute;
+  inset: -60%;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1.1s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ── Entrance: entering sahaj.os ────────────────────────────────
+   Before first paint an inline script decides whether to play it (home, first visit this
+   session, full motion). A seed of the island breathes in the dark, becomes a pill, then
+   the dark opens from it in a widening ring and the world is underneath. ~2 s, skippable. */
+
+@property --hole {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.enter-veil { display: none; }
+
+html[data-enter="on"] .enter-veil {
+  display: grid;
+  place-items: center;
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: radial-gradient(circle at 50% 50%, #0e0b24 0, #04050b 58%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole), #000 calc(var(--hole) + 1px));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole), #000 calc(var(--hole) + 1px));
+  animation: veil-open 0.95s cubic-bezier(0.76, 0, 0.18, 1) 1.1s forwards;
+}
+@keyframes veil-open { to { --hole: 120vmax; } }
+
+.enter-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 240vmax;
+  height: 240vmax;
+  margin: -120vmax 0 0 -120vmax;
+  border-radius: 50%;
+  border: 2px solid #9a86ff;
+  box-shadow: 0 0 40px 6px #7c5cff99, inset 0 0 40px 6px #00d4ff66;
+  transform: scale(0);
+  opacity: 0;
+}
+html[data-enter="on"] .enter-ring { animation: ring-open 0.95s cubic-bezier(0.76, 0, 0.18, 1) 1.1s forwards; }
+@keyframes ring-open {
+  0% { transform: scale(0); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.enter-core { display: grid; justify-items: center; gap: 22px; }
+
+.enter-seed {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #000;
+  box-shadow: 0 0 0 1px #ffffff26, 0 0 24px 4px #7c5cff66, 0 0 60px 10px #00d4ff22;
+}
+html[data-enter="on"] .enter-seed { animation: seed 1.15s cubic-bezier(0.32, 1.28, 0.54, 1) forwards; }
+@keyframes seed {
+  0% { width: 6px; height: 6px; opacity: 0; }
+  25% { width: 14px; height: 14px; opacity: 1; }
+  45% { width: 14px; height: 14px; }
+  75%, 100% { width: 132px; height: 38px; }
+}
+
+.enter-word {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font: 400 clamp(30px, 4vw, 44px) / 1 var(--serif);
+  color: var(--ink);
+  opacity: 0;
+}
+.enter-word em { color: var(--accent); }
+.enter-hint { font: italic 400 15px/1 var(--serif); color: var(--ink-mute); }
+html[data-enter="on"] .enter-word { animation: word 1.15s ease forwards; }
+@keyframes word {
+  0%, 25% { opacity: 0; transform: translateY(6px); filter: blur(6px); }
+  55%, 82% { opacity: 1; transform: none; filter: none; }
+  100% { opacity: 0; filter: blur(4px); }
+}
+
+/* Skip: everything fades out at once. */
+html[data-enter-skip="on"] .enter-veil { animation: veil-skip 0.35s ease forwards; }
+@keyframes veil-skip { to { opacity: 0; } }
 
 /* ── By-eye offsets: arranged like a designer would, not a spreadsheet ── */
 

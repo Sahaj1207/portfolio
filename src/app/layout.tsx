@@ -6,6 +6,7 @@ import { hasResume } from "@/components/ContactLinks";
 import { Island } from "@/components/Island";
 import { Palette } from "@/components/Palette";
 import { MotionToggle, ViewToggle } from "@/components/ViewToggle";
+import { Atmosphere, Entrance } from "@/components/World";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -27,8 +28,11 @@ export const viewport: Viewport = { themeColor: "#0c1626", colorScheme: "dark" }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-view="plain" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+    // The entrance script sets data attributes on <html> before hydration.
+    <html lang="en" data-view="plain" className={`${serif.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <body>
+        <Entrance />
+        <Atmosphere />
         <a className="skip-link" href="#main">Skip to content</a>
         <Island />
         <Palette hasResume={hasResume} />
