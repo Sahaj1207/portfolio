@@ -762,6 +762,98 @@ html[data-view="live"] .island:focus-within { opacity: 1; }
 .shell:focus-within { border-color: var(--line-strong); box-shadow: 0 0 0 3px #9cc3ff22; }
 @media (max-width: 560px) { .shell-input input { font-size: 16px; } .shell-body { height: 320px; } }
 
+/* tmux-style panes: ① profile, ② developer mode, ③ the shell you type into. */
+.terminal-lights { display: inline-flex; gap: 8px; }
+.terminal-bar > span:not(.terminal-lights) { margin-left: 8px; }
+.pane-tabs { display: none; margin-left: auto !important; gap: 4px; }
+.pane-tabs button {
+  appearance: none;
+  border: 0;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink-mute);
+  font: 500 12px/1 var(--mono);
+  cursor: pointer;
+}
+.pane-tabs button[aria-selected="true"] { background: #ffffff12; color: var(--ink); }
+
+.panes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1px; background: var(--line); }
+.pane { position: relative; min-width: 0; background: #05080e; cursor: text; }
+.pane[data-active="true"] { box-shadow: inset 0 0 0 1px #9cc3ff4d; }
+.pane-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #ffffff0d;
+  font: 400 11px/1 var(--mono);
+  color: var(--ink-mute);
+}
+.pane-index {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: #ffffff12;
+  font-size: 10px;
+  color: var(--ink-soft);
+}
+.pane-badge {
+  margin-left: auto;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #5cff8f1f;
+  color: #5cff8f;
+  font: 600 10px/1 var(--sans);
+  letter-spacing: 0.08em;
+}
+.pane-hint { margin-left: auto; font-style: italic; }
+.pane-body { padding: 14px 18px 16px; min-height: 232px; animation: pane-flash 0.6s ease; }
+@keyframes pane-flash { from { background: #9cc3ff12; } }
+.pane-caret { display: inline-block; width: 8px; height: 15px; vertical-align: -2px; background: #00d4ff; animation: blink 1s steps(1) infinite; }
+
+/* Developer pane: a green CRT, scanlines and all. */
+.pane-dev {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 2px, #00000059 2px 3px),
+    radial-gradient(120% 100% at 50% 0%, #0b2416 0%, #030a06 70%);
+}
+.pane-dev[data-active="true"] { box-shadow: inset 0 0 0 1px #5cff8f4d; }
+.pane-dev .pane-body { animation-name: pane-flash-dev; }
+@keyframes pane-flash-dev { from { background: #5cff8f14; } }
+.pane-dev .k { color: #5fae7c; }
+.pane-dev .v { color: #c8f5d6; text-shadow: 0 0 6px #5cff8f33; }
+.pane-dev .pane-caret { background: #5cff8f; }
+
+/* Lines type in once the terminal is in view, and again when a command replays a pane. */
+.type-in { opacity: 0; }
+.tmux[data-seen] .type-in { animation: type-in 0.35s ease forwards; }
+@keyframes type-in {
+  from { opacity: 0; transform: translateX(-4px); filter: blur(2px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) { .type-in { opacity: 1; } }
+
+.pane-shell { border-top: 1px solid var(--line); }
+.pane-shell .shell-body { height: 210px; }
+
+/* Phones: profile and developer become tabs above the shell. */
+@media (max-width: 720px) {
+  .pane-tabs { display: inline-flex; }
+  .panes { grid-template-columns: minmax(0, 1fr); }
+  .tmux[data-tab="pro"] .pane-dev,
+  .tmux[data-tab="dev"] .pane-pro { display: none; }
+  .pane-body { min-height: 0; }
+  .pane-shell .shell-body { height: 220px; }
+  .tmux { font-size: 12.5px; line-height: 1.8; }
+  .tmux .pane-body, .tmux .shell-body { padding: 12px 14px 14px; }
+  .tmux .terminal-bar { padding: 10px 12px; }
+  .tmux .terminal-bar > span:not(.terminal-lights):not(.pane-tabs) { display: none; }
+  .tmux .pane-body { font-size: 12px; }
+}
+
 .about-grid {
   display: grid;
   gap: clamp(32px, 5vw, 72px);
@@ -1240,3 +1332,7 @@ html[data-motion="paused"] *,
 html[data-motion="paused"] *::before,
 html[data-motion="paused"] *::after { animation-play-state: paused !important; }
 .view-toggle[aria-pressed="true"] { color: var(--accent); }
+
+/* The split terminal needs the full width: About text on top, panes below. */
+.about-grid:has(.tmux) { grid-template-columns: minmax(0, 1fr); }
+.about-grid:has(.tmux) .about-copy { max-width: 760px; }

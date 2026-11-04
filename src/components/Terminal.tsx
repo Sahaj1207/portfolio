@@ -53,6 +53,8 @@ const COMMANDS = [
   "date",
   "history",
   "clear",
+  "cat profile.txt",
+  "sudo mode --developer",
 ];
 
 const a = (href: string, label: string) => (
@@ -61,7 +63,16 @@ const a = (href: string, label: string) => (
   </a>
 );
 
-/** The developer side of the profile — shown at boot and by `sudo mode --developer`. */
+/** The professional side — pane ①. */
+const profileLines = () => [
+  <><span className="k">name     </span> <span className="v">{site.name}</span></>,
+  <><span className="k">role     </span> <span className="v">Full-stack &amp; AI engineer</span></>,
+  <><span className="k">ships    </span> <span className="v">desktop · mobile · web · AI</span></>,
+  <><span className="k">stack    </span> <span className="v">TypeScript · Python · Rust</span></>,
+  <><span className="k">status   </span> <span className="g">● open to work</span></>,
+];
+
+/** The developer side — pane ②; also printed by `sudo mode --developer`. */
 const developerMode = () => [
   <><span className="k">sleep          </span> <span className="r">command not found</span></>,
   <><span className="k">coffee         </span> <span className="g">■■■■■■■■</span><span className="k">■■</span> <span className="v">80%</span></>,
@@ -70,6 +81,56 @@ const developerMode = () => [
   <><span className="k">ideas.queue    </span> <span className="y">overflow ⚠</span></>,
   <><span className="k">git push -f    </span> <span className="v">never on main</span></>,
 ];
+
+/**
+ * One tmux-style pane. Its lines type in one after another; changing `run` replays them.
+ */
+function Pane({
+  index,
+  title,
+  badge,
+  tone,
+  command,
+  lines,
+  run,
+  active,
+  onFocus,
+}: {
+  index: number;
+  title: string;
+  badge?: string;
+  tone: "pro" | "dev";
+  command: string;
+  lines: ReactNode[];
+  run: number;
+  active: boolean;
+  onFocus: () => void;
+}) {
+  return (
+    <section className={`pane pane-${tone}`} data-active={active} aria-label={title} onClick={onFocus}>
+      <header className="pane-head">
+        <span className="pane-index">{index}</span>
+        <span>{title}</span>
+        {badge && <span className="pane-badge">{badge}</span>}
+      </header>
+      <div className="pane-body" key={run}>
+        <div className="shell-line type-in" style={{ animationDelay: "0ms" }}>
+          {PROMPT}
+          <span className="v">{command}</span>
+        </div>
+        {lines.map((node, i) => (
+          <div key={i} className="shell-line type-in" style={{ animationDelay: `${160 + i * 140}ms` }}>
+            {node}
+          </div>
+        ))}
+        <div className="shell-line type-in" style={{ animationDelay: `${200 + lines.length * 140}ms` }}>
+          {PROMPT}
+          <span className="pane-caret" aria-hidden="true" />
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export function Terminal({ hasResume }: { hasResume: boolean }) {
   const router = useRouter();
@@ -80,6 +141,30 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
   const nextId = useRef(0);
   const scroller = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLInputElement>(null);
+  // Replay counters for panes ① and ②, the focused pane, and the phone tab.
+  const [runs, setRuns] = useState({ pro: 0, dev: 0 });
+  const [focus, setFocus] = useState<"pro" | "dev" | "shell">("shell");
+  const [tab, setTab] = useState<"pro" | "dev">("pro");
+  // The panes type themselves in the first time the terminal scrolls into view.
+  const root = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        setSeen(true);
+        io.disconnect();
+      }
+    }, { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  const replay = (pane: "pro" | "dev") => {
+    setRuns((r) => ({ ...r, [pane]: r[pane] + 1 }));
+    setTab(pane);
+    setFocus(pane);
+  };
 
   const print = (...nodes: ReactNode[]) =>
     setLines((ls) => [...ls, ...nodes.map((node) => ({ id: nextId.current++, node }))]);
@@ -89,15 +174,6 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
     if (booted.current) return;
     booted.current = true;
     print(
-      <>{PROMPT}<span className="v">cat profile.txt</span></>,
-      <><span className="k">name     </span> <span className="v">{site.name}</span></>,
-      <><span className="k">role     </span> <span className="v">Full-stack &amp; AI engineer</span></>,
-      <><span className="k">ships    </span> <span className="v">desktop · mobile · web · AI</span></>,
-      <><span className="k">status   </span> <span className="g">● open to work</span></>,
-      " ",
-      <>{PROMPT}<span className="v">sudo mode --developer</span></>,
-      ...developerMode(),
-      " ",
       <span className="k">Type <b className="v">help</b> to look around. Try <b className="v">island notify hello</b>.</span>,
     );
   }, []);
@@ -249,8 +325,17 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
           window.open(site.links.linkedin, "_blank", "noopener");
           return print(<span className="g">[sudo] permission granted. Opening LinkedIn…</span>);
         }
-        if (args.join(" ") === "mode --developer") return print(...developerMode());
+        if (args.join(" ") === "mode --developer") {
+          replay("dev");
+          return print(<span className="g">→ refreshed pane ② developer mode</span>);
+        }
         return print(<span className="r">sahaj is not in the sudoers file. This incident will be reported.</span>);
+      case "cat":
+        if (!args[0] || args[0] === "profile.txt") {
+          replay("pro");
+          return print(<span className="g">→ refreshed pane ① profile.txt</span>);
+        }
+        return print(<span className="r">cat: {args[0]}: no such file. Try <b>cat profile.txt</b>.</span>);
       case "echo":
         return print(<span className="v">{args.join(" ")}</span>);
       case "date":
@@ -313,28 +398,52 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
   };
 
   return (
-    <div className="terminal shell" onClick={() => field.current?.focus({ preventScroll: true })}>
-      <div className="terminal-bar" aria-hidden="true"><i /><i /><i /><span>~/sahaj — zsh</span></div>
-      <div className="shell-body" ref={scroller} role="log" aria-live="polite" aria-label="Terminal output">
-        {lines.map((l) => (
-          <div key={l.id} className="shell-line">{l.node}</div>
-        ))}
-        <label className="shell-input">
-          <span className="shell-prompt">{PROMPT}</span>
-          <input
-            ref={field}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={onKey}
-            aria-label="Terminal command"
-            autoComplete="off"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-            enterKeyHint="send"
-          />
-        </label>
+    <div ref={root} className="terminal shell tmux" data-tab={tab} data-seen={seen || undefined}>
+      <div className="terminal-bar">
+        <span className="terminal-lights" aria-hidden="true"><i /><i /><i /></span>
+        <span aria-hidden="true">~/sahaj — tmux</span>
+        <span className="pane-tabs" role="tablist" aria-label="Panes">
+          <button type="button" role="tab" aria-selected={tab === "pro"} onClick={() => { setTab("pro"); setFocus("pro"); }}>profile</button>
+          <button type="button" role="tab" aria-selected={tab === "dev"} onClick={() => { setTab("dev"); setFocus("dev"); }}>developer</button>
+        </span>
       </div>
+      <div className="panes">
+        <Pane index={1} title="profile.txt" tone="pro" command="cat profile.txt" lines={profileLines()} run={runs.pro} active={focus === "pro"} onFocus={() => setFocus("pro")} />
+        <Pane index={2} title="developer mode" badge="DEV" tone="dev" command="sudo mode --developer" lines={developerMode()} run={runs.dev} active={focus === "dev"} onFocus={() => setFocus("dev")} />
+      </div>
+      <section
+        className="pane pane-shell"
+        data-active={focus === "shell"}
+        aria-label="Shell"
+        onClick={() => field.current?.focus({ preventScroll: true })}
+      >
+        <header className="pane-head">
+          <span className="pane-index">3</span>
+          <span>shell</span>
+          <span className="pane-hint">type here</span>
+        </header>
+        <div className="shell-body" ref={scroller} role="log" aria-live="polite" aria-label="Terminal output">
+          {lines.map((l) => (
+            <div key={l.id} className="shell-line">{l.node}</div>
+          ))}
+          <label className="shell-input">
+            <span className="shell-prompt">{PROMPT}</span>
+            <input
+              ref={field}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onKey}
+              onFocus={() => setFocus("shell")}
+              aria-label="Terminal command"
+              autoComplete="off"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="send"
+            />
+          </label>
+        </div>
+      </section>
     </div>
   );
 }
