@@ -28,7 +28,7 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
   const next = projects[(i + 1) % projects.length];
 
   return (
-    <article className="wrap" data-island-slot="case">
+    <article className="wrap" data-island-slot="case" data-island-title={p.name}>
       <header className="case-hero">
         <Link href="/#work" className="case-back">← All work</Link>
         <p className="eyebrow">{p.context ?? p.year}</p>

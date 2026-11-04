@@ -134,19 +134,88 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   left: 50%;
   z-index: 50;
   transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 44px;
-  padding: 0 6px 0 8px;
-  border-radius: 999px;
+  overflow: hidden;
+  border-radius: 22px;
   background: var(--island);
   color: var(--island-ink);
   box-shadow: 0 0 0 1px #ffffff14, 0 10px 30px #00000066;
   font-size: 14px;
   white-space: nowrap;
   max-width: calc(100vw - 24px);
+  cursor: default;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
+
+/* Every state is a layer; only the active one is visible. Size comes from springs in JS. */
+.island-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  filter: blur(6px);
+  transform: scale(0.92);
+  pointer-events: none;
+  transition: opacity 0.22s ease, filter 0.3s ease, transform 0.45s var(--spring);
+}
+.island-layer[data-on="true"] {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  pointer-events: auto;
+  transition-delay: 0.06s;
+}
+
+.island-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  height: 44px;
+  padding: 0 8px;
+}
+.island-layer:not(:first-child) .island-content { padding: 0 16px 0 8px; }
+
+.i-label { font-weight: 600; color: #f5f5f7; }
+.i-meta { color: #9a9aa6; font-size: 13px; }
+.i-stack { display: grid; line-height: 1.25; }
+
+.i-art {
+  width: 30px; height: 30px; border-radius: 8px; flex: none;
+  background: linear-gradient(135deg, #7c5cff, #00d4ff);
+}
+.i-eq { display: inline-flex; align-items: center; gap: 3px; height: 18px; margin-left: 6px; }
+.i-eq i {
+  width: 3px; height: 100%; border-radius: 2px; background: linear-gradient(#00d4ff, #7c5cff);
+  transform-origin: center; animation: eq 1s ease-in-out infinite;
+}
+.i-eq i:nth-child(2) { animation-delay: -0.2s; }
+.i-eq i:nth-child(3) { animation-delay: -0.45s; }
+.i-eq i:nth-child(4) { animation-delay: -0.7s; }
+.i-eq i:nth-child(5) { animation-delay: -0.9s; }
+@keyframes eq { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+
+.i-banner { height: 64px; padding: 0 18px 0 12px; }
+.i-banner .island-mark { width: 36px; height: 36px; }
+.i-orb { height: 44px; padding: 0 7px; }
+
+.i-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; object-position: 50% 20%; }
+
+.i-timeline { gap: 0; width: 260px; padding: 0 18px; position: relative; }
+.i-track { position: absolute; left: 18px; right: 18px; height: 3px; border-radius: 2px; background: #ffffff22; overflow: hidden; }
+.i-fill { position: absolute; inset: 0; background: linear-gradient(90deg, #7c5cff, #00d4ff); transform-origin: left; transform: scaleX(var(--p, 0)); }
+.i-beads { position: relative; display: flex; justify-content: space-between; width: 100%; }
+.i-beads i { width: 9px; height: 9px; border-radius: 50%; background: #2a2a34; box-shadow: 0 0 0 3px #000; }
+.i-beads i:nth-child(1) { background: #7c5cff; }
+
+.i-term { font-family: var(--mono); font-size: 13px; gap: 8px; padding: 0 16px; }
+.i-prompt { color: #9a86ff; }
+.i-type { display: inline-block; overflow: hidden; width: 6ch; color: #f5f5f7; animation: type 2.4s steps(6) infinite; }
+@keyframes type { 0% { width: 0; } 45%, 85% { width: 6ch; } 100% { width: 0; } }
+.i-caret { width: 7px; height: 15px; background: #00d4ff; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 
 .island-mark {
   display: grid;
