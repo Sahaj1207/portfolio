@@ -448,6 +448,45 @@ html[data-view="live"] .island {
 }
 .portrait-frame img { width: 100%; height: 100%; object-fit: cover; }
 
+/* Live view: the portrait chapter becomes a sticky stage that scroll scrubs through. */
+.portrait-note { display: none; font-size: 15px; color: var(--ink-mute); max-width: 42ch; }
+.portrait-note a { color: var(--accent); }
+
+.particles-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 40;
+  pointer-events: none;
+}
+
+html[data-view="live"] .portrait-scroll { height: 280vh; padding: 0; }
+html[data-view="live"] .portrait-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+}
+html[data-view="live"] .portrait-note { display: block; }
+/* Text stays readable above glyphs in flight. */
+html[data-view="live"] .portrait-sticky .chapter-head { position: relative; z-index: 41; }
+html[data-particles="on"] .portrait-frame { border-color: transparent; background: transparent; }
+html[data-particles="on"] .portrait-frame img { opacity: 0; }
+
+/* The island dissolves into the particles and re-forms when they return. */
+html[data-view="live"] .island,
+html[data-view="live"] .island-canvas { opacity: calc(1 - var(--dissolve, 0)); }
+html[data-view="live"] .island:focus-within { opacity: 1; }
+
+@media (max-width: 900px) {
+  html[data-view="live"] .portrait-sticky .portrait-grid { gap: 20px; }
+  html[data-view="live"] .portrait-frame { width: min(100%, 50vh * 0.8); margin: 0 auto; }
+  html[data-view="live"] .portrait-sticky .lede { display: none; }
+}
+
 /* ── Timeline ────────────────────────────────────────────────── */
 
 .timeline {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ContactLinks } from "@/components/ContactLinks";
+import { PortraitParticles } from "@/components/PortraitParticles";
 import { alsoBuilt, projects, timeline } from "@/content/projects";
 import { site } from "@/content/site";
 
@@ -138,27 +139,34 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4 · Portrait — in live mode the island becomes the portrait here */}
-      <section className="chapter" data-island-slot="portrait" aria-labelledby="portrait-title">
-        <div className="wrap portrait-grid">
-          <div className="portrait-frame">
-            <img src="/portrait.webp" alt="Sahaj Alatage in a dark suit, hand on chin" width={800} height={1000} loading="lazy" decoding="async" />
-          </div>
-          <div className="chapter-head" style={{ marginBottom: 0 }}>
-            <p className="eyebrow">Behind the island</p>
-            <h2 id="portrait-title" className="headline">
-              Built by one person, <em>end to end</em>.
-            </h2>
-            <p className="lede">
-              Rust and Tauri on the desktop, C++ under React Native on mobile, multi-agent pipelines in Python, and
-              the web on top — designed, engineered and shipped myself.
-            </p>
+      {/* 4 · Portrait — in live view the island dissolves into this site's own code and becomes the portrait */}
+      <section className="chapter portrait-scroll" data-island-slot="portrait" aria-labelledby="portrait-title">
+        <div className="portrait-sticky">
+          <div className="wrap portrait-grid">
+            <div className="portrait-frame" data-portrait-target>
+              <img src="/portrait.webp" alt="Sahaj Alatage in a dark suit, hand on chin" width={800} height={1000} loading="lazy" decoding="async" />
+            </div>
+            <div className="chapter-head" style={{ marginBottom: 0 }}>
+              <p className="eyebrow">Behind the island</p>
+              <h2 id="portrait-title" className="headline">
+                Built by one person, <em>end to end</em>.
+              </h2>
+              <p className="lede">
+                Rust and Tauri on the desktop, C++ under React Native on mobile, multi-agent pipelines in Python, and
+                the web on top — designed, engineered and shipped myself.
+              </p>
+              <p className="portrait-note">
+                This portrait is drawn from tens of thousands of tokens of the code that renders this page.{" "}
+                <a href="#timeline">Skip animation</a>
+              </p>
+            </div>
           </div>
         </div>
+        <PortraitParticles />
       </section>
 
       {/* 5 · Timeline */}
-      <section className="chapter" data-island-slot="timeline" aria-labelledby="timeline-title">
+      <section id="timeline" className="chapter" data-island-slot="timeline" aria-labelledby="timeline-title">
         <div className="wrap">
           <div className="chapter-head">
             <p className="eyebrow">Timeline</p>
