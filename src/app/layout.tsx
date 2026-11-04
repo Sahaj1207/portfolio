@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { hasResume } from "@/components/ContactLinks";
 import { Island } from "@/components/Island";
+import { Palette } from "@/components/Palette";
 import { MotionToggle, ViewToggle } from "@/components/ViewToggle";
 import { site } from "@/content/site";
 import "./globals.css";
@@ -28,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <a className="skip-link" href="#main">Skip to content</a>
         <Island />
+        <Palette hasResume={hasResume} />
         <main id="main">{children}</main>
         <footer className="footer">
           <div className="wrap">

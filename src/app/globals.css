@@ -177,6 +177,142 @@ html[data-view="live"][data-island-gl="on"] .island {
 }
 .view-toggle:hover { color: var(--ink); }
 
+.island-search {
+  appearance: none;
+  border: 0;
+  padding: 0 4px 0 2px;
+  background: none;
+  cursor: pointer;
+}
+.island-search kbd {
+  display: inline-grid;
+  place-items: center;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 13px;
+  background: #ffffff14;
+  color: #c9c9d2;
+  font: 600 11px/1 var(--sans);
+  letter-spacing: 0.04em;
+}
+.island-search:hover kbd { background: #ffffff26; color: #fff; }
+
+/* ── Command palette: the island expanded into a search box ─── */
+
+html[data-palette="on"] .island,
+html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: none; }
+
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: #05080f99;
+  backdrop-filter: blur(6px);
+  animation: fade-in 0.2s ease;
+}
+@keyframes fade-in { from { opacity: 0; } }
+
+.palette {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  width: min(580px, calc(100vw - 24px));
+  transform: translateX(-50%);
+  border-radius: 28px;
+  background: #000;
+  color: #f5f5f7;
+  box-shadow: 0 0 0 1px #ffffff1a, 0 30px 80px #000000b3;
+  overflow: hidden;
+  /* Grows out of the island's pill. */
+  animation: island-open 0.5s var(--spring);
+}
+@keyframes island-open {
+  from { clip-path: inset(0 calc(50% - 120px) calc(100% - 44px) calc(50% - 120px) round 22px); }
+  to { clip-path: inset(0 0 0 0 round 28px); }
+}
+
+.palette-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+  padding: 0 16px 0 14px;
+  border-bottom: 1px solid #ffffff14;
+}
+.palette-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: inherit;
+  font: 500 17px/1 var(--sans);
+  caret-color: #00d4ff;
+}
+.palette-search input::placeholder { color: #7a7a86; }
+.palette kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #ffffff14;
+  color: #b4b4c0;
+  font: 600 11px/1 var(--sans);
+}
+
+.palette-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  max-height: min(56vh, 440px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.palette-group {
+  margin: 10px 10px 6px;
+  font: 600 11px/1 var(--sans);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7a7a86;
+}
+.palette-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.palette-item[aria-selected="true"] {
+  background: linear-gradient(90deg, #7c5cff33, #00d4ff22);
+  box-shadow: inset 0 0 0 1px #7c5cff55;
+}
+.palette-hint {
+  color: #8b8b99;
+  font-size: 13px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.palette-empty { padding: 18px 12px; color: #8b8b99; font-size: 15px; }
+.palette-foot {
+  margin: 0;
+  padding: 10px 16px 12px;
+  border-top: 1px solid #ffffff14;
+  color: #7a7a86;
+  font-size: 12px;
+}
+@media (max-width: 560px) {
+  .palette-search input { font-size: 16px; }
+  .palette-hint { display: none; }
+  .palette-foot { display: none; }
+}
+
 /* Every state is a layer; only the active one is visible. Size comes from springs in JS. */
 .island-layer {
   position: absolute;

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { IslandRenderer, type Shape } from "@/lib/islandGL";
 import { Spring, SpringLoop, calmSpring, ghostSpring, heroSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
+import { openPalette } from "@/components/Palette";
 import { type Activity, useActivity } from "@/lib/islandBus";
 import { useMotionPaused } from "@/lib/motion";
 import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
@@ -645,6 +646,9 @@ export function Island() {
             <Link href="/#about">About</Link>
             <Link href="/#contact">Contact</Link>
           </nav>
+          <button type="button" className="island-search" onClick={openPalette} aria-label="Open command palette (Ctrl or Command + K)">
+            <kbd>⌘K</kbd>
+          </button>
         </div>,
         false,
       )}

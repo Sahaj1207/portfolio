@@ -84,7 +84,7 @@ export default function Home() {
       </section>
 
       {/* 3 · FLOAT — the island's own origin story */}
-      <section className="chapter" data-island-slot="float" aria-labelledby="float-title">
+      <section id="float" className="chapter" data-island-slot="float" aria-labelledby="float-title">
         <div className="wrap">
           <div className="chapter-head">
             <p className="eyebrow">FLOAT</p>
@@ -142,7 +142,7 @@ export default function Home() {
       </section>
 
       {/* 4 · Portrait — in live view the island dissolves into this site's own code and becomes the portrait */}
-      <section className="chapter portrait-scroll" data-island-slot="portrait" aria-labelledby="portrait-title">
+      <section id="portrait" className="chapter portrait-scroll" data-island-slot="portrait" aria-labelledby="portrait-title">
         <div className="portrait-sticky">
           <div className="wrap portrait-grid">
             <div className="portrait-frame" data-portrait-target>
