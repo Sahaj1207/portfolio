@@ -16,12 +16,12 @@ const listeners = new Set<() => void>();
 let mode: ViewMode = "plain";
 let started = false;
 
+/**
+ * Cheap feature test: creating a throwaway context costs real main-thread time at startup.
+ * If a context can't actually be created later, the renderer falls back to plain view.
+ */
 function supportsWebGL2() {
-  try {
-    return !!document.createElement("canvas").getContext("webgl2");
-  } catch {
-    return false;
-  }
+  return typeof window !== "undefined" && "WebGL2RenderingContext" in window;
 }
 
 function autoMode(): ViewMode {

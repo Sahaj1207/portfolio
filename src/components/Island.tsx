@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { IslandRenderer, type Shape } from "@/lib/islandGL";
 import { Spring, SpringLoop, calmSpring, ghostSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
+import { useMotionPaused } from "@/lib/motion";
 import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
 
 /**
@@ -47,6 +48,7 @@ export function Island() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const mode = useViewMode();
+  const paused = useMotionPaused();
   const { slot, el: slotEl } = useActiveSlot(pathname);
 
   const [expanded, setExpanded] = useState(false);
@@ -235,19 +237,16 @@ export function Island() {
     loop.current?.kick();
   };
 
-  // Live view: start the WebGL renderer; any failure drops back to the CSS island.
+  // Live view: start the WebGL renderer once the browser is idle after load, so shader
+  // compilation stays off the critical path. Until then the CSS island is shown; any
+  // failure drops back to it for good.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (mode !== "live" || !canvas) return;
-    let r: IslandRenderer;
-    try {
-      r = new IslandRenderer(canvas);
-    } catch {
-      fallBackToPlain();
-      return;
-    }
-    renderer.current = r;
+    const root = document.documentElement;
+    let r: IslandRenderer | null = null;
     const size = () => {
+      if (!r) return;
       canvasWidth.current = Math.min(CANVAS.w, window.innerWidth);
       canvas.style.width = `${canvasWidth.current}px`;
       canvas.style.height = `${CANVAS.h}px`;
@@ -258,14 +257,30 @@ export function Island() {
       e.preventDefault();
       fallBackToPlain();
     };
-    size();
+    const init = () => {
+      try {
+        r = new IslandRenderer(canvas);
+      } catch {
+        fallBackToPlain();
+        return;
+      }
+      renderer.current = r;
+      size();
+      root.dataset.islandGl = "on";
+    };
+    const idle = window.requestIdleCallback
+      ? window.requestIdleCallback(init, { timeout: 1500 })
+      : window.setTimeout(init, 600);
     window.addEventListener("resize", size);
     canvas.addEventListener("webglcontextlost", onLost);
     return () => {
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
       window.removeEventListener("resize", size);
       canvas.removeEventListener("webglcontextlost", onLost);
+      delete root.dataset.islandGl;
       renderer.current = null;
-      r.dispose();
+      r?.dispose();
     };
   }, [mode, paint]);
 
@@ -321,13 +336,13 @@ export function Island() {
 
   // FLOAT chapter: cycle through FLOAT's states while the section is on screen.
   useEffect(() => {
-    if (slotView !== "float-media" || reduced) {
+    if (slotView !== "float-media" || reduced || paused) {
       setFloatStep(0);
       return;
     }
     const t = setTimeout(() => setFloatStep((i) => (i + 1) % FLOAT_CYCLE.length), FLOAT_CYCLE[floatStep].ms);
     return () => clearTimeout(t);
-  }, [slotView, floatStep, reduced]);
+  }, [slotView, floatStep, reduced, paused]);
 
   // Timeline chapter: the bar fills with scroll progress through the section.
   useEffect(() => {

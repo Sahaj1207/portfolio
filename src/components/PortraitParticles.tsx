@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { isMotionPaused } from "@/lib/motion";
 import type { ParticleRenderer } from "@/lib/particlesGL";
 import { useReducedMotion } from "@/lib/useActiveSlot";
 import { useViewMode } from "@/lib/viewMode";
@@ -47,6 +48,7 @@ export function PortraitParticles() {
     let count = initialCount();
     const frameTimes: number[] = [];
     let last = 0;
+    let clock = 0;
 
     const size = () => renderer?.resize(window.innerWidth, window.innerHeight);
 
@@ -69,9 +71,10 @@ export function PortraitParticles() {
 
       root.style.setProperty("--dissolve", (smooth(0.05, 0.14, progress) * (1 - smooth(0.9, 0.98, progress))).toFixed(3));
 
+      if (!isMotionPaused()) clock = now / 1000;
       renderer.render({
         progress,
-        time: now / 1000,
+        time: clock,
         island: island
           ? { cx: island.left + island.width / 2, cy: island.top + island.height / 2, hw: island.width / 2, hh: island.height / 2 }
           : { cx: window.innerWidth / 2, cy: 36, hw: 110, hh: 22 },

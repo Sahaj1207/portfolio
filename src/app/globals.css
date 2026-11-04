@@ -159,7 +159,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   transform: translateX(-50%);
   pointer-events: none;
 }
-html[data-view="live"] .island {
+html[data-view="live"][data-island-gl="on"] .island {
   background: transparent;
   box-shadow: none;
 }
@@ -673,3 +673,9 @@ html[data-view="live"] .island:focus-within { opacity: 1; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
   html { scroll-behavior: auto; }
 }
+
+/* "Pause motion" control: freeze everything that animates on its own. */
+html[data-motion="paused"] *,
+html[data-motion="paused"] *::before,
+html[data-motion="paused"] *::after { animation-play-state: paused !important; }
+.view-toggle[aria-pressed="true"] { color: var(--accent); }
