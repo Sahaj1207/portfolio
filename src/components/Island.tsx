@@ -9,6 +9,7 @@ import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
 import { openPalette } from "@/components/Palette";
 import { type Activity, useActivity } from "@/lib/islandBus";
 import { useMotionPaused } from "@/lib/motion";
+import { play } from "@/lib/sound";
 import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
 
 /**
@@ -591,6 +592,16 @@ export function Island() {
 
   // Close the nav after navigating.
   useEffect(() => setExpanded(false), [pathname]);
+
+  // A tiny click each time the island changes shape (when sound is on).
+  const firstView = useRef(true);
+  useEffect(() => {
+    if (firstView.current) {
+      firstView.current = false;
+      return;
+    }
+    play("tick");
+  }, [view]);
 
   const press = (down: boolean) => {
     if (reduced) return;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { play } from "@/lib/sound";
 
 /**
  * Lets anything on the page take over the island for a moment — project cards show
@@ -31,6 +32,7 @@ function emit() {
 export function showActivity(activity: Activity, owner: string, ms?: number) {
   clearTimeout(timer);
   current = { activity, owner };
+  if (activity.kind === "notify") play("chime");
   if (ms) timer = setTimeout(() => clearActivity(owner), ms);
   emit();
 }

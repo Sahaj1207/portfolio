@@ -1,5 +1,10 @@
 [
   {
+    "hash": "f5664a4",
+    "date": "2026-11-04",
+    "subject": "OS layer: menu bar and case studies as windows"
+  },
+  {
     "hash": "84ce489",
     "date": "2026-11-04",
     "subject": "The world: atmosphere and the entrance into sahaj.os"
@@ -53,10 +58,5 @@
     "hash": "31c1e49",
     "date": "2026-11-04",
     "subject": "Phase 7 (part 1): pause motion, 404, README, startup cost"
-  },
-  {
-    "hash": "01571ea",
-    "date": "2026-11-04",
-    "subject": "Regenerate portrait tokens to include the particle engine's own code"
   }
 ]

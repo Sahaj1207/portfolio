@@ -6,6 +6,7 @@ import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { showActivity } from "@/lib/islandBus";
 import { isMotionPaused, setMotionPaused } from "@/lib/motion";
+import { play, setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 
 /**
@@ -24,6 +25,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const mode = useViewMode();
+  const soundOn = useSoundOn();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -93,6 +95,16 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
         },
       },
       {
+        id: "sound",
+        group: "Actions",
+        label: soundOn ? "Turn sound off" : "Turn sound on",
+        keywords: "audio ambience music mute",
+        run: () => {
+          setSoundOn(!soundOn);
+          close();
+        },
+      },
+      {
         id: "copy",
         group: "Actions",
         label: "Copy link to this site",
@@ -115,7 +127,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
       },
     ];
     // Rebuilt when the route or view changes, so labels stay current.
-  }, [pathname, mode, hasResume]);
+  }, [pathname, mode, hasResume, soundOn]);
 
   const results = useMemo(() => {
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -146,6 +158,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
   useEffect(() => {
     const root = document.documentElement;
     if (open) {
+      play("whoosh");
       returnFocus.current = document.activeElement as HTMLElement | null;
       root.dataset.palette = "on";
       setQuery("");

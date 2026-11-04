@@ -6,6 +6,7 @@ import gitlog from "@/content/gitlog.json";
 import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { type Activity, clearActivity, showActivity } from "@/lib/islandBus";
+import { setSoundOn } from "@/lib/sound";
 import { setViewMode } from "@/lib/viewMode";
 
 /**
@@ -43,6 +44,7 @@ const COMMANDS = [
   "island",
   "portrait",
   "view",
+  "sound",
   "neofetch",
   "sudo hire-me",
   "echo",
@@ -135,6 +137,7 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
             ["island …", "control the Dynamic Island ↑"],
             ["portrait", "jump to the code portrait"],
             ["view plain|live", "switch the site's view"],
+            ["sound on|off", "the sound of sahaj.os"],
             ["clear", "clear the screen"],
           ].map(([c, d]) => (
             <><span className="v">{c.padEnd(16)}</span> <span className="k">{d}</span></>
@@ -202,6 +205,12 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
           return print(<span className="g">switched to {args[0]} view</span>);
         }
         return print(<span className="k">usage: view plain | live</span>);
+      case "sound":
+        if (args[0] === "on" || args[0] === "off") {
+          setSoundOn(args[0] === "on");
+          return print(<span className="g">sound {args[0]}{args[0] === "on" ? " — welcome to sahaj.os" : ""}</span>);
+        }
+        return print(<span className="k">usage: sound on | off</span>);
       case "neofetch":
         return print(
           <span className="p">   ▄▄▄▄▄▄▄     </span>,

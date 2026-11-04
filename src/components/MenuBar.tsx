@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import gitlog from "@/content/gitlog.json";
 import { openPalette } from "@/components/Palette";
+import { SoundToggle } from "@/components/ViewToggle";
 
 /**
  * The OS menu bar, either side of the island: the sahaj.os menu (opens the command palette)
@@ -34,6 +35,7 @@ export function MenuBar() {
         sahaj<em>.os</em>
       </button>
       <div className="menubar-tray">
+        <SoundToggle className="menubar-sound" />
         <a href={`${REPO}/commit/${BUILD}`} target="_blank" rel="noreferrer" title="This build on GitHub">
           <span className="menubar-dot" aria-hidden="true" />
           build {BUILD}
