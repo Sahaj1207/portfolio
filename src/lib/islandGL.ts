@@ -201,9 +201,9 @@ export class IslandRenderer {
     };
   }
 
-  /** Sizes the drawing buffer; DPR is clamped to 2 to bound fill cost. */
-  resize(cssWidth: number, cssHeight: number) {
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+  /** Sizes the drawing buffer; DPR is clamped (default 2) to bound fill cost. */
+  resize(cssWidth: number, cssHeight: number, maxDpr = 2) {
+    this.dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
     this.width = cssWidth;
     this.height = cssHeight;
     this.canvas.width = Math.round(cssWidth * this.dpr);

@@ -15,6 +15,8 @@ export const islandSpring: SpringConfig = { stiffness: 380, damping: 0.72 };
 export const calmSpring: SpringConfig = { stiffness: 520, damping: 1 };
 /** Slower follower used for the liquid "ghost" that trails the island when it changes shape. */
 export const ghostSpring: SpringConfig = { stiffness: 150, damping: 0.86 };
+/** The hero slab travelling between the name and the docked pill: smooth, slight overshoot. */
+export const heroSpring: SpringConfig = { stiffness: 240, damping: 0.82 };
 /** Jelly for the cursor nub: soft, with visible wobble when it snaps back. */
 export const nubSpring: SpringConfig = { stiffness: 220, damping: 0.55 };
 /** Drives a ripple's progress from 0 to 1 without overshoot. */

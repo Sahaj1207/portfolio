@@ -29,7 +29,7 @@ export default function Home() {
         <div className="wrap hero-grid">
           <div className="hero-copy">
             <p className="eyebrow">{site.role}</p>
-            <h1 id="hero-title" className="display">
+            <h1 id="hero-title" className="display" data-island-hero>
               Sahaj <em>Alatage</em>
             </h1>
             <p className="lede">{site.positioning}</p>

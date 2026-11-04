@@ -512,8 +512,12 @@ html[data-view="live"] .portrait-sticky .chapter-head { position: relative; z-in
 html[data-particles="on"] .portrait-frame { border-color: transparent; background: transparent; }
 html[data-particles="on"] .portrait-frame img { opacity: 0; }
 
+/* Home hero: the nav content appears only once the slab has docked into the pill. */
+/* The slab wraps the name itself, so the heading hugs its text. */
+[data-island-hero] { position: relative; z-index: 50; width: fit-content; max-width: 100%; }
+
 /* The island dissolves into the particles and re-forms when they return. */
-html[data-view="live"] .island,
+html[data-view="live"] .island { opacity: calc(var(--nav-reveal, 1) * (1 - var(--dissolve, 0))); }
 html[data-view="live"] .island-canvas { opacity: calc(1 - var(--dissolve, 0)); }
 html[data-view="live"] .island:focus-within { opacity: 1; }
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { IslandRenderer, type Shape } from "@/lib/islandGL";
-import { Spring, SpringLoop, calmSpring, ghostSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
+import { Spring, SpringLoop, calmSpring, ghostSpring, heroSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
 import { type Activity, useActivity } from "@/lib/islandBus";
 import { useMotionPaused } from "@/lib/motion";
@@ -112,12 +112,31 @@ export function Island() {
     nr: new Spring(0, nubSpring),
     pull: new Spring(0, nubSpring),
     ripple: new Spring(1, rippleSpring),
+    // Home hero (live view): the island as a slab around the name, docking into the nav
+    // pill as you scroll — centre and half size, plus a lagging ghost for the liquid trail.
+    hx: new Spring(0, heroSpring),
+    hy: new Spring(0, heroSpring),
+    hw: new Spring(0, heroSpring),
+    hh: new Spring(0, heroSpring),
+    gx: new Spring(0, ghostSpring),
+    gy: new Spring(0, ghostSpring),
+    gw2: new Spring(0, ghostSpring),
+    gh2: new Spring(0, ghostSpring),
   });
   const pointer = useRef({ x: -999, y: -999, rx: 0, ry: 0, dragging: false });
   const loop = useRef<SpringLoop | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderer = useRef<IslandRenderer | null>(null);
   const canvasWidth = useRef(CANVAS.w);
+  const canvasHeight = useRef(CANVAS.h);
+  /** True while the canvas covers the viewport for the hero slab. */
+  const heroMode = useRef(false);
+  /** Scroll progress from slab (0) to docked pill (1). */
+  const heroT = useRef(1);
+  const resizeCanvas = useRef<(() => void) | null>(null);
+  const retargetHeroRef = useRef<(() => void) | null>(null);
+  const expandedRef = useRef(false);
+  const [glReady, setGlReady] = useState(false);
 
   // Which view the island should show right now.
   const activity = useActivity();
@@ -147,6 +166,23 @@ export function Island() {
     const cx = canvasWidth.current / 2;
     const radius = (hh: number) => Math.min(hh, 26);
     const smooth = (x: number) => x * x * (3 - 2 * x);
+
+    if (heroMode.current) {
+      const { hx, hy, hw, hh, gx, gy, gw2, gh2 } = springs.current;
+      const slab: Shape = { cx: hx.value, cy: hy.value, hw: hw.value, hh: hh.value, r: Math.min(hh.value, 30), k: 0 };
+      const lag = Math.abs(gx.value - hx.value) + Math.abs(gy.value - hy.value) + Math.abs(gw2.value - hw.value) + Math.abs(gh2.value - hh.value);
+      const trail: Shape = { cx: gx.value, cy: gy.value, hw: gw2.value, hh: gh2.value, r: Math.min(gh2.value, 30), k: 34 * smooth(Math.min(lag / 70, 1)) };
+      const none: Shape = { cx: slab.cx, cy: slab.cy, hw: 0, hh: 0, r: 0, k: 0 };
+      gl.render([slab, trail, none, none]);
+
+      // Hand back to the small canvas once the slab has settled onto the docked pill.
+      const settled = Math.abs(hy.value - (TOP + h.value / 2)) < 0.6 && Math.abs(hw.value - w.value / 2) < 0.6 && lag < 1;
+      if (heroT.current >= 1 && settled) {
+        heroMode.current = false;
+        resizeCanvas.current?.();
+      }
+      return;
+    }
     // Squash and stretch: widening fast makes the island a little flatter, like a liquid.
     const stretch = Math.max(-0.08, Math.min(0.08, w.velocity / 6000));
     const main: Shape = {
@@ -212,7 +248,7 @@ export function Island() {
       const reach = Math.min(dist, p.dragging ? 72 : 30) * Math.sqrt(near);
       const radius = (p.dragging ? 9 : 5) + 9 * near;
       nx.target = ex + (dx / dist) * reach;
-      ny.target = Math.min(ey + (dy / dist) * reach, CANVAS.h - radius - 6);
+      ny.target = Math.min(ey + (dy / dist) * reach, canvasHeight.current - radius - 6);
       nr.target = radius;
       pull.target = near;
     } else {
@@ -291,14 +327,18 @@ export function Island() {
     if (mode !== "live" || !canvas) return;
     const root = document.documentElement;
     let r: IslandRenderer | null = null;
+    // Small canvas around the docked island, or the whole viewport while the hero slab is out.
     const size = () => {
       if (!r) return;
-      canvasWidth.current = Math.min(CANVAS.w, window.innerWidth);
+      const hero = heroMode.current;
+      canvasWidth.current = hero ? window.innerWidth : Math.min(CANVAS.w, window.innerWidth);
+      canvasHeight.current = hero ? window.innerHeight : CANVAS.h;
       canvas.style.width = `${canvasWidth.current}px`;
-      canvas.style.height = `${CANVAS.h}px`;
-      r.resize(canvasWidth.current, CANVAS.h);
+      canvas.style.height = `${canvasHeight.current}px`;
+      r.resize(canvasWidth.current, canvasHeight.current, hero ? 1.5 : 2);
       paint();
     };
+    resizeCanvas.current = size;
     const onLost = (e: Event) => {
       e.preventDefault();
       fallBackToPlain();
@@ -313,6 +353,7 @@ export function Island() {
       renderer.current = r;
       size();
       root.dataset.islandGl = "on";
+      setGlReady(true);
     };
     const idle = window.requestIdleCallback
       ? window.requestIdleCallback(init, { timeout: 1500 })
@@ -326,9 +367,121 @@ export function Island() {
       canvas.removeEventListener("webglcontextlost", onLost);
       delete root.dataset.islandGl;
       renderer.current = null;
+      resizeCanvas.current = null;
+      heroMode.current = false;
+      setGlReady(false);
       r?.dispose();
     };
   }, [mode, paint]);
+
+  // Home hero: the island drops down and wraps the name, then docks into the nav pill as
+  // you scroll. Geometry comes from a cached page-space rect plus scrollY — no per-frame
+  // layout reads.
+  const heroOn = glReady && physics && pathname === "/";
+  useEffect(() => {
+    const slotEl = document.querySelector<HTMLElement>("[data-island-hero]");
+    const root = document.documentElement;
+    const shell = shellRef.current;
+    if (!heroOn || !slotEl || !shell) {
+      root.removeAttribute("data-hero");
+      if (slotEl) slotEl.style.opacity = "";
+      heroT.current = 1;
+      return;
+    }
+
+    let rect = { x: 0, y: 0, w: 0, h: 0 };
+    const measureSlot = () => {
+      const r = slotEl.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const padX = Math.min(34, vw * 0.05);
+      const padY = Math.min(18, vw * 0.035);
+      // Keep the slab on screen, with a small margin.
+      const left = Math.max(8, r.left - padX);
+      const right = Math.min(vw - 8, r.right + padX);
+      rect = { x: left, y: r.top + window.scrollY - padY, w: right - left, h: r.height + 2 * padY };
+    };
+    const smooth = (a: number, b: number, x: number) => {
+      const t = Math.min(Math.max((x - a) / (b - a), 0), 1);
+      return t * t * (3 - 2 * t);
+    };
+
+    const sp = springs.current;
+    const retargetHero = () => {
+      const t = expandedRef.current ? 1 : Math.min(Math.max(window.scrollY / (window.innerHeight * 0.55), 0), 1);
+      heroT.current = t;
+      const e = smooth(0, 1, t);
+      const navCy = TOP + sp.h.target / 2;
+      const mix = (a: number, b: number) => a + (b - a) * e;
+      const cx = mix(rect.x + rect.w / 2, window.innerWidth / 2);
+      const cy = mix(rect.y + rect.h / 2 - window.scrollY, navCy);
+      const hw = mix(rect.w / 2, sp.w.target / 2);
+      const hh = mix(rect.h / 2, sp.h.target / 2);
+      sp.hx.target = sp.gx.target = cx;
+      sp.hy.target = sp.gy.target = cy;
+      sp.hw.target = sp.gw2.target = hw;
+      sp.hh.target = sp.gh2.target = hh;
+
+      // The real nav fades in as the slab docks; the name fades as the slab leaves it.
+      root.style.setProperty("--nav-reveal", smooth(0.8, 1, t).toFixed(3));
+      shell.style.pointerEvents = t > 0.9 ? "" : "none";
+      slotEl.style.opacity = (1 - smooth(0.12, 0.45, t)).toFixed(3);
+
+      if (t < 1 && !heroMode.current) {
+        heroMode.current = true;
+        resizeCanvas.current?.();
+      }
+      loop.current?.kick();
+    };
+
+    measureSlot();
+    root.dataset.hero = "on";
+    // Intro: start the slab as the docked pill and let it drop onto the name.
+    sp.hx.snap(window.innerWidth / 2);
+    sp.hy.snap(TOP + sp.h.value / 2);
+    sp.hw.snap(sp.w.value / 2);
+    sp.hh.snap(sp.h.value / 2);
+    for (const [g, s] of [[sp.gx, sp.hx], [sp.gy, sp.hy], [sp.gw2, sp.hw], [sp.gh2, sp.hh]] as const) g.snap(s.value);
+    retargetHero();
+
+    let raf = 0;
+    const onScroll = () => {
+      if (!raf)
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          retargetHero();
+        });
+    };
+    const onResize = () => {
+      measureSlot();
+      if (heroMode.current) resizeCanvas.current?.();
+      retargetHero();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    document.fonts?.ready.then(onResize);
+    retargetHeroRef.current = retargetHero;
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      retargetHeroRef.current = null;
+      root.removeAttribute("data-hero");
+      root.style.removeProperty("--nav-reveal");
+      shell.style.pointerEvents = "";
+      slotEl.style.opacity = "";
+      heroT.current = 1;
+      if (heroMode.current) {
+        heroMode.current = false;
+        resizeCanvas.current?.();
+      }
+    };
+  }, [heroOn]);
+
+  // Opening the nav (focus, tap) docks the slab immediately so the nav is never orphaned.
+  useEffect(() => {
+    expandedRef.current = expanded;
+    retargetHeroRef.current?.();
+  }, [expanded]);
 
   const measure = useCallback(() => {
     for (const v of VIEWS) {
