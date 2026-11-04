@@ -6,7 +6,7 @@ export const site = {
   name: "Sahaj Alatage",
   role: "Software engineer",
   positioning: "I build AI-native apps, desktop tools and mobile software — and the interfaces that make them feel effortless.",
-  url: "https://sahaj-portfolio.vercel.app",
+  url: "https://sahaj-alatage.vercel.app",
   links: {
     github: "https://github.com/Sahaj1207",
     linkedin: "https://www.linkedin.com/in/sahaj-alatage-63715737b/",

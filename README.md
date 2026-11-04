@@ -1,5 +1,7 @@
 # Sahaj Alatage — portfolio
 
+**Live:** https://sahaj-alatage.vercel.app
+
 One black island. Everything grows out of it, and everything returns to it.
 
 The site is built around a GPU-rendered **Dynamic Island** — a sibling of [FLOAT](https://github.com/Sahaj1207/FLOAT), the Dynamic Island I built for Windows. It morphs into every chapter of the page, leans toward your cursor like liquid, and halfway down dissolves into tens of thousands of glyphs taken **from this repository's own source code**, which assemble into my portrait and collapse back.
