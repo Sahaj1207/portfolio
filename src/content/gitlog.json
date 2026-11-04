@@ -1,5 +1,10 @@
 [
   {
+    "hash": "8528488",
+    "date": "2026-11-04",
+    "subject": "Island and portrait heading: 'made this world' / 'who made all this'"
+  },
+  {
     "hash": "e457748",
     "date": "2026-11-04",
     "subject": "Apple-style sound and haptics; a heartbeat when the code becomes you"
@@ -53,10 +58,5 @@
     "hash": "82b8a23",
     "date": "2026-11-04",
     "subject": "Rewrite the About paragraph in plain terms"
-  },
-  {
-    "hash": "f2aa870",
-    "date": "2026-11-04",
-    "subject": "Point site URL at sahaj-alatage.vercel.app; ignore Vercel local files"
   }
 ]

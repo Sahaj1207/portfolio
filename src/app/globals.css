@@ -738,7 +738,7 @@ html[data-view="live"] .island:focus-within { opacity: 1; }
 /* Interactive terminal */
 .shell { cursor: text; }
 .shell-body {
-  height: 360px;
+  height: 486px;
   overflow-y: auto;
   padding: 18px 22px 20px;
   scrollbar-width: thin;

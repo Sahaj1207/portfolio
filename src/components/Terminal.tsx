@@ -61,6 +61,16 @@ const a = (href: string, label: string) => (
   </a>
 );
 
+/** The developer side of the profile — shown at boot and by `sudo mode --developer`. */
+const developerMode = () => [
+  <><span className="k">sleep          </span> <span className="r">command not found</span></>,
+  <><span className="k">coffee         </span> <span className="g">■■■■■■■■</span><span className="k">■■</span> <span className="v">80%</span></>,
+  <><span className="k">side_projects  </span> <span className="v">11 and counting</span></>,
+  <><span className="k">built_for_fun  </span> <span className="v">a Dynamic Island for Windows</span></>,
+  <><span className="k">ideas.queue    </span> <span className="y">overflow ⚠</span></>,
+  <><span className="k">git push -f    </span> <span className="v">never on main</span></>,
+];
+
 export function Terminal({ hasResume }: { hasResume: boolean }) {
   const router = useRouter();
   const [lines, setLines] = useState<Line[]>([]);
@@ -84,6 +94,10 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
       <><span className="k">role     </span> <span className="v">Full-stack &amp; AI engineer</span></>,
       <><span className="k">ships    </span> <span className="v">desktop · mobile · web · AI</span></>,
       <><span className="k">status   </span> <span className="g">● open to work</span></>,
+      " ",
+      <>{PROMPT}<span className="v">sudo mode --developer</span></>,
+      ...developerMode(),
+      " ",
       <span className="k">Type <b className="v">help</b> to look around. Try <b className="v">island notify hello</b>.</span>,
     );
   }, []);
@@ -235,14 +249,7 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
           window.open(site.links.linkedin, "_blank", "noopener");
           return print(<span className="g">[sudo] permission granted. Opening LinkedIn…</span>);
         }
-        if (args.join(" ") === "mode --developer") {
-          return print(
-            <><span className="k">sleep          </span> <span className="r">command not found</span></>,
-            <><span className="k">side_projects  </span> <span className="v">11 and counting</span></>,
-            <><span className="k">built_for_fun  </span> <span className="v">a Dynamic Island for Windows</span></>,
-            <><span className="k">git push -f    </span> <span className="v">never on main</span></>,
-          );
-        }
+        if (args.join(" ") === "mode --developer") return print(...developerMode());
         return print(<span className="r">sahaj is not in the sudoers file. This incident will be reported.</span>);
       case "echo":
         return print(<span className="v">{args.join(" ")}</span>);
