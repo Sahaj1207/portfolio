@@ -1,6 +1,7 @@
 "use client";
 
 import { setMotionPaused, useMotionPaused } from "@/lib/motion";
+import { setHapticsOn, useHapticsOn, useHapticsSupported } from "@/lib/haptics";
 import { setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 
@@ -29,5 +30,20 @@ export function SoundToggle({ className = "view-toggle" }: { className?: string 
     <button type="button" className={className} aria-pressed={on} onClick={() => setSoundOn(!on)}>
       {on ? "Sound on" : "Sound off"}
     </button>
+  );
+}
+
+/** Only shown on devices that can produce haptics (phones). */
+export function HapticsToggle() {
+  const supported = useHapticsSupported();
+  const on = useHapticsOn();
+  if (!supported) return null;
+  return (
+    <>
+      {" · "}
+      <button type="button" className="view-toggle" aria-pressed={on} onClick={() => setHapticsOn(!on)}>
+        {on ? "Haptics on" : "Haptics off"}
+      </button>
+    </>
   );
 }

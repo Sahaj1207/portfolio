@@ -6,6 +6,7 @@ import gitlog from "@/content/gitlog.json";
 import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { type Activity, clearActivity, showActivity } from "@/lib/islandBus";
+import { haptic, setHapticsOn } from "@/lib/haptics";
 import { setSoundOn } from "@/lib/sound";
 import { setViewMode } from "@/lib/viewMode";
 
@@ -45,6 +46,7 @@ const COMMANDS = [
   "portrait",
   "view",
   "sound",
+  "haptics",
   "neofetch",
   "sudo hire-me",
   "echo",
@@ -138,6 +140,7 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
             ["portrait", "jump to the code portrait"],
             ["view plain|live", "switch the site's view"],
             ["sound on|off", "the sound of sahaj.os"],
+            ["haptics on|off", "feel it, on phones"],
             ["clear", "clear the screen"],
           ].map(([c, d]) => (
             <><span className="v">{c.padEnd(16)}</span> <span className="k">{d}</span></>
@@ -211,6 +214,12 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
           return print(<span className="g">sound {args[0]}{args[0] === "on" ? " — welcome to sahaj.os" : ""}</span>);
         }
         return print(<span className="k">usage: sound on | off</span>);
+      case "haptics":
+        if (args[0] === "on" || args[0] === "off") {
+          setHapticsOn(args[0] === "on");
+          return print(<span className="g">haptics {args[0]}</span>);
+        }
+        return print(<span className="k">usage: haptics on | off (phones)</span>);
       case "neofetch":
         return print(
           <span className="p">   ▄▄▄▄▄▄▄     </span>,
@@ -276,6 +285,7 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
 
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      haptic("light");
       run(input);
       setInput("");
     } else if (e.key === "Tab") {

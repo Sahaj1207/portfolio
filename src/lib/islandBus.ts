@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { haptic } from "@/lib/haptics";
 import { play } from "@/lib/sound";
 
 /**
@@ -32,7 +33,10 @@ function emit() {
 export function showActivity(activity: Activity, owner: string, ms?: number) {
   clearTimeout(timer);
   current = { activity, owner };
-  if (activity.kind === "notify") play("chime");
+  if (activity.kind === "notify") {
+    play("chime");
+    haptic("success");
+  }
   if (ms) timer = setTimeout(() => clearActivity(owner), ms);
   emit();
 }

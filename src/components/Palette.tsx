@@ -6,6 +6,7 @@ import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { showActivity } from "@/lib/islandBus";
 import { isMotionPaused, setMotionPaused } from "@/lib/motion";
+import { haptic, setHapticsOn, useHapticsOn, useHapticsSupported } from "@/lib/haptics";
 import { play, setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 
@@ -26,6 +27,8 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
   const pathname = usePathname();
   const mode = useViewMode();
   const soundOn = useSoundOn();
+  const hapticsOn = useHapticsOn();
+  const hapticsSupported = useHapticsSupported();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -104,6 +107,20 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
           close();
         },
       },
+      ...(hapticsSupported
+        ? [
+            {
+              id: "haptics",
+              group: "Actions" as const,
+              label: hapticsOn ? "Turn haptics off" : "Turn haptics on",
+              keywords: "vibration feel touch",
+              run: () => {
+                setHapticsOn(!hapticsOn);
+                close();
+              },
+            },
+          ]
+        : []),
       {
         id: "copy",
         group: "Actions",
@@ -127,7 +144,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
       },
     ];
     // Rebuilt when the route or view changes, so labels stay current.
-  }, [pathname, mode, hasResume, soundOn]);
+  }, [pathname, mode, hasResume, soundOn, hapticsOn, hapticsSupported]);
 
   const results = useMemo(() => {
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -158,7 +175,8 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
   useEffect(() => {
     const root = document.documentElement;
     if (open) {
-      play("whoosh");
+      play("open");
+      haptic("firm");
       returnFocus.current = document.activeElement as HTMLElement | null;
       root.dataset.palette = "on";
       setQuery("");

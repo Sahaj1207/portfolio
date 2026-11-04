@@ -9,6 +9,7 @@ import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
 import { openPalette } from "@/components/Palette";
 import { type Activity, useActivity } from "@/lib/islandBus";
 import { useMotionPaused } from "@/lib/motion";
+import { haptic } from "@/lib/haptics";
 import { play } from "@/lib/sound";
 import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
 
@@ -287,6 +288,8 @@ export function Island() {
     const toCanvas = (e: PointerEvent) => [e.clientX - (window.innerWidth - canvasWidth.current) / 2, e.clientY] as const;
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== "mouse" && !pointer.current.dragging) return;
+      // Light ticks under the finger while the liquid stretches.
+      if (pointer.current.dragging) haptic("tick");
       aim(...toCanvas(e));
     };
     const onUp = () => {
@@ -317,7 +320,10 @@ export function Island() {
     ripple.value = 0;
     ripple.velocity = 0;
     ripple.target = 1;
-    if (e.pointerType !== "mouse") p.dragging = true;
+    if (e.pointerType !== "mouse") {
+      p.dragging = true;
+      haptic("light");
+    }
     loop.current?.kick();
   };
 
@@ -600,7 +606,7 @@ export function Island() {
       firstView.current = false;
       return;
     }
-    play("tick");
+    play("tock");
   }, [view]);
 
   const press = (down: boolean) => {

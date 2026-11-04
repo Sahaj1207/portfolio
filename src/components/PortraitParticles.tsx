@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { haptic } from "@/lib/haptics";
 import { isMotionPaused } from "@/lib/motion";
-import type { ParticleRenderer } from "@/lib/particlesGL";
+import { play } from "@/lib/sound";
+import { type ParticleRenderer, revealAt } from "@/lib/particlesGL";
 import { useReducedMotion } from "@/lib/useActiveSlot";
 import { useViewMode } from "@/lib/viewMode";
 
@@ -49,6 +51,8 @@ export function PortraitParticles() {
     const frameTimes: number[] = [];
     let last = 0;
     let clock = 0;
+    // The heartbeat plays once each time the photo starts to come through the code.
+    let beat = false;
 
     const size = () => renderer?.resize(window.innerWidth, window.innerHeight);
 
@@ -72,6 +76,14 @@ export function PortraitParticles() {
       root.style.setProperty("--dissolve", (smooth(0.05, 0.14, progress) * (1 - smooth(0.93, 0.99, progress))).toFixed(3));
 
       if (!isMotionPaused()) clock = now / 1000;
+      const showing = revealAt(progress).photo;
+      if (!beat && showing > 0.08) {
+        beat = true;
+        play("heartbeat");
+        haptic("heartbeat");
+      } else if (beat && showing < 0.02) {
+        beat = false;
+      }
       renderer.render({
         progress,
         time: clock,

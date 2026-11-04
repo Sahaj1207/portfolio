@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { showActivity } from "@/lib/islandBus";
+import { haptic } from "@/lib/haptics";
 import { play } from "@/lib/sound";
 
 /**
@@ -21,6 +22,7 @@ export function Window({ title, slug, children }: { title: string; slug: string;
     if (leaving) return;
     setLeaving(how);
     play("close");
+    haptic("light");
     if (how === "minimise") showActivity({ kind: "notify", title: "Minimised", body: `${title} — tap ⌘K to reopen` }, "window", 3200);
     setTimeout(() => router.back(), how === "minimise" ? 380 : 260);
   };
@@ -30,7 +32,8 @@ export function Window({ title, slug, children }: { title: string; slug: string;
     returnFocus.current = document.activeElement as HTMLElement | null;
     const root = document.documentElement;
     root.dataset.window = "on";
-    play("whoosh");
+    play("open");
+    haptic("firm");
     panel.current?.focus({ preventScroll: true });
     return () => {
       delete root.dataset.window;
