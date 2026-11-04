@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { hasResume } from "@/components/ContactLinks";
 import { Island } from "@/components/Island";
+import { MenuBar } from "@/components/MenuBar";
 import { Palette } from "@/components/Palette";
 import { MotionToggle, ViewToggle } from "@/components/ViewToggle";
 import { Atmosphere, Entrance } from "@/components/World";
@@ -26,7 +27,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#0c1626", colorScheme: "dark" };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/** `modal` is the parallel route that opens case studies as windows over the page. */
+export default function RootLayout({ children, modal }: { children: React.ReactNode; modal: React.ReactNode }) {
   return (
     // The entrance script sets data attributes on <html> before hydration.
     <html lang="en" data-view="plain" className={`${serif.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
@@ -34,9 +36,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Entrance />
         <Atmosphere />
         <a className="skip-link" href="#main">Skip to content</a>
+        <MenuBar />
         <Island />
         <Palette hasResume={hasResume} />
         <main id="main">{children}</main>
+        {modal}
         <footer className="footer">
           <div className="wrap">
             <span>© {new Date().getFullYear()} {site.name}</span>
