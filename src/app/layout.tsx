@@ -8,6 +8,8 @@ import { MenuBar } from "@/components/MenuBar";
 import { Palette } from "@/components/Palette";
 import { HapticsToggle, MotionToggle, SoundToggle, ViewToggle } from "@/components/ViewToggle";
 import { Atmosphere, Entrance } from "@/components/World";
+import { Desktop } from "@/components/Desktop";
+import { System } from "@/components/System";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -40,6 +42,8 @@ export default function RootLayout({ children, modal }: { children: React.ReactN
         <Island />
         <Palette hasResume={hasResume} />
         <main id="main">{children}</main>
+        <Desktop hasResume={hasResume} />
+        <System />
         {modal}
         <footer className="footer">
           <div className="wrap">

@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import gitlog from "@/content/gitlog.json";
-import { openPalette } from "@/components/Palette";
+import { openSystemMenu, toggleNotices } from "@/components/System";
 import { SoundToggle } from "@/components/ViewToggle";
+import { APPS, enterDesktop, exitDesktop, useDesktop } from "@/lib/desktop";
 
 /**
- * The OS menu bar, either side of the island: the sahaj.os menu (opens the command palette)
- * on the left; the live build and the visitor's clock on the right.
+ * The OS menu bar, either side of the island: the sahaj.os menu and the focused app on the
+ * left; the desktop switch, sound, the live build and the clock (notification centre) on the right.
  */
 
 const BUILD = gitlog[0]?.hash ?? "dev";
@@ -28,21 +29,45 @@ export function MenuBar() {
   const time = now?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "";
   const day = now?.toLocaleDateString([], { weekday: "short" }) ?? "";
 
+  const { on: desktop, focused } = useDesktop();
+
   return (
     <div className="menubar" role="navigation" aria-label="System">
-      <button type="button" className="menubar-os" onClick={openPalette} aria-label="sahaj.os menu — open command palette">
-        <span className="menubar-logo" aria-hidden="true" />
-        sahaj<em>.os</em>
-      </button>
+      <div className="menubar-left">
+        <button
+          type="button"
+          className="menubar-os"
+          aria-haspopup="menu"
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            openSystemMenu(r.left, r.bottom + 6);
+          }}
+        >
+          <span className="menubar-logo" aria-hidden="true" />
+          sahaj<em>.os</em>
+        </button>
+        {desktop && <strong className="menubar-app">{focused ? APPS[focused].name : "Finder"}</strong>}
+      </div>
       <div className="menubar-tray">
+        <button
+          type="button"
+          className="menubar-desk"
+          aria-pressed={desktop}
+          onClick={() => (desktop ? exitDesktop() : enterDesktop("finder"))}
+          title={desktop ? "Back to the page" : "Open the sahaj.os desktop"}
+        >
+          {desktop ? "page" : "desktop"}
+        </button>
         <SoundToggle className="menubar-sound" />
         <a href={`${REPO}/commit/${BUILD}`} target="_blank" rel="noreferrer" title="This build on GitHub">
           <span className="menubar-dot" aria-hidden="true" />
           build {BUILD}
         </a>
-        <time suppressHydrationWarning>
-          {day} {time}
-        </time>
+        <button type="button" className="menubar-clock" data-notices-toggle onClick={toggleNotices} aria-label="Notification centre">
+          <time suppressHydrationWarning>
+            {day} {time}
+          </time>
+        </button>
       </div>
     </div>
   );

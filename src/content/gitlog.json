@@ -1,5 +1,10 @@
 [
   {
+    "hash": "91ae10a",
+    "date": "2026-11-04",
+    "subject": "Split the terminal into tmux panes: profile, developer mode, shell"
+  },
+  {
     "hash": "6c9d61c",
     "date": "2026-11-04",
     "subject": "Terminal shows the developer side again at boot"
@@ -53,10 +58,5 @@
     "hash": "13934e7",
     "date": "2026-11-04",
     "subject": "Hero: the island wraps the name and docks into the nav on scroll"
-  },
-  {
-    "hash": "fadfd01",
-    "date": "2026-11-04",
-    "subject": "Interactive terminal and project activities on the island"
   }
 ]

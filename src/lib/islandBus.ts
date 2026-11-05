@@ -20,9 +20,13 @@ export type Activity =
   | { kind: "notify"; title: string; body: string };
 
 type Entry = { activity: Activity; owner: string };
+export type Notice = { id: number; title: string; body: string; at: number };
 
 const listeners = new Set<() => void>();
 let current: Entry | null = null;
+/** Every notification the island has shown, newest first, for the notification centre. */
+let notices: Notice[] = [];
+let noticeId = 0;
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 function emit() {
@@ -36,6 +40,7 @@ export function showActivity(activity: Activity, owner: string, ms?: number) {
   if (activity.kind === "notify") {
     play("chime");
     haptic("success");
+    notices = [{ id: noticeId++, title: activity.title, body: activity.body, at: Date.now() }, ...notices].slice(0, 30);
   }
   if (ms) timer = setTimeout(() => clearActivity(owner), ms);
   emit();
@@ -58,3 +63,20 @@ export function useActivity(): Activity | null {
     () => null,
   );
 }
+
+export function clearNotices() {
+  notices = [];
+  emit();
+}
+
+export function useNotices(): Notice[] {
+  return useSyncExternalStore(
+    (cb) => {
+      listeners.add(cb);
+      return () => listeners.delete(cb);
+    },
+    () => notices,
+    () => NO_NOTICES,
+  );
+}
+const NO_NOTICES: Notice[] = [];

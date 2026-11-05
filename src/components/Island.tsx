@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { IslandRenderer, type Shape } from "@/lib/islandGL";
 import { Spring, SpringLoop, calmSpring, ghostSpring, heroSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
+import { useDesktop } from "@/lib/desktop";
 import { openPalette } from "@/components/Palette";
 import { type Activity, useActivity } from "@/lib/islandBus";
 import { useMotionPaused } from "@/lib/motion";
@@ -90,7 +91,11 @@ export function Island() {
   const reduced = useReducedMotion();
   const mode = useViewMode();
   const paused = useMotionPaused();
-  const { slot, el: slotEl } = useActiveSlot(pathname);
+  const active = useActiveSlot(pathname);
+  // On the desktop the page is hidden, so the island rests in its nav pill.
+  const desktop = useDesktop().on;
+  const slot = desktop ? "desktop" : active.slot;
+  const slotEl = desktop ? null : active.el;
 
   const [expanded, setExpanded] = useState(false);
   const [floatStep, setFloatStep] = useState(0);
@@ -385,7 +390,7 @@ export function Island() {
   // Home hero: the island drops down and wraps the name, then docks into the nav pill as
   // you scroll. Geometry comes from a cached page-space rect plus scrollY — no per-frame
   // layout reads.
-  const heroOn = glReady && physics && pathname === "/";
+  const heroOn = glReady && physics && pathname === "/" && !desktop;
   useEffect(() => {
     const slotEl = document.querySelector<HTMLElement>("[data-island-hero]");
     const root = document.documentElement;

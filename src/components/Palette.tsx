@@ -9,6 +9,8 @@ import { isMotionPaused, setMotionPaused } from "@/lib/motion";
 import { haptic, setHapticsOn, useHapticsOn, useHapticsSupported } from "@/lib/haptics";
 import { play, setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
+import { enterDesktop, exitDesktop, openApp, setMission, useDesktop } from "@/lib/desktop";
+import { shutDown, toggleNotices } from "@/components/System";
 
 /**
  * Command palette: Ctrl/⌘ + K (or the search chip in the island) expands the island into a
@@ -29,6 +31,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
   const soundOn = useSoundOn();
   const hapticsOn = useHapticsOn();
   const hapticsSupported = useHapticsSupported();
+  const desktop = useDesktop().on;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -77,6 +80,28 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
       { id: "github", group: "Links", label: "GitHub", hint: "github.com/Sahaj1207", run: () => external(site.links.github) },
       { id: "linkedin", group: "Links", label: "LinkedIn", run: () => external(site.links.linkedin) },
       { id: "x", group: "Links", label: "X", hint: "@sahaj0712", keywords: "twitter", run: () => external(site.links.x) },
+      {
+        id: "desktop",
+        group: "Actions",
+        label: desktop ? "Back to the page" : "Open the desktop",
+        keywords: "os windows dock startx finder",
+        run: () => {
+          close();
+          if (desktop) exitDesktop();
+          else enterDesktop("finder");
+        },
+      },
+      ...(
+        [
+          ["terminal", "Open Terminal window", "shell tmux"],
+          ["finder", "Open Finder", "files projects"],
+          ["settings", "System Settings", "wallpaper preferences"],
+          ["about", "About sahaj.os", "version build"],
+        ] as const
+      ).map(([app, label, keywords]): Item => ({ id: `app-${app}`, group: "Actions", label, keywords, run: () => (close(), openApp(app)) })),
+      { id: "mission", group: "Actions", label: "Mission Control", hint: "F3", keywords: "windows overview expose", run: () => (close(), setMission(true)) },
+      { id: "notices", group: "Actions", label: "Notification centre", keywords: "history alerts", run: () => (close(), toggleNotices()) },
+      { id: "shutdown", group: "Actions", label: "Shut down…", keywords: "power off restart", run: () => (close(), shutDown()) },
       {
         id: "view",
         group: "Actions",
@@ -144,7 +169,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
       },
     ];
     // Rebuilt when the route or view changes, so labels stay current.
-  }, [pathname, mode, hasResume, soundOn, hapticsOn, hapticsSupported]);
+  }, [pathname, mode, hasResume, soundOn, hapticsOn, hapticsSupported, desktop]);
 
   const results = useMemo(() => {
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);

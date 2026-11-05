@@ -9,6 +9,7 @@ import { type Activity, clearActivity, showActivity } from "@/lib/islandBus";
 import { haptic, setHapticsOn } from "@/lib/haptics";
 import { setSoundOn } from "@/lib/sound";
 import { setViewMode } from "@/lib/viewMode";
+import { enterDesktop, exitDesktop, isDesktopOn } from "@/lib/desktop";
 
 /**
  * A small shell. It answers questions about Sahaj, opens projects, prints the site's real
@@ -55,6 +56,8 @@ const COMMANDS = [
   "clear",
   "cat profile.txt",
   "sudo mode --developer",
+  "startx",
+  "logout",
 ];
 
 const a = (href: string, label: string) => (
@@ -231,6 +234,7 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
             ["view plain|live", "switch the site's view"],
             ["sound on|off", "the sound of sahaj.os"],
             ["haptics on|off", "feel it, on phones"],
+            ["startx", "boot the desktop: windows, dock, the lot"],
             ["clear", "clear the screen"],
           ].map(([c, d]) => (
             <><span className="v">{c.padEnd(16)}</span> <span className="k">{d}</span></>
@@ -344,6 +348,14 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
         return print(...history.current.map((h, i) => <span className="k">{String(i + 1).padStart(3)}  {h}</span>));
       case "clear":
         return setLines([]);
+      case "startx":
+        if (isDesktopOn()) return print(<span className="k">already on the desktop. <b className="v">logout</b> to go back to the page.</span>);
+        enterDesktop("finder");
+        return print(<span className="g">starting sahaj.os desktop…</span>);
+      case "logout":
+        if (!isDesktopOn()) return print(<span className="k">not on the desktop. Try <b className="v">startx</b>.</span>);
+        exitDesktop();
+        return print(<span className="k">logged out. Back to the page.</span>);
       case "exit":
         return print(<span className="k">There is no exit. Only more projects.</span>);
       case "rm":
