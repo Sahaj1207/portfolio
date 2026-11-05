@@ -8,6 +8,7 @@ import { haptic } from "@/lib/haptics";
 import { setMotionPaused, useMotionPaused } from "@/lib/motion";
 import { play, setSoundOn, useSoundOn } from "@/lib/sound";
 import { cycleWallpaper, useWallpaper } from "@/lib/wallpaper";
+import { toggleTheme, useTheme } from "@/lib/theme";
 
 /**
  * The system layer of sahaj.os: the sahaj.os menu, the right-click menu, the notification
@@ -102,7 +103,7 @@ function NotificationCentre({ onClose }: { onClose: () => void }) {
   const sound = useSoundOn();
   const paused = useMotionPaused();
   const { on: desktop } = useDesktop();
-  const wallpaper = useWallpaper();
+  const theme = useTheme();
   const ref = useRef<HTMLElement>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -143,9 +144,9 @@ function NotificationCentre({ onClose }: { onClose: () => void }) {
           <strong>Desktop</strong>
           <span>{desktop ? "On" : "Off"}</span>
         </button>
-        <button type="button" onClick={() => cycleWallpaper()}>
-          <strong>Wallpaper</strong>
-          <span style={{ textTransform: "capitalize" }}>{wallpaper}</span>
+        <button type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
+          <strong>Appearance</strong>
+          <span>{theme === "light" ? "Light" : "Dark"}</span>
         </button>
       </div>
       <div className="notices-head">
@@ -220,6 +221,7 @@ export function System() {
   const close = useRef(() => setMenu(null)).current;
   const closeNotices = useRef(() => setNotices(false)).current;
   useWallpaper();
+  useTheme();
 
   useEffect(() => {
     const onSystem = (e: Event) => {

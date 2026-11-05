@@ -11,6 +11,7 @@ import { play, setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 import { enterDesktop, exitDesktop, openApp, setMission, useDesktop } from "@/lib/desktop";
 import { shutDown, toggleNotices } from "@/components/System";
+import { toggleTheme, useTheme } from "@/lib/theme";
 
 /**
  * Command palette: Ctrl/⌘ + K (or the search chip in the island) expands the island into a
@@ -32,6 +33,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
   const hapticsOn = useHapticsOn();
   const hapticsSupported = useHapticsSupported();
   const desktop = useDesktop().on;
+  const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -80,6 +82,13 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
       { id: "github", group: "Links", label: "GitHub", hint: "github.com/Sahaj1207", run: () => external(site.links.github) },
       { id: "linkedin", group: "Links", label: "LinkedIn", run: () => external(site.links.linkedin) },
       { id: "x", group: "Links", label: "X", hint: "@sahaj0712", keywords: "twitter", run: () => external(site.links.x) },
+      {
+        id: "theme",
+        group: "Actions",
+        label: theme === "light" ? "Switch to dark mode" : "Switch to light mode",
+        keywords: "appearance theme colour color night day",
+        run: () => (close(), toggleTheme()),
+      },
       {
         id: "desktop",
         group: "Actions",
@@ -169,7 +178,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
       },
     ];
     // Rebuilt when the route or view changes, so labels stay current.
-  }, [pathname, mode, hasResume, soundOn, hapticsOn, hapticsSupported, desktop]);
+  }, [pathname, mode, hasResume, soundOn, hapticsOn, hapticsSupported, desktop, theme]);
 
   const results = useMemo(() => {
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);

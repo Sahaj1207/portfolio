@@ -4,6 +4,16 @@ import { setMotionPaused, useMotionPaused } from "@/lib/motion";
 import { setHapticsOn, useHapticsOn, useHapticsSupported } from "@/lib/haptics";
 import { setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
+import { toggleTheme, useTheme } from "@/lib/theme";
+
+export function ThemeToggle({ className = "view-toggle" }: { className?: string }) {
+  const theme = useTheme();
+  return (
+    <button type="button" className={className} onClick={toggleTheme} aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"} data-theme-icon={theme}>
+      {theme === "light" ? "Dark mode" : "Light mode"}
+    </button>
+  );
+}
 
 export function ViewToggle() {
   const mode = useViewMode();

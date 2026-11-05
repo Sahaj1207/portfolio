@@ -10,6 +10,7 @@ import { setMotionPaused, useMotionPaused } from "@/lib/motion";
 import { setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 import { WALLPAPERS, setWallpaper, useWallpaper } from "@/lib/wallpaper";
+import { type ThemePref, setThemePref, useThemePref } from "@/lib/theme";
 
 /** The apps on the sahaj.os desktop. Everything they show comes from the same content as the page. */
 
@@ -184,8 +185,17 @@ export function Settings() {
   const hapticsOn = useHapticsOn();
   const hapticsSupported = useHapticsSupported();
   const wallpaper = useWallpaper();
+  const themePref = useThemePref();
   return (
     <div className="settings">
+      <h3>Appearance</h3>
+      <div className="segmented" role="radiogroup" aria-label="Appearance">
+        {(["auto", "light", "dark"] as ThemePref[]).map((t) => (
+          <button key={t} type="button" role="radio" aria-checked={themePref === t} onClick={() => setThemePref(t)}>
+            {t === "auto" ? "Auto" : t === "light" ? "Light" : "Dark"}
+          </button>
+        ))}
+      </div>
       <h3>Wallpaper</h3>
       <ul className="wallpapers">
         {WALLPAPERS.map((w) => (

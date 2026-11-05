@@ -9,6 +9,11 @@
  * session, full motion, not pinned to plain view, WebGL2 available. Any click, key, wheel or
  * touch skips it; it ends on its own after ~2 s.
  */
+/** Light or dark before first paint: the saved choice, else the device's setting. */
+const THEME = `(function(){try{var t=localStorage.getItem("sahaj:theme");
+if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
+document.documentElement.dataset.theme=t;}catch(e){}})();`;
+
 const ENTRANCE = `(function(){try{
 var d=document.documentElement;
 var ok=location.pathname==="/"&&!matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -34,6 +39,7 @@ addEventListener("pointermove",function(e){x=e.clientX;y=e.clientY;if(!raf)raf=r
 export function Entrance() {
   return (
     <>
+      <script dangerouslySetInnerHTML={{ __html: THEME }} />
       <script dangerouslySetInnerHTML={{ __html: ENTRANCE }} />
       <div className="enter-veil" aria-hidden="true">
         <div className="enter-ring" />

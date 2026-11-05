@@ -1,10 +1,12 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import gitlog from "@/content/gitlog.json";
 import { openSystemMenu, toggleNotices } from "@/components/System";
-import { SoundToggle } from "@/components/ViewToggle";
+import { SoundToggle, ThemeToggle } from "@/components/ViewToggle";
 import { APPS, enterDesktop, exitDesktop, useDesktop } from "@/lib/desktop";
+import { useActiveSlot } from "@/lib/useActiveSlot";
 
 /**
  * The OS menu bar, either side of the island: the sahaj.os menu and the focused app on the
@@ -30,9 +32,12 @@ export function MenuBar() {
   const day = now?.toLocaleDateString([], { weekday: "short" }) ?? "";
 
   const { on: desktop, focused } = useDesktop();
+  // Over the portrait chapter (dark in both themes) the bar switches to light ink.
+  const { slot } = useActiveSlot(usePathname());
+  const dark = slot === "portrait" && !desktop;
 
   return (
-    <div className="menubar" role="navigation" aria-label="System">
+    <div className="menubar" role="navigation" aria-label="System" data-stage={dark ? "dark" : undefined}>
       <div className="menubar-left">
         <button
           type="button"
@@ -58,6 +63,7 @@ export function MenuBar() {
         >
           {desktop ? "page" : "desktop"}
         </button>
+        <ThemeToggle className="menubar-theme" />
         <SoundToggle className="menubar-sound" />
         <a href={`${REPO}/commit/${BUILD}`} target="_blank" rel="noreferrer" title="This build on GitHub">
           <span className="menubar-dot" aria-hidden="true" />

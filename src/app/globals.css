@@ -1726,3 +1726,163 @@ html[data-wallpaper="night"] .a2, html[data-wallpaper="night"] .a3 { background:
   .dock-icon { width: 36px; height: 36px; border-radius: 9px; font-size: 15px; }
   .dock li:has(> [aria-label="Mission Control"]) { display: none; }
 }
+
+/* ── Theme switch in the menu bar: a sun in dark mode, a moon in light ── */
+.menubar-theme {
+  appearance: none; border: 0; background: none; cursor: pointer; color: inherit;
+  width: 28px; height: 24px; padding: 0; border-radius: 8px; font-size: 0;
+  display: inline-grid; place-items: center;
+}
+.menubar-theme:hover { color: var(--ink); background: #ffffff0d; }
+.menubar-theme::before { content: ""; width: 12px; height: 12px; border-radius: 50%; }
+.menubar-theme[data-theme-icon="dark"]::before {
+  width: 14px; height: 14px; border: 2px dotted currentColor;
+  background: radial-gradient(circle, currentColor 0 3px, transparent 3.5px);
+}
+.menubar-theme[data-theme-icon="light"]::before { box-shadow: inset -4px -3px 0 0 currentColor; }
+
+.segmented {
+  justify-self: start; display: inline-grid; grid-auto-flow: column; gap: 2px; padding: 3px;
+  border-radius: 10px; background: #ffffff0d; box-shadow: inset 0 0 0 1px #ffffff0f;
+}
+.segmented button {
+  appearance: none; border: 0; background: none; cursor: pointer; padding: 7px 18px; border-radius: 7px;
+  color: var(--ink-soft); font: 500 13px/1 var(--sans);
+}
+.segmented button[aria-checked="true"] { background: var(--bg-raised); color: var(--ink); box-shadow: 0 1px 3px #0005; }
+
+/* ─────────────────────────────────────────────────────────────
+   Light mode — warm paper and navy ink. Every text colour keeps the
+   same WCAG contrast as dark mode: ink 15.7:1, soft 9:1, mute ≥ 5:1,
+   accent ≥ 5.2:1 on every surface. The island, the palette (the island
+   expanded), the terminal, the portrait chapter and the power screen
+   stay dark on purpose, like a darkroom inside a bright room.
+   ───────────────────────────────────────────────────────────── */
+
+html[data-theme="light"] {
+  --bg: #f4f1eb;
+  --bg-raised: #ffffff;
+  --bg-sunk: #ebe6dd;
+  --line: #ddd6ca;
+  --line-strong: #c6bdae;
+  --ink: #121826;
+  --ink-soft: #384256;
+  --ink-mute: #56607a;
+  --accent: #2d55c8;
+  --accent-ink: #ffffff;
+  --ok: #17744a;
+  color-scheme: light;
+}
+
+/* The dark islands inside a light page keep the dark palette. */
+html[data-theme="light"] :is(.terminal, .portrait-scroll, .photos, .power, .enter-veil) {
+  --bg: #0c1626;
+  --bg-raised: #111e33;
+  --bg-sunk: #09111e;
+  --line: #1d2c45;
+  --line-strong: #2a3d5c;
+  --ink: #f1ece3;
+  --ink-soft: #c3c8d2;
+  --ink-mute: #8796ad;
+  --accent: #9cc3ff;
+  --accent-ink: #0c1626;
+  --ok: #7ad3a2;
+  color-scheme: dark;
+  color: var(--ink);
+}
+
+/* Atmosphere: softer light on paper, a warm vignette, dark grain. */
+html[data-theme="light"]:not([data-wallpaper]) .a1 { background: radial-gradient(circle, #7c5cff1f 0, #7c5cff00 62%); }
+html[data-theme="light"]:not([data-wallpaper]) .a2 { background: radial-gradient(circle, #00b4e01c 0, #00b4e000 60%); }
+html[data-theme="light"]:not([data-wallpaper]) .a3 { background: radial-gradient(circle, #b24bff10 0, #b24bff00 60%); }
+html[data-theme="light"] .atmos::after { background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, #c9bfae38 100%); }
+html[data-theme="light"] .grain { filter: invert(1); opacity: 0.045; }
+html[data-theme="light"] .cursor-light { background: radial-gradient(circle, #7c5cff0d, transparent 60%); }
+
+/* Page */
+html[data-theme="light"] .pill-link.primary:hover { background: #000; border-color: #000; }
+html[data-theme="light"] .flagships a:hover { background: #f7f4ee; }
+html[data-theme="light"] :is(.work-card, .flagships, .state) { box-shadow: 0 1px 2px #2a20100d, 0 10px 30px #2a20100a; }
+html[data-theme="light"] .state-stage { background: radial-gradient(120% 90% at 50% 0%, #dcd4c6 0%, var(--bg-sunk) 70%); }
+html[data-theme="light"] .timeline .node { box-shadow: 0 0 0 5px #2d55c81f; }
+html[data-theme="light"] .island { box-shadow: 0 0 0 1px #00000014, 0 10px 30px #12182640; }
+html[data-theme="light"] .terminal { border-color: #0b0f17; box-shadow: 0 24px 60px #1218262e; }
+html[data-theme="light"] .menubar-theme:hover,
+html[data-theme="light"] .menubar-desk:hover,
+html[data-theme="light"] .menubar-clock:hover { background: #0000000d; }
+
+/* The hero slab is black, so the name on it is drawn in light ink. */
+html[data-theme="light"][data-hero="on"] [data-island-hero] { color: #f5f1ea; }
+html[data-theme="light"][data-hero="on"] [data-island-hero] em { color: #9cc3ff; }
+
+/* The portrait chapter is a darkroom: it fades in from the paper and back out. */
+html[data-theme="light"] .portrait-scroll {
+  background: linear-gradient(transparent, #0c1626 180px, #0c1626 calc(100% - 180px), transparent);
+}
+
+/* Case-study windows and the palette backdrop */
+html[data-theme="light"] .window-backdrop { background: #e8e2d88c; }
+html[data-theme="light"] .palette-backdrop { background: #1218262e; }
+html[data-theme="light"] .window { background: #fbfaf7ed; box-shadow: 0 0 0 1px #0000001a, 0 40px 120px #2a20103d; }
+html[data-theme="light"] .window-bar { background: #f1ede6d9; border-bottom-color: #00000014; }
+html[data-theme="light"] .window-esc { background: #0000000d; }
+
+/* Desktop */
+html[data-theme="light"] .desktop-icons button { text-shadow: none; }
+html[data-theme="light"] .desktop-icons button[aria-pressed="true"] { background: #2d55c81a; }
+html[data-theme="light"] .desktop-icons button[aria-pressed="true"] span { background: var(--accent); color: #fff; }
+html[data-theme="light"] .desktop[data-mission] .desktop-surface { background: #f4f1eba6; }
+html[data-theme="light"] .snap-preview { background: #2d55c814; border-color: #2d55c859; }
+html[data-theme="light"] .dwin { background: #fbfaf7ed; box-shadow: 0 0 0 1px #00000017, 0 18px 50px #2a20102e; }
+html[data-theme="light"] .dwin[data-focused] { box-shadow: 0 0 0 1px #0000001f, 0 30px 90px #2a201047; }
+html[data-theme="light"] .dwin:not([data-focused]) .light { background: #d3ccc0; }
+html[data-theme="light"] .dwin-bar { background: #f1ede6e6; border-bottom-color: #00000014; }
+html[data-theme="light"] .dwin-label { background: #121826d9; color: #fff; }
+html[data-theme="light"] .dock ul { background: #ffffffa8; box-shadow: 0 0 0 1px #00000014, 0 20px 50px #2a201033; }
+html[data-theme="light"] .dock-sep { background: #00000017; }
+html[data-theme="light"] .dock-tip { background: #fff; box-shadow: 0 0 0 1px #00000017, 0 6px 16px #2a20101f; }
+html[data-theme="light"] :is(.di-mission, .di-exit) { background: #e6e0d6; color: var(--ink-soft); }
+html[data-theme="light"] .di-mission::before {
+  background: linear-gradient(#2d55c8 0 0) 0 0 / 11px 8px no-repeat, linear-gradient(#2d55c8 0 0) 100% 0 / 11px 8px no-repeat,
+    linear-gradient(#2d55c899 0 0) 0 100% / 11px 8px no-repeat, linear-gradient(#2d55c899 0 0) 100% 100% / 11px 8px no-repeat;
+}
+html[data-theme="light"] .desktop-hint kbd,
+html[data-theme="light"] .os-menu kbd { background: #0000000f; }
+
+/* Apps */
+html[data-theme="light"] .finder-side { background: #0000000a; border-right-color: #00000012; }
+html[data-theme="light"] .finder-side button[aria-pressed="true"] { background: #00000012; }
+html[data-theme="light"] .finder-grid button[aria-pressed="true"] { background: #2d55c81c; }
+html[data-theme="light"] .finder-preview { border-left-color: #00000012; }
+html[data-theme="light"] .finder-list li { border-bottom-color: #0000000f; }
+html[data-theme="light"] .finder-path { border-top-color: #00000012; }
+html[data-theme="light"] :is(.contact-app ul, .toggles) { background: #ffffff; box-shadow: inset 0 0 0 1px #00000012; }
+html[data-theme="light"] :is(.contact-app li + li, .toggles li + li) { border-top-color: #0000000f; }
+html[data-theme="light"] .contact-card img { box-shadow: 0 0 0 2px #00000014; }
+html[data-theme="light"] .switch { background: #d3ccc0; }
+html[data-theme="light"] .switch[aria-checked="true"] { background: #1f9d55; }
+html[data-theme="light"] .segmented { background: #0000000d; box-shadow: inset 0 0 0 1px #0000000a; }
+html[data-theme="light"] .segmented button[aria-checked="true"] { box-shadow: 0 1px 3px #2a201033; }
+
+/* Menus and the notification centre */
+html[data-theme="light"] .os-menu { background: #f8f6f2f2; box-shadow: 0 0 0 1px #0000001a, 0 20px 50px #2a201038; }
+html[data-theme="light"] .os-menu button:hover,
+html[data-theme="light"] .os-menu button:focus-visible { background: var(--accent); }
+html[data-theme="light"] .os-menu hr { border-top-color: #00000017; }
+html[data-theme="light"] .notices { background: #f8f6f2ed; box-shadow: 0 0 0 1px #0000001a, 0 30px 80px #2a201038; }
+html[data-theme="light"] .notices-controls button { background: #0000000a; }
+html[data-theme="light"] .notices-controls button[aria-pressed="true"] { background: #2d55c824; }
+html[data-theme="light"] .notices-head button { background: #0000000f; }
+html[data-theme="light"] .notices li { background: #ffffffb3; box-shadow: inset 0 0 0 1px #0000000d; }
+html[data-theme="light"] .menubar[data-stage="dark"] {
+  --ink: #f1ece3; --ink-soft: #c3c8d2; --ink-mute: #8796ad; --accent: #9cc3ff; --line-strong: #2a3d5c; --ok: #7ad3a2;
+}
+.menubar { transition: color 0.3s ease; }
+/* Wallpaper swatches preview the light look in light mode. */
+html[data-theme="light"] .wp { color: var(--ink); box-shadow: inset 0 0 0 1px #00000014; }
+html[data-theme="light"] .wp span { text-shadow: none; }
+html[data-theme="light"] .wp[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--accent), inset 0 0 0 1px #00000014; }
+html[data-theme="light"] .wp-aurora { background: radial-gradient(circle at 15% 15%, #7c5cff4d, transparent 60%), radial-gradient(circle at 85% 90%, #00b4e040, transparent 60%), #f4f1eb; }
+html[data-theme="light"] .wp-ember { background: radial-gradient(circle at 15% 15%, #ff7a4a59, transparent 60%), radial-gradient(circle at 85% 90%, #ffb34747, transparent 60%), #f6efe9; }
+html[data-theme="light"] .wp-tide { background: radial-gradient(circle at 15% 15%, #00c2a84d, transparent 60%), radial-gradient(circle at 85% 90%, #3aa0ff40, transparent 60%), #eef3f2; }
+html[data-theme="light"] .wp-night { background: radial-gradient(circle at 15% 15%, #2a3b6633, transparent 60%), #eceae6; }

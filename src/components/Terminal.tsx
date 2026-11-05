@@ -10,6 +10,7 @@ import { haptic, setHapticsOn } from "@/lib/haptics";
 import { setSoundOn } from "@/lib/sound";
 import { setViewMode } from "@/lib/viewMode";
 import { enterDesktop, exitDesktop, isDesktopOn } from "@/lib/desktop";
+import { setThemePref } from "@/lib/theme";
 
 /**
  * A small shell. It answers questions about Sahaj, opens projects, prints the site's real
@@ -58,6 +59,7 @@ const COMMANDS = [
   "sudo mode --developer",
   "startx",
   "logout",
+  "theme",
 ];
 
 const a = (href: string, label: string) => (
@@ -232,6 +234,7 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
             ["island …", "control the Dynamic Island ↑"],
             ["portrait", "jump to the code portrait"],
             ["view plain|live", "switch the site's view"],
+            ["theme light|dark", "light or dark mode"],
             ["sound on|off", "the sound of sahaj.os"],
             ["haptics on|off", "feel it, on phones"],
             ["startx", "boot the desktop: windows, dock, the lot"],
@@ -348,6 +351,12 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
         return print(...history.current.map((h, i) => <span className="k">{String(i + 1).padStart(3)}  {h}</span>));
       case "clear":
         return setLines([]);
+      case "theme": {
+        const t = args[0]?.toLowerCase();
+        if (t !== "light" && t !== "dark" && t !== "auto") return print(<span className="k">usage: theme &lt;light | dark | auto&gt;</span>);
+        setThemePref(t);
+        return print(<span className="g">{t === "auto" ? "following your device" : `${t} mode on`}</span>);
+      }
       case "startx":
         if (isDesktopOn()) return print(<span className="k">already on the desktop. <b className="v">logout</b> to go back to the page.</span>);
         enterDesktop("finder");
