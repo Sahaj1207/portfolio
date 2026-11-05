@@ -518,13 +518,13 @@ html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: 
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
+/* One structure for every card, so rows line up: meta line, title block, then the
+   stats on a hairline and the link, both pinned to the bottom. */
 .work-card {
   grid-column: span 3;
-  display: grid;
-  align-content: space-between;
-  gap: 40px;
-  min-height: 320px;
-  padding: clamp(24px, 3vw, 36px);
+  display: flex;
+  flex-direction: column;
+  padding: clamp(24px, 2.6vw, 34px);
   border-radius: var(--radius);
   background: var(--bg-raised);
   border: 1px solid var(--line);
@@ -533,18 +533,27 @@ html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: 
 }
 .work-card:hover { transform: translateY(-4px); border-color: var(--line-strong); }
 .work-card:active { transform: scale(0.985); }
-.work-card.wide { grid-column: span 6; min-height: 360px; }
+.work-card.wide { grid-column: span 6; }
 .work-card.third { grid-column: span 2; }
 
+.card-meta {
+  font: 400 12px/1.5 var(--mono);
+  color: var(--ink-mute);
+  min-height: 1.5em;
+  margin-bottom: 18px;
+}
+.card-head { display: grid; gap: 10px; align-content: start; margin-bottom: 36px; }
 .work-card h3 {
   font-family: var(--serif);
-  font-size: clamp(36px, 4.2vw, 56px);
-  line-height: 0.98;
+  font-size: clamp(34px, 3.4vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.01em;
 }
+.work-card.wide h3 { font-size: clamp(40px, 4.4vw, 60px); }
 
 /* Expansion of an acronym project name, e.g. HARIKA. */
 .full-name {
-  margin-top: 4px;
+  margin-top: -4px;
   font-family: var(--serif);
   font-style: italic;
   font-size: 17px;
@@ -552,19 +561,29 @@ html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: 
 }
 .case-hero .full-name { margin-top: -8px; font-size: clamp(18px, 2vw, 24px); }
 
-.work-card .tagline { color: var(--ink-soft); font-size: 18px; max-width: 34ch; margin-top: 10px; }
-.work-card .context { color: var(--ink-mute); font-size: 14px; margin-top: 12px; }
+.work-card .tagline { color: var(--ink-soft); font-size: 17px; line-height: 1.5; max-width: 36ch; }
 
-.stat-row { display: flex; flex-wrap: wrap; gap: 28px; }
+.work-card .stat-row {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.work-card.wide .stat-row { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 760px; }
 .stat strong {
   display: block;
   font-family: var(--serif);
-  font-size: 32px;
-  line-height: 1;
+  font-size: 26px;
+  line-height: 1.05;
   color: var(--ink);
 }
-.stat span { display: block; margin-top: 6px; font-size: 13px; color: var(--ink-mute); max-width: 20ch; }
+.stat span { display: block; margin-top: 6px; font-size: 13px; line-height: 1.45; color: var(--ink-mute); max-width: 24ch; }
 
+.work-card .more { margin-top: 24px; }
+.more i { display: inline-block; font-style: normal; transition: transform 0.3s var(--spring); }
+.work-card:hover .more i { transform: translateX(4px); }
 .more { font-size: 15px; color: var(--accent); }
 
 /* ── FLOAT states ────────────────────────────────────────────── */
@@ -1296,10 +1315,6 @@ html[data-enter-skip="on"] .enter-veil { animation: veil-skip 0.35s ease forward
   #work .chapter-head { padding-left: clamp(0px, 5vw, 72px); }
   #float .chapter-head { margin-left: auto; max-width: 820px; }
   #timeline .chapter-head { padding-left: clamp(0px, 12vw, 180px); }
-  /* Cards settle at slightly different heights. */
-  .work-card:nth-child(2) { margin-top: 28px; }
-  .work-card:nth-child(4) { margin-top: -20px; }
-  .work-card:nth-child(5) { margin-top: 14px; }
   .state:nth-child(even) { margin-top: 22px; }
 }
 
@@ -1307,7 +1322,7 @@ html[data-enter-skip="on"] .enter-veil { animation: veil-skip 0.35s ease forward
 
 @media (max-width: 900px) {
   .hero-grid, .portrait-grid, .about-grid { grid-template-columns: 1fr; }
-  .work-card, .work-card.third { grid-column: span 6; min-height: 0; }
+  .work-card, .work-card.third { grid-column: span 6; }
   .states { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .also { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .case-section { grid-template-columns: 1fr; gap: 16px; }
@@ -1886,3 +1901,16 @@ html[data-theme="light"] .wp-aurora { background: radial-gradient(circle at 15% 
 html[data-theme="light"] .wp-ember { background: radial-gradient(circle at 15% 15%, #ff7a4a59, transparent 60%), radial-gradient(circle at 85% 90%, #ffb34747, transparent 60%), #f6efe9; }
 html[data-theme="light"] .wp-tide { background: radial-gradient(circle at 15% 15%, #00c2a84d, transparent 60%), radial-gradient(circle at 85% 90%, #3aa0ff40, transparent 60%), #eef3f2; }
 html[data-theme="light"] .wp-night { background: radial-gradient(circle at 15% 15%, #2a3b6633, transparent 60%), #eceae6; }
+
+/* Cards in a row share row tracks, so meta, title, stats and link line up exactly. */
+@supports (grid-template-rows: subgrid) {
+  .work-card {
+    display: grid;
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+    align-content: start;
+  }
+  .work-card .card-meta { align-self: end; }
+  .work-card .stat-row { margin-top: 0; align-self: start; }
+}

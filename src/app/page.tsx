@@ -63,11 +63,11 @@ export default function Home() {
           <div className="work-grid">
             {projects.map((p) => (
               <ProjectCard key={p.slug} slug={p.slug} className={`work-card ${cardSize[p.slug] ?? ""}`}>
-                <div>
+                <p className="card-meta">{p.context ?? p.stack.slice(0, 3).join(" · ")}</p>
+                <div className="card-head">
                   <h3>{p.name}</h3>
                   {p.fullName && <p className="full-name">{p.fullName}</p>}
                   <p className="tagline">{p.tagline}</p>
-                  {p.context && <p className="context">{p.context}</p>}
                 </div>
                 <div className="stat-row">
                   {p.highlights.slice(0, cardSize[p.slug] ? 3 : 2).map((h) => (
@@ -77,7 +77,7 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <span className="more">Read the case study →</span>
+                <span className="more">Read the case study <i aria-hidden="true">→</i></span>
               </ProjectCard>
             ))}
           </div>
