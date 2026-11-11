@@ -3,11 +3,37 @@ import { ContactLinks, hasResume } from "@/components/ContactLinks";
 import { PortraitParticles } from "@/components/PortraitParticles";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Terminal } from "@/components/Terminal";
-import { alsoBuilt, projects, timeline } from "@/content/projects";
+import { type Project, alsoBuilt, hackathonBuilds, mainWork, projects, timeline } from "@/content/projects";
 import { site } from "@/content/site";
 
-const flagships = ["float", "pie", "verity"].map((s) => projects.find((p) => p.slug === s)!);
-const cardSize: Record<string, string> = { float: "wide" };
+const flagships = ["float", "pie", "vayucast"].map((s) => projects.find((p) => p.slug === s)!);
+
+/** FLOAT spans the row; every other card is a third. */
+function WorkCard({ p }: { p: Project }) {
+  const wide = p.slug === "float";
+  return (
+    <ProjectCard slug={p.slug} className={`work-card ${wide ? "wide" : "third"}`}>
+      <p className="card-meta">
+        {p.status === "building" && <span className="live-dot" aria-hidden="true" />}
+        {p.context ?? p.stack.slice(0, 3).join(" · ")}
+      </p>
+      <div className="card-head">
+        <h3>{p.name}</h3>
+        {p.fullName && <p className="full-name">{p.fullName}</p>}
+        <p className="tagline">{p.tagline}</p>
+      </div>
+      <div className="stat-row">
+        {p.highlights.slice(0, wide ? 3 : 2).map((h) => (
+          <div className="stat" key={h.label}>
+            <strong>{h.value}</strong>
+            <span>{h.label}</span>
+          </div>
+        ))}
+      </div>
+      <span className="more">Read the case study <i aria-hidden="true">→</i></span>
+    </ProjectCard>
+  );
+}
 
 const personJsonLd = {
   "@context": "https://schema.org",
@@ -61,25 +87,16 @@ export default function Home() {
             </h2>
           </div>
           <div className="work-grid">
-            {projects.map((p) => (
-              <ProjectCard key={p.slug} slug={p.slug} className={`work-card ${cardSize[p.slug] ?? ""}`}>
-                <p className="card-meta">{p.context ?? p.stack.slice(0, 3).join(" · ")}</p>
-                <div className="card-head">
-                  <h3>{p.name}</h3>
-                  {p.fullName && <p className="full-name">{p.fullName}</p>}
-                  <p className="tagline">{p.tagline}</p>
-                </div>
-                <div className="stat-row">
-                  {p.highlights.slice(0, cardSize[p.slug] ? 3 : 2).map((h) => (
-                    <div className="stat" key={h.label}>
-                      <strong>{h.value}</strong>
-                      <span>{h.label}</span>
-                    </div>
-                  ))}
-                </div>
-                <span className="more">Read the case study <i aria-hidden="true">→</i></span>
-              </ProjectCard>
-            ))}
+            {mainWork.map((p) => <WorkCard key={p.slug} p={p} />)}
+          </div>
+          <div className="chapter-head hackathon-head">
+            <p className="eyebrow">made against the clock</p>
+            <h3 className="headline" style={{ fontSize: "clamp(28px, 3.6vw, 44px)" }}>
+              Hackathon <em>builds</em>.
+            </h3>
+          </div>
+          <div className="work-grid">
+            {hackathonBuilds.map((p) => <WorkCard key={p.slug} p={p} />)}
           </div>
         </div>
       </section>
@@ -216,7 +233,7 @@ export default function Home() {
         <div className="wrap">
           <div className="chapter-head">
             <p className="eyebrow">and a few more</p>
-            <h2 id="also-title" className="headline" style={{ fontSize: "clamp(28px, 3.6vw, 44px)" }}>On the web.</h2>
+            <h2 id="also-title" className="headline" style={{ fontSize: "clamp(28px, 3.6vw, 44px)" }}>Smaller builds.</h2>
           </div>
           <ul className="also">
             {alsoBuilt.map((a) => (

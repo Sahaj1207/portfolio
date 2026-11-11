@@ -11,8 +11,8 @@ export const site = {
     github: "https://github.com/Sahaj1207",
     linkedin: "https://www.linkedin.com/in/sahaj-alatage-63715737b/",
     x: "https://x.com/sahaj0712",
-    /** Public contact email — not published until Sahaj chooses one. */
-    email: null as string | null,
+    /** Public contact email, shown in contact, the terminal and the desktop. */
+    email: "sahaj12407@gmail.com" as string | null,
   },
   stack: ["TypeScript", "Python", "Rust", "React", "React Native", "Tauri", "FastAPI", "Supabase"],
 } as const;

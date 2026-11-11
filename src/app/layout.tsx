@@ -10,6 +10,7 @@ import { HapticsToggle, MotionToggle, SoundToggle, ThemeToggle, ViewToggle } fro
 import { Atmosphere, Entrance } from "@/components/World";
 import { Desktop } from "@/components/Desktop";
 import { System } from "@/components/System";
+import { FirstVisit } from "@/components/FirstVisit";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -44,6 +45,7 @@ export default function RootLayout({ children, modal }: { children: React.ReactN
         <main id="main">{children}</main>
         <Desktop hasResume={hasResume} />
         <System />
+        <FirstVisit />
         {modal}
         <footer className="footer">
           <div className="wrap">

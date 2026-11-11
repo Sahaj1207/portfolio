@@ -15,6 +15,10 @@ export type Project = {
   tagline: string;
   /** One line for cards on the home page. */
   summary: string;
+  /** Hackathon builds are listed in their own group below the main work. */
+  group?: "hackathon";
+  /** Shown with a live dot while the project is still being built. */
+  status?: "building";
   year: string;
   context?: string;
   stack: string[];
@@ -114,6 +118,7 @@ export const projects: Project[] = [
     summary: "A multimodal reconciliation engine that turns messy WhatsApp messages, PDFs, screenshots and bank exports into verified financial conclusions.",
     year: "2026",
     context: "Razorpay AI Buildathon 2026 · AI Finance Controller track",
+    group: "hackathon",
     stack: ["Python", "FastAPI", "Gemini", "pytest"],
     highlights: [
       { value: "96", label: "ground-truth benchmark cases" },
@@ -157,6 +162,7 @@ export const projects: Project[] = [
     summary: "A team of AI agents plans, writes, checks, illustrates and reads aloud original children's books in eight languages.",
     year: "2026",
     context: "Meta Global AI Developer Hackathon · Indie Dev track · Oct 27 – Nov 4, 2026",
+    group: "hackathon",
     stack: ["React", "Vite", "Supabase", "Python", "Meta Model API", "Modal"],
     highlights: [
       { value: "8", label: "languages, from Telugu to Basque" },
@@ -199,44 +205,146 @@ export const projects: Project[] = [
     slug: "harika",
     name: "HARIKA",
     fullName: "Human-Aware Responsive Intelligent Kernel Anima",
-    tagline: "An open-source AI layer for your desktop.",
-    summary: "An assistant that remembers you, understands context, plans tasks and acts on your behalf.",
+    tagline: "An AI that lives on your Windows desktop: it remembers you, plans, and acts.",
+    summary: "A desktop assistant in the system tray that remembers you, plans multi-step tasks and acts through permissioned tools.",
     year: "2026",
-    context: "In active development",
-    stack: ["Python", "FastAPI", "React", "TypeScript", "Zustand"],
+    context: "Now building · Windows desktop app",
+    status: "building",
+    stack: ["Python", "FastAPI", "Tauri", "React", "TypeScript", "Groq / Ollama"],
     highlights: [
-      { value: "Open source", label: "MIT licensed" },
-      { value: "v1 API", label: "versioned FastAPI backend" },
-      { value: "Desktop", label: "installer build for Windows" },
+      { value: "Ctrl+Shift+Space", label: "ask from anywhere; it lives in the tray" },
+      { value: "Memory", label: "short-term, episodic, facts and patterns" },
+      { value: "Your yes", label: "before anything is sent on your behalf" },
     ],
     problem:
-      "Assistants forget you between sessions and stop at answering questions. HARIKA aims to remember, understand context, plan and take actions.",
+      "Assistants forget you between sessions and stop at answering. HARIKA remembers who you are, works out what you mean, plans the steps and does them on your computer, with you in control.",
     approach: [
-      "A cinematic 3D AI Core as the face of the system, with a modular app ecosystem around it.",
-      "Memory, context and planning live in backend services; the desktop front end presents them.",
+      "It lives in the Windows tray. Ctrl + Shift + Space asks it anything from any app; a short first-run setup covers your name, which brain to use, and optional extras.",
+      "Memory in layers: short-term context, episodic memory of what happened, extracted facts about you, and patterns over time, all retrieved when relevant.",
+      "A planner turns a request into steps, validates the plan, reflects on results and recovers from failed steps.",
+      "It acts through permissioned tools: opening apps and websites, files, clipboard, reminders, notifications, screen help, and Gmail, Google Calendar and Spotify.",
+      "“Continue this chat” reads the visible conversation in WhatsApp, Telegram or Teams and drafts a reply. Nothing is sent without an explicit yes.",
     ],
     architecture: [
-      "FastAPI backend with versioned routes, Pydantic schemas and service modules.",
-      "React + TypeScript + Vite front end organised by feature, with Zustand state and an Axios API client.",
-      "Desktop packaging and a Windows installer build documented in the repo.",
+      "Tauri desktop app bundling the React interface with a standalone build of the Python backend, so installing it needs no Python or Node.",
+      "FastAPI backend with versioned v1 routes for chat, memory, planning, agents, tools, voice, vision and privacy.",
+      "Agents with an orchestrator, scheduler, state machine and recovery; a tool registry with permissions and a process verifier.",
+      "Thinks with Groq in the cloud (fast and free) or a local model through Ollama (private and offline). Keys are stored in Windows Credential Manager.",
     ],
     decisions: [
       {
-        title: "Clear service boundaries from day one",
-        body: "API, schemas and services are separated so memory, planning and actions can grow independently.",
+        title: "Nothing leaves without a yes",
+        body: "Drafting is automatic; sending is not. Anything that speaks for you waits for an explicit confirmation.",
+      },
+      {
+        title: "Choose your brain",
+        body: "Cloud models for speed or a local model for privacy, picked at setup and changeable any time.",
       },
     ],
-    role: "Solo — architecture, backend and front end.",
+    role: "Solo — architecture, Python backend, agents and desktop app.",
     links: [{ label: "Source on GitHub", href: "https://github.com/Sahaj1207/HARIKA-Human-Aware-Responsive-Intelligent-Kernel-Anima" }],
-    pending: ["precise scope of what works today", "architecture diagram", "demo video"],
+    pending: ["demo video", "public release"],
+  },
+  {
+    slug: "vayucast",
+    name: "VayuCast",
+    tagline: "Tomorrow's air, forecast for nine Indian cities.",
+    summary: "An end-to-end machine-learning system that forecasts India's AQI one to three days ahead, with ranges and reasons.",
+    year: "2026",
+    stack: ["Python", "XGBoost", "SHAP", "FastAPI", "Streamlit", "MLflow", "GitHub Actions"],
+    highlights: [
+      { value: "±15.8", label: "AQI average error, one day ahead" },
+      { value: "78%", label: "of days in the right AQI category" },
+      { value: "16–28%", label: "better than “same as today”, days 1–3" },
+    ],
+    problem:
+      "Air pollution is one of India's largest health risks, yet AQI is usually reported after the air is already bad. A reliable forecast lets people plan outdoor time and lets schools and hospitals prepare.",
+    approach: [
+      "Four years of hourly pollution and weather for Belagavi, Kolhapur, Pune, Mumbai, Bengaluru, Hyderabad, Kurnool, Lucknow and Delhi, combined into daily rows with the official CPCB AQI method.",
+      "Data checks first: it detects and repairs a nationwide sensor glitch where every city reads near zero on the same days.",
+      "54 engineered features: lags, rolling statistics, the target day's forecast weather, a cyclical calendar and Diwali proximity.",
+      "Honest evaluation: time-based cross-validation, a locked test year (Nov 2025 – Oct 2026) and baselines. A built-in demo shows how a shuffled split would overstate accuracy (12.1 vs the true 15.8).",
+      "Every forecast comes with a likely range (quantile XGBoost) and its reasons (SHAP): wind, rain, today's level, Diwali.",
+    ],
+    architecture: [
+      "fetch → features → train (cross-validation, test, SHAP, MLflow) → saved models, used by one forecast function.",
+      "FastAPI service (/forecast/{city}, /metrics) and a Streamlit dashboard, both on the same forecast code; Docker for deployment.",
+      "Monitoring logs every forecast, scores it once the day has passed and detects seasonal drift per city.",
+      "GitHub Actions: daily forecasts, weekly retraining and 33 tests on every push.",
+    ],
+    decisions: [
+      {
+        title: "Prove there is no leakage",
+        body: "An automated test scrambles all future data and checks that no feature changes, so the model can't quietly peek at tomorrow.",
+      },
+      {
+        title: "Say how wrong it is",
+        body: "The 80% ranges actually cover 73–76% of days. That's stated openly, with conformal calibration as the planned fix.",
+      },
+    ],
+    role: "Solo — data, modelling, API, dashboard and automation.",
+    links: [
+      { label: "Live dashboard", href: "https://vayucast.streamlit.app" },
+      { label: "Source on GitHub", href: "https://github.com/Sahaj1207/vayucast" },
+    ],
+    pending: [],
+  },
+  {
+    slug: "crumb",
+    name: "Crumb",
+    tagline: "Tonight's surplus food, paid only on handover.",
+    summary: "Shops photograph what didn't sell, AI lists it, and buyers or their AI assistants reserve with a PayPal hold charged only for what's in the bag.",
+    year: "2026",
+    context: "PayPal AI Hackathon 2026",
+    group: "hackathon",
+    stack: ["Next.js", "TypeScript", "PayPal Orders v2 & Vault v3", "Gemini", "MCP", "Postgres"],
+    highlights: [
+      { value: "Hold", label: "not charge: PayPal authorise, then partial capture" },
+      { value: "MCP", label: "AI buyer agents with spending mandates" },
+    ],
+    problem:
+      "Small bakeries and cafés don't have time to list leftovers item by item at closing, so most of it is binned. Surplus-food apps lose trust when bags come up short and buyers chase refunds.",
+    approach: [
+      "Snap to list: the owner photographs the counter; Gemini counts items, flags allergens, groups rescue bags and suggests a price, clamped in code to the shop's floor. Nothing goes live until the owner publishes.",
+      "Reserving places a PayPal hold (Orders v2, intent AUTHORIZE). At pickup, staff photograph the open bag, AI proposes a partial capture for what's actually there, a person confirms, and the rest is released.",
+      "If a shop runs out, one tap voids every hold, so there's nothing to refund.",
+      "Buyers can let an AI assistant shop for them within a mandate (per-bag cap, weekly budget, distance, diet), through an MCP server or the built-in agent.",
+    ],
+    architecture: [
+      "Next.js 16 with a JSON API, an MCP server and a verified PayPal webhook.",
+      "PayPal Orders v2, Payments v2 (capture, void), Vault v3 and the JS SDK, with idempotency keys on every write.",
+      "Gemini vision with JSON schemas and a deterministic mock, so the whole app runs offline.",
+      "Postgres with Drizzle; a public audit trail of every hold, charge, release and agent refusal.",
+    ],
+    decisions: [
+      {
+        title: "AI counts, code decides money",
+        body: "The model only counts what's in a photo; amounts are computed in code from the listing and confirmed by a person before PayPal is called.",
+      },
+      {
+        title: "Refusals are logged too",
+        body: "When an agent won't buy (“Not vegan — contains dairy”, “weekly budget used”), the reason lands in the audit trail.",
+      },
+    ],
+    role: "Built for the PayPal AI Hackathon 2026. PayPal sandbox only; no real money moves.",
+    links: [
+      { label: "Live demo", href: "https://crumb-lyart.vercel.app" },
+      { label: "Source on GitHub", href: "https://github.com/Sahaj1207/crumb" },
+    ],
+    pending: ["demo video", "placement (if any)"],
   },
 ];
+
+/** Main work, then hackathon builds. */
+export const mainWork = projects.filter((p) => p.group !== "hackathon");
+export const hackathonBuilds = projects.filter((p) => p.group === "hackathon");
 
 export const alsoBuilt: { name: string; what: string; href: string; live?: string }[] = [
   { name: "ReconIQ", what: "Cybersecurity investigation platform with ATT&CK mapping", href: "https://github.com/Sahaj1207/ReconIQ", live: "https://reconiq.vercel.app" },
   { name: "Meridian Hospital", what: "Hospital platform with booking engine and staff console", href: "https://github.com/Sahaj1207/meridian-hospital" },
   { name: "Aurelis Estates", what: "Luxury real-estate site with GSAP and Lenis motion", href: "https://github.com/Sahaj1207/aurelis-estates", live: "https://aurelis-estates.vercel.app" },
   { name: "ResumePilot AI", what: "ATS resume analyser and career assistant on Gemini", href: "https://github.com/Sahaj1207/ResumePilot-AI" },
+  { name: "PhotoProof", what: "Offline inspection photos with GPS, notes and PDF reports (Expo)", href: "https://github.com/Sahaj1207/PhotoProof" },
 ];
 
 /** Milestones, dated from each repository's creation. */
@@ -246,6 +354,7 @@ export const timeline: { date: string; title: string; detail: string }[] = [
   { date: "Sep 2026", title: "Aurelis Estates & Meridian Hospital", detail: "Production-grade web platforms with real backends." },
   { date: "Oct 2026", title: "PIE", detail: "Offline PDF and image editing with a shared C++ engine." },
   { date: "Oct–Nov 2026", title: "MotherTongue Books", detail: "Meta Global AI Developer Hackathon." },
+  { date: "Nov 2026", title: "VayuCast, Crumb & PhotoProof", detail: "An ML forecasting system, the PayPal AI Hackathon, and an offline inspection app." },
 ];
 
 export const getProject = (slug: string) => projects.find((p) => p.slug === slug);

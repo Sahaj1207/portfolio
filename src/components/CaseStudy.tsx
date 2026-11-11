@@ -1,20 +1,26 @@
 import Link from "next/link";
-import { type Project, projects } from "@/content/projects";
+import { type Project, hackathonBuilds, mainWork } from "@/content/projects";
+
+/** Case studies page through main work, then hackathon builds. */
+const order = [...mainWork, ...hackathonBuilds];
 
 /**
  * A project's case study. Rendered as a full page at /work/[slug], and inside a window
  * over the home page when opened from there (`inWindow`), so both read identically.
  */
 export function CaseStudy({ p, inWindow = false }: { p: Project; inWindow?: boolean }) {
-  const i = projects.indexOf(p);
-  const prev = projects[(i - 1 + projects.length) % projects.length];
-  const next = projects[(i + 1) % projects.length];
+  const i = order.indexOf(p);
+  const prev = order[(i - 1 + order.length) % order.length];
+  const next = order[(i + 1) % order.length];
 
   return (
     <article className={inWindow ? "case case-in-window" : "wrap case"} data-island-slot="case" data-island-title={p.name}>
       <header className="case-hero">
         {!inWindow && <Link href="/#work" className="case-back">← All work</Link>}
-        <p className="eyebrow">{p.context ?? p.year}</p>
+        <p className="eyebrow">
+          {p.status === "building" && <span className="live-dot" aria-hidden="true" />}
+          {p.context ?? p.year}
+        </p>
         <h1 className="display">{p.name}</h1>
         {p.fullName && <p className="full-name">{p.fullName}</p>}
         <p className="lede" style={{ maxWidth: "30ch" }}>{p.tagline}</p>

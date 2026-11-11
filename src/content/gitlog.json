@@ -1,5 +1,10 @@
 [
   {
+    "hash": "9ed93aa",
+    "date": "2026-11-05",
+    "subject": "Work cards: aligned grid and one rhythm inside every card"
+  },
+  {
     "hash": "bdf68a2",
     "date": "2026-11-05",
     "subject": "Light mode: warm paper and navy ink, matched contrast"
@@ -53,10 +58,5 @@
     "hash": "69e88f1",
     "date": "2026-11-04",
     "subject": "Seamless reveal: glyphs fade in place over the full photo"
-  },
-  {
-    "hash": "5636a5a",
-    "date": "2026-11-04",
-    "subject": "Code resolves into the real photo; HARIKA's full name"
   }
 ]

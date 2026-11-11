@@ -7,6 +7,7 @@ import { IslandRenderer, type Shape } from "@/lib/islandGL";
 import { Spring, SpringLoop, calmSpring, ghostSpring, heroSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
 import { useDesktop } from "@/lib/desktop";
+import { hackathonBuilds, mainWork } from "@/content/projects";
 import { openPalette } from "@/components/Palette";
 import { type Activity, useActivity } from "@/lib/islandBus";
 import { useMotionPaused } from "@/lib/motion";
@@ -680,7 +681,7 @@ export function Island() {
         <div className="island-content">
           <span className="island-mark" />
           <span className="i-label">Selected work</span>
-          <span className="i-meta">5 projects</span>
+          <span className="i-meta">{mainWork.length} projects · {hackathonBuilds.length} hackathon builds</span>
         </div>,
       )}
 
