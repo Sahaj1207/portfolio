@@ -37,10 +37,17 @@ export const recognition: Entry[] = [
   { kicker: "Participant", title: "Smart India Hackathon 2025", place: "University round, SGU" },
 ];
 
-/** Skills, grouped by where they've been used. */
+/** Skills, grouped by area. Each one is used in a project above or in coursework. */
 export const skills: { area: string; items: string[] }[] = [
-  { area: "AI & data", items: ["Python", "FastAPI", "XGBoost", "SHAP", "Gemini", "Groq / Ollama", "MCP"] },
+  {
+    area: "Generative AI",
+    items: ["LLM applications", "Multi-agent pipelines", "Prompt engineering", "Tool calling & MCP", "Embeddings & semantic search", "Vision models", "Gemini", "Groq / Ollama", "Speech (TTS, STT)"],
+  },
+  { area: "Machine learning", items: ["scikit-learn", "XGBoost", "SHAP", "pandas", "NumPy", "MLflow", "Time-series forecasting", "Streamlit"] },
+  { area: "Backend & data", items: ["Python", "FastAPI", "Pydantic", "SQL", "PostgreSQL", "Supabase", "REST APIs", "Webhooks"] },
   { area: "Mobile", items: ["React Native", "Expo", "C++ (PDFium)", "Kotlin"] },
-  { area: "Desktop", items: ["Rust", "Tauri"] },
-  { area: "Web", items: ["TypeScript", "React", "Next.js", "WebGL", "Supabase", "Postgres"] },
+  { area: "Desktop", items: ["Rust", "Tauri", "ONNX Runtime", "Windows UI Automation"] },
+  { area: "Web & graphics", items: ["TypeScript", "React", "Next.js", "WebGL / GLSL", "Web Audio"] },
+  { area: "Tools", items: ["Git", "GitHub Actions", "Docker", "Vercel", "pytest", "Jest"] },
+  { area: "Foundations", items: ["Data structures", "Database systems", "Mathematics for computer science"] },
 ];

@@ -70,6 +70,9 @@ const SLOT_VIEW: Record<string, View> = {
   timeline: "timeline",
   terminal: "terminal",
   case: "case",
+  // On the desktop the page is hidden, so the island rests as a small orb (it still
+  // grows for notifications), leaving room for the menu bar or the phone's status bar.
+  desktop: "float-orb",
 };
 
 /** FLOAT's own rhythm: media, then a notification that holds ~3.5 s, then the ambient orb. */

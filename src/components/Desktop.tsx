@@ -3,7 +3,8 @@
 import { type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { About, Contact, Finder, Notes, Photos, Settings } from "@/components/DesktopApps";
-import { DesktopWindow, type Rect, snapRect } from "@/components/DesktopWindow";
+import { DesktopWindow, type Rect, SWITCHER, snapRect } from "@/components/DesktopWindow";
+import { AppSwitcher, PhoneHome, PhoneStatus } from "@/components/PhoneOS";
 import { BootLog, LockScreen, ScreenSaver } from "@/components/DesktopSession";
 import { Terminal } from "@/components/Terminal";
 import { FloatDemo } from "@/components/demos/FloatDemo";
@@ -120,28 +121,6 @@ function useIconPositions(icons: Icon[], vw: number, vh: number) {
   return [positions, save] as const;
 }
 
-function HomeScreen() {
-  const app = (id: AppId) => (
-    <li key={id}>
-      <button type="button" onClick={() => openApp(id)}>
-        <DockIcon app={id} />
-        <span>{APPS[id].name}</span>
-      </button>
-    </li>
-  );
-  return (
-    <div className="home-screen">
-      <p className="home-label">Apps</p>
-      <ul className="home-grid">{SYSTEM_APPS.map(app)}</ul>
-      <p className="home-label">Projects you can try</p>
-      <ul className="home-grid">{DEMO_APPS.map(app)}</ul>
-      <button type="button" className="home-exit" onClick={exitDesktop}>
-        Back to the page
-      </button>
-    </div>
-  );
-}
-
 export function Desktop({ hasResume }: { hasResume: boolean }) {
   const { on, windows, mission, focused, booting } = useDesktop();
   const { vw, vh } = useViewport();
@@ -151,6 +130,7 @@ export function Desktop({ hasResume }: { hasResume: boolean }) {
   const [dragging, setDragging] = useState<Pos | null>(null);
   const [switcher, setSwitcher] = useState<{ list: AppId[]; index: number } | null>(null);
   const [sleep, setSleep] = useState<null | "saver" | "locked">(null);
+  const [recents, setRecents] = useState(false);
   const drag = useRef<{ id: string; x: number; y: number; start: Pos; moved: boolean } | null>(null);
   const narrow = vw < 720;
 
@@ -220,6 +200,13 @@ export function Desktop({ hasResume }: { hasResume: boolean }) {
       events.forEach((t) => window.removeEventListener(t, wake));
     };
   }, [on, narrow, booting]);
+
+  // Phones: holding an app's home bar opens recent apps.
+  useEffect(() => {
+    const open = () => setRecents(true);
+    window.addEventListener(SWITCHER, open);
+    return () => window.removeEventListener(SWITCHER, open);
+  }, []);
 
   // The page underneath can't be reached while the desktop is up.
   useEffect(() => {
@@ -319,7 +306,7 @@ export function Desktop({ hasResume }: { hasResume: boolean }) {
         onClick={(e) => mission && e.target === e.currentTarget && setMission(false)}
       >
         {narrow ? (
-          <HomeScreen />
+          <PhoneHome />
         ) : (
           <ul className="desktop-icons" aria-label="Desktop">
             {icons.map((ic) => (
@@ -420,6 +407,9 @@ export function Desktop({ hasResume }: { hasResume: boolean }) {
           ))}
         </div>
       )}
+
+      {narrow && <PhoneStatus />}
+      {narrow && recents && <AppSwitcher windows={windows} onClose={() => setRecents(false)} />}
 
       {/* Above everything, the island and menu bar included. */}
       {sleep === "saver" && createPortal(<ScreenSaver />, document.body)}

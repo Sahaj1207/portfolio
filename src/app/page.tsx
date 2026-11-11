@@ -7,7 +7,7 @@ import { TryDemo } from "@/components/TryDemo";
 import { FloatDemo } from "@/components/demos/FloatDemo";
 import { Terminal } from "@/components/Terminal";
 import { education, experience, recognition, skills } from "@/content/journey";
-import { type Project, alsoBuilt, hackathonBuilds, internshipWork, mainWork, projects } from "@/content/projects";
+import { type Project, alsoBuilt, hackathonBuilds, internshipWork, mainWork, projects, timeline } from "@/content/projects";
 import { site } from "@/content/site";
 
 const flagships = ["float", "harika", "vayucast"].map((s) => projects.find((p) => p.slug === s)!);
@@ -213,6 +213,28 @@ export default function Home() {
               </ul>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 5b · The year, in order */}
+      <section className="chapter year" aria-labelledby="year-title">
+        <div className="wrap">
+          <div className="chapter-head">
+            <p className="eyebrow">the year, in order</p>
+            <h2 id="year-title" className="headline group-title">A <em>busy</em> year.</h2>
+          </div>
+          <ol className="timeline">
+            {timeline.map((t) => (
+              <li key={t.title}>
+                <time>{t.date}</time>
+                <span className="node" aria-hidden="true" />
+                <div>
+                  <h3>{t.title}</h3>
+                  <p>{t.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 

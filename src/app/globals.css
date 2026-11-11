@@ -1430,9 +1430,7 @@ html[data-desktop="on"] .particles-canvas { visibility: hidden; }
   overflow: hidden;
   transform-origin: top left;
   transition: transform 0.42s var(--spring), opacity 0.3s ease, left 0.3s var(--spring), top 0.3s var(--spring), width 0.3s var(--spring), height 0.3s var(--spring), box-shadow 0.2s ease;
-  animation: dwin-in 0.4s var(--spring);
 }
-@keyframes dwin-in { from { opacity: 0; scale: 0.9; } }
 .dwin[data-busy] { transition: none; }
 .dwin[data-focused] { box-shadow: 0 0 0 1px #ffffff21, 0 30px 90px #000000b3; }
 .dwin:not([data-focused]) .dwin-bar { opacity: 0.6; }
@@ -1994,6 +1992,8 @@ html[data-theme="light"] .welcome { box-shadow: 0 0 0 1px var(--line), 0 40px 12
 }
 html[data-theme="light"] .inline-demo { box-shadow: 0 20px 60px #2a201014; }
 .inline-demo .demo { height: 100%; }
+/* The demo stacks by its container's width, so the frame on the page is that container. */
+.inline-demo { container-type: inline-size; }
 
 .journey { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 56px); }
 .journey-col { display: grid; align-content: start; gap: 14px; }
@@ -2012,7 +2012,7 @@ html[data-theme="light"] .inline-demo { box-shadow: 0 20px 60px #2a201014; }
 .entry-detail { font-size: 14px; line-height: 1.5; color: var(--ink-mute); margin-top: 4px; }
 
 .skills { margin: 4px 0 0; display: grid; gap: 12px; }
-.skills > div { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.skills > div { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 12px; align-items: baseline; }
 .skills dt { font: 600 12px/1.6 var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-mute); }
 .skills dd { margin: 0; }
 .skills .chips li { font-size: 13.5px; padding: 5px 11px; }
@@ -2049,3 +2049,7 @@ html[data-theme="light"] .inline-demo { box-shadow: 0 20px 60px #2a201014; }
   .skills > div { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   html[data-view="live"] .portrait-scroll { height: 220vh; }
 }
+
+/* The year sits right under "Where I've been", as its continuation. */
+.chapter.year { border-top: 0; padding-top: 0; }
+.year .timeline li { padding: 16px 0; }

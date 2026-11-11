@@ -300,7 +300,6 @@ html[data-theme="light"] .pie-stage { background: #e6e0d6; }
 .home-bar::before { content: ""; display: block; height: 5px; margin: 0 auto; border-radius: 3px; background: var(--ink-soft); opacity: 0.8; }
 .desktop[data-narrow] .dwin { border-radius: 18px; }
 .desktop[data-narrow] .dwin-body { padding-bottom: 26px; }
-.desktop[data-narrow] .dwin[data-min] { transform: scale(0.6) translateY(40%) !important; }
 
 /* Boot log, screensaver, lock screen */
 .boot-log {
@@ -339,3 +338,89 @@ html[data-theme="light"] .lasso { border-color: #2d55c899; background: #2d55c814
   .desktop-icons li, .boot-log, .lock, .screensaver { transition: none; animation: none; }
 }
 .desktop[data-narrow] .dwin { background: var(--bg-raised); backdrop-filter: none; }
+
+/* ── Window motion: zoom out of the icon (inline, see DesktopWindow), squeeze back
+   into it when minimised, shrink and fade when closed. ── */
+.dwin[data-min] { transition: transform 0.5s cubic-bezier(0.55, 0, 0.3, 1), opacity 0.42s ease-in 0.06s; }
+.dwin[data-closing] {
+  pointer-events: none; opacity: 0; scale: 0.94; transform-origin: center;
+  transition: opacity 0.2s ease-in, scale 0.22s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ── Phone OS ── */
+.phone-status {
+  position: absolute; top: 18px; left: 0; right: 0; z-index: 5; height: 24px; padding: 0 26px;
+  display: flex; align-items: center; justify-content: space-between; pointer-events: none;
+  font: 600 15px/1 var(--sans); color: var(--ink); letter-spacing: -0.01em;
+}
+.ps-icons { display: flex; align-items: center; gap: 6px; }
+.ps-icons i { display: block; background: currentColor; }
+.ps-signal { width: 17px; height: 11px; clip-path: polygon(0 75%, 20% 75%, 20% 100%, 0 100%, 0 75%, 27% 55%, 47% 55%, 47% 100%, 27% 100%, 27% 55%, 54% 30%, 74% 30%, 74% 100%, 54% 100%, 54% 30%, 81% 0, 100% 0, 100% 100%, 81% 100%, 81% 0); }
+.ps-wifi { width: 15px; height: 11px; clip-path: polygon(50% 100%, 0 25%, 20% 5%, 50% 0, 80% 5%, 100% 25%); }
+.ps-battery { width: 24px; height: 11px; border-radius: 3px; background: none !important; box-shadow: inset 0 0 0 1.5px currentColor; position: relative; }
+.ps-battery::after { content: ""; position: absolute; inset: 2.5px 6px 2.5px 2.5px; border-radius: 1.5px; background: currentColor; }
+
+.phone-home { position: absolute; inset: 64px 0 0; display: grid; grid-template-rows: auto 1fr auto; gap: 18px; padding: 10px 18px 14px; }
+.widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.widget {
+  appearance: none; border: 0; font: inherit; color: var(--ink); text-align: left; cursor: pointer;
+  border-radius: 22px; padding: 14px 16px; background: color-mix(in srgb, var(--bg-raised) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(1.3); box-shadow: inset 0 0 0 1px #ffffff14;
+  display: grid; align-content: start; gap: 4px; min-height: 150px;
+  transition: transform 0.3s var(--spring);
+}
+.widget:active { transform: scale(0.97); }
+.w-clock { cursor: default; }
+.wc-day { font: 600 13px/1.2 var(--sans); color: #ff6b6b; text-transform: uppercase; letter-spacing: 0.04em; }
+.wc-date { font: 400 64px/1 var(--serif); margin-top: 4px; }
+.wc-month { font-size: 14px; color: var(--ink-soft); }
+.wa-label { font: 600 12px/1.3 var(--sans); color: var(--ink-mute); }
+.wa-aqi { font: 400 52px/1 var(--serif); margin-top: 6px; }
+.wa-chip { justify-self: start; padding: 3px 9px; border-radius: 999px; font: 600 11.5px/1.3 var(--sans); }
+.wa-note { font-size: 12px; color: var(--ink-mute); margin-top: 2px; }
+.w-wide { grid-column: 1 / -1; min-height: 0; display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+.w-wide .hd-orb { width: 38px; height: 38px; flex: none; }
+.ww-text { display: grid; gap: 3px; }
+.ww-text strong { font: 600 15px/1.2 var(--sans); }
+.ww-text > span { font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; }
+.phone-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 6px; align-content: start; }
+.phone-app {
+  appearance: none; border: 0; background: none; cursor: pointer; width: 100%; padding: 0;
+  display: grid; justify-items: center; gap: 7px; color: var(--ink); font: 500 11.5px/1.2 var(--sans);
+}
+.phone-app .dock-icon { width: 60px; height: 60px; border-radius: 16px; transition: transform 0.25s var(--spring); }
+.phone-app:active .dock-icon { transform: scale(0.9); }
+.phone-dock {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 14px 12px 12px; border-radius: 30px;
+  background: color-mix(in srgb, var(--bg-raised) 60%, transparent); backdrop-filter: blur(24px) saturate(1.3);
+  box-shadow: inset 0 0 0 1px #ffffff14;
+}
+.phone-dock .phone-app span { display: none; }
+
+.switcher-phone {
+  position: absolute; inset: 0; z-index: 200000; display: grid; align-content: center; gap: 18px;
+  background: #02040acc; backdrop-filter: blur(24px); animation: fade-in 0.25s ease;
+}
+.sp-cards {
+  list-style: none; margin: 0; padding: 0 12vw; display: flex; gap: 16px; overflow-x: auto;
+  scroll-snap-type: x mandatory; scrollbar-width: none;
+}
+.sp-cards li { flex: none; width: 76vw; scroll-snap-align: center; display: grid; gap: 10px; }
+.sp-name { display: flex; align-items: center; gap: 8px; font: 600 14px/1 var(--sans); color: #f1ece3; }
+.sp-name .dock-icon { width: 26px; height: 26px; border-radius: 7px; }
+.sp-card {
+  appearance: none; border: 0; padding: 0; cursor: pointer; height: 62vh; border-radius: 26px; overflow: hidden;
+  display: grid; grid-template-rows: auto 1fr; place-items: center; touch-action: pan-x;
+  background: var(--bg-raised); box-shadow: 0 0 0 1px #ffffff1c, 0 30px 80px #000c; transition: transform 0.3s var(--spring), opacity 0.3s;
+}
+.sp-bar { width: 100%; padding: 12px 14px; font: 400 12px/1 var(--mono); color: var(--ink-mute); border-bottom: 1px solid var(--line); text-align: left; }
+.sp-big { width: 96px; height: 96px; border-radius: 24px; }
+.sp-empty { text-align: center; color: #c3c8d2; }
+.sp-hint { text-align: center; font-size: 12.5px; color: #8796ad; }
+
+.desktop[data-narrow] .home-bar { width: 140px; }
+html[data-theme="light"] .widget, html[data-theme="light"] .phone-dock { box-shadow: inset 0 0 0 1px #00000012, 0 10px 30px #2a20100f; }
+.di-about { background: #111b2e; }
+.di-about::before { content: ""; width: 20px; height: 20px; border-radius: 5px; transform: rotate(45deg); background: linear-gradient(135deg, #7c5cff, #00d4ff); box-shadow: 0 0 12px #7c5cff88; }
+/* Phone apps close with the home bar, not traffic lights. */
+.desktop[data-narrow] .dwin-bar .window-lights { visibility: hidden; }

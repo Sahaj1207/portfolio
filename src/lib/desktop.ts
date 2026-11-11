@@ -26,6 +26,8 @@ export type Win = {
   z: number;
   min: boolean;
   snap: Snap;
+  /** Playing its close animation; removed once that finishes. */
+  closing?: boolean;
 };
 
 export type DesktopState = { on: boolean; windows: Win[]; mission: boolean; focused: AppId | null; booting: boolean };
@@ -65,7 +67,7 @@ function set(next: Partial<DesktopState>) {
     else delete root.dataset.desktop;
   }
   try {
-    sessionStorage.setItem(KEY, JSON.stringify({ on: state.on, windows: state.windows }));
+    sessionStorage.setItem(KEY, JSON.stringify({ on: state.on, windows: state.windows.filter((w) => !w.closing) }));
   } catch {
     /* private mode: the layout just isn't kept */
   }
@@ -142,17 +144,30 @@ export function exitDesktop() {
 
 export function openApp(app: AppId) {
   if (!state.on) set({ on: true });
+  if (state.windows.some((w) => w.app === app && w.closing)) set({ windows: state.windows.filter((w) => w.app !== app) });
   const existing = state.windows.find((w) => w.app === app);
   if (existing) return focusApp(app);
   haptic("light");
   set({ windows: [...state.windows, place(app)], focused: app, mission: false });
 }
 
+/** How long a window takes to close (matches .dwin[data-closing] in the CSS). */
+const CLOSE_MS = 220;
+
 export function closeApp(app: AppId) {
+  const win = state.windows.find((w) => w.app === app);
+  if (!win || win.closing) return;
   haptic("light");
-  const windows = state.windows.filter((w) => w.app !== app);
-  const front = windows.filter((w) => !w.min).sort((a, b) => b.z - a.z)[0];
-  set({ windows, focused: front?.app ?? null });
+  const remaining = state.windows.filter((w) => w.app !== app);
+  const front = remaining.filter((w) => !w.min).sort((a, b) => b.z - a.z)[0];
+  const remove = () => set({ windows: state.windows.filter((w) => w.app !== app) });
+  // Let it shrink and fade first, like macOS; then it's gone.
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    set({ windows: remaining, focused: front?.app ?? null });
+    return;
+  }
+  set({ windows: state.windows.map((w) => (w.app === app ? { ...w, closing: true } : w)), focused: front?.app ?? null });
+  setTimeout(remove, CLOSE_MS);
 }
 
 export function focusApp(app: AppId) {

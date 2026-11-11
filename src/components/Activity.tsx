@@ -8,7 +8,8 @@ import github from "@/content/github.json";
  * left out, since every change to it is a push. Times are relative to the visitor's clock.
  */
 
-const NAMES: Record<string, string> = {
+/** Display names for repos whose names differ from the project. */
+export const REPO_NAMES: Record<string, string> = {
   "HARIKA-Human-Aware-Responsive-Intelligent-Kernel-Anima": "HARIKA",
   vayucast: "VayuCast",
   "mothertongue-books": "MotherTongue Books",
@@ -38,7 +39,7 @@ export function Activity() {
       {recent.map((r, i) => (
         <span key={r.repo}>
           {i > 0 && <span aria-hidden="true"> · </span>}
-          <a href={r.url} target="_blank" rel="noreferrer">{NAMES[r.repo] ?? r.repo}</a>
+          <a href={r.url} target="_blank" rel="noreferrer">{REPO_NAMES[r.repo] ?? r.repo}</a>
           {now && <span className="activity-when"> {ago(r.pushedAt, now)}</span>}
         </span>
       ))}

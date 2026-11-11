@@ -96,7 +96,14 @@ export function FloatDemo() {
     wake();
   };
 
-  const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  // The clock is set in the browser only, so the server's time never disagrees with the visitor's.
+  const [time, setTime] = useState("");
+  useEffect(() => {
+    const tick = () => setTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    tick();
+    const id = setInterval(tick, 15_000);
+    return () => clearInterval(id);
+  }, []);
   const eq = (
     <span className={`fd-eq${playing ? " on" : ""}`} aria-hidden="true">
       <i /><i /><i /><i />

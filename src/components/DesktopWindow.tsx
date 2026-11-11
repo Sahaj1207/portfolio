@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   APPS,
   type AppId,
@@ -20,6 +20,9 @@ import {
 } from "@/lib/desktop";
 
 export type Rect = { x: number; y: number; w: number; h: number };
+
+/** Holding a phone app's home bar opens the app switcher. */
+export const SWITCHER = "sahaj:app-switcher";
 
 const MIN_W = 340;
 const MIN_H = 240;
@@ -121,6 +124,31 @@ export function DesktopWindow({ win, vw, vh, focused, cell, narrow, onSnapPrevie
     flyoutTimer.current = setTimeout(() => setFlyout(false), 260);
   };
   const swipe = useRef<number | null>(null);
+  const hold = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const el = useRef<HTMLElement>(null);
+
+  // Opening zooms out of the app's icon (dock, or home screen on phones), like macOS.
+  useLayoutEffect(() => {
+    const node = el.current;
+    if (!node || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const icon = document.querySelector(`[data-dock-app="${app}"]`)?.getBoundingClientRect();
+    const r = node.getBoundingClientRect();
+    node.style.transition = "none";
+    node.style.transform = icon
+      ? `translate(${icon.x - r.x}px, ${icon.y - r.y}px) scale(${icon.width / r.width}, ${icon.height / r.height})`
+      : `translate(${r.width * 0.04}px, ${r.height * 0.04}px) scale(0.92)`;
+    node.style.opacity = "0";
+    // Force layout at the icon, then animate to the window's own place.
+    node.getBoundingClientRect();
+    node.style.transition = "transform 0.48s cubic-bezier(0.2, 0.85, 0.25, 1), opacity 0.22s ease";
+    node.style.transform = "";
+    node.style.opacity = "";
+    const done = () => (node.style.transition = "");
+    const id = setTimeout(done, 600);
+    return () => clearTimeout(id);
+    // Only on first mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const drag = useRef<{ dx: number; dy: number; snap: Snap } | null>(null);
   const size = useRef<{ edge: string; x0: number; y0: number; w0: number; h0: number } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -191,9 +219,9 @@ export function DesktopWindow({ win, vw, vh, focused, cell, narrow, onSnapPrevie
   let scale = 1;
   if (win.min) {
     const icon = typeof document !== "undefined" ? document.querySelector(`[data-dock-app="${app}"]`)?.getBoundingClientRect() : null;
-    const tx = (icon ? icon.x + icon.width / 2 : vw / 2) - (frame.x + frame.w / 2);
-    const ty = (icon ? icon.y + icon.height / 2 : vh - 40) - (frame.y + frame.h / 2);
-    transform = `translate(${tx}px, ${ty}px) scale(0.06)`;
+    const box = icon ?? { x: vw / 2 - 24, y: vh - 60, width: 48, height: 48 };
+    // transform-origin is the top-left corner, so this lands the window exactly on the icon.
+    transform = `translate(${box.x - frame.x}px, ${box.y - frame.y}px) scale(${box.width / frame.w}, ${box.height / frame.h})`;
   } else if (cell) {
     const s = (scale = Math.min(cell.w / frame.w, cell.h / frame.h, 1));
     const tx = cell.x + (cell.w - frame.w * s) / 2 - frame.x;
@@ -205,12 +233,14 @@ export function DesktopWindow({ win, vw, vh, focused, cell, narrow, onSnapPrevie
 
   return (
     <section
+      ref={el}
       className="dwin"
       role="dialog"
       aria-label={APPS[app].name}
       data-app={app}
       data-focused={focused || undefined}
       data-min={win.min || undefined}
+      data-closing={win.closing || undefined}
       data-busy={busy || undefined}
       data-overview={cell ? "on" : undefined}
       style={{ left: frame.x, top: frame.y, width: frame.w, height: frame.h, zIndex: win.z, transform, "--s": scale } as React.CSSProperties}
@@ -245,12 +275,20 @@ export function DesktopWindow({ win, vw, vh, focused, cell, narrow, onSnapPrevie
           aria-label="Go home"
           // A tap or a swipe up goes home; Enter or Space too.
           onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), minimiseApp(app))}
-          onPointerDown={(e) => (swipe.current = e.clientY)}
+          onPointerDown={(e) => {
+            swipe.current = e.clientY;
+            hold.current = setTimeout(() => {
+              swipe.current = null;
+              window.dispatchEvent(new Event(SWITCHER));
+            }, 450);
+          }}
           onPointerUp={(e) => {
+            clearTimeout(hold.current);
             const start = swipe.current;
             swipe.current = null;
             if (start !== null && (start - e.clientY > 30 || Math.abs(start - e.clientY) < 10)) minimiseApp(app);
           }}
+          onPointerCancel={() => clearTimeout(hold.current)}
         />
       )}
       {!narrow &&
