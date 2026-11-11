@@ -13,6 +13,7 @@ import { System } from "@/components/System";
 import { FirstVisit } from "@/components/FirstVisit";
 import { site } from "@/content/site";
 import "./globals.css";
+import "./demos.css";
 
 // Cinematic display serif for the big words; a warm humanist sans for reading.
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-serif", display: "swap" });

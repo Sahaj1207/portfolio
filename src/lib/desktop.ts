@@ -11,7 +11,9 @@ import { play } from "@/lib/sound";
  * survives a reload in the same tab.
  */
 
-export type AppId = "finder" | "terminal" | "photos" | "notes" | "contact" | "settings" | "about";
+export type AppId =
+  | "finder" | "terminal" | "photos" | "notes" | "contact" | "settings" | "about"
+  | "float" | "pie" | "harika" | "vayucast";
 export type Snap = "left" | "right" | "max" | null;
 
 export type Win = {
@@ -35,7 +37,14 @@ export const APPS: Record<AppId, { name: string; title: string; w: number; h: nu
   contact: { name: "Contact", title: "Say hello", w: 460, h: 420 },
   settings: { name: "Settings", title: "System Settings", w: 560, h: 520 },
   about: { name: "About", title: "About sahaj.os", w: 420, h: 440 },
+  float: { name: "FLOAT", title: "FLOAT — try the island", w: 860, h: 500 },
+  pie: { name: "PIE", title: "PIE — edit the text in a photo", w: 900, h: 520 },
+  harika: { name: "HARIKA", title: "HARIKA — ask it something", w: 900, h: 560 },
+  vayucast: { name: "VayuCast", title: "VayuCast — tomorrow's air", w: 820, h: 620 },
 };
+
+/** Projects with a playable demo on the desktop, by project slug. */
+export const DEMOS: Partial<Record<string, AppId>> = { float: "float", pie: "pie", harika: "harika", vayucast: "vayucast" };
 
 /** Top of the usable area (below the menu bar) and the room the dock takes at the bottom. */
 export const TOP = 64;

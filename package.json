@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/gitlog.mjs",
+    "prebuild": "node scripts/gitlog.mjs && node scripts/vayucast.mjs",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",

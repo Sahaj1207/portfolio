@@ -1,5 +1,10 @@
 [
   {
+    "hash": "09589c6",
+    "date": "2026-11-11",
+    "subject": "Content: VayuCast, Crumb, HARIKA rewrite, hackathon group, email, first-visit choice"
+  },
+  {
     "hash": "9ed93aa",
     "date": "2026-11-05",
     "subject": "Work cards: aligned grid and one rhythm inside every card"
@@ -53,10 +58,5 @@
     "hash": "99d7aee",
     "date": "2026-11-04",
     "subject": "Cinematic type and a human voice"
-  },
-  {
-    "hash": "69e88f1",
-    "date": "2026-11-04",
-    "subject": "Seamless reveal: glyphs fade in place over the full photo"
   }
 ]

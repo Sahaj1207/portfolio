@@ -4,6 +4,10 @@ import { type ReactNode, useEffect, useState } from "react";
 import { About, Contact, Finder, Notes, Photos, Settings } from "@/components/DesktopApps";
 import { DesktopWindow, type Rect } from "@/components/DesktopWindow";
 import { Terminal } from "@/components/Terminal";
+import { FloatDemo } from "@/components/demos/FloatDemo";
+import { HarikaDemo } from "@/components/demos/HarikaDemo";
+import { PieDemo } from "@/components/demos/PieDemo";
+import { VayuCastDemo } from "@/components/demos/VayuCastDemo";
 import { APPS, type AppId, DOCK, type Snap, TOP, exitDesktop, focusApp, minimiseApp, openApp, setMission, useDesktop } from "@/lib/desktop";
 import { haptic } from "@/lib/haptics";
 
@@ -12,7 +16,10 @@ import { haptic } from "@/lib/haptics";
  * hidden underneath. Mission Control (F3 or Ctrl + ↑) lays every open window side by side.
  */
 
-const DOCK_APPS: AppId[] = ["finder", "terminal", "photos", "notes", "contact", "settings"];
+const SYSTEM_APPS: AppId[] = ["finder", "terminal", "photos", "notes", "contact", "settings"];
+/** Project demos sit in their own group on the dock. */
+const DEMO_APPS: AppId[] = ["float", "pie", "harika", "vayucast"];
+const ALL_APPS: AppId[] = [...SYSTEM_APPS, ...DEMO_APPS, "about"];
 
 function useViewport() {
   const [size, setSize] = useState({ vw: 1280, vh: 800 });
@@ -60,6 +67,14 @@ function AppBody({ app, hasResume }: { app: AppId; hasResume: boolean }): ReactN
       return <Settings />;
     case "about":
       return <About />;
+    case "float":
+      return <FloatDemo />;
+    case "pie":
+      return <PieDemo />;
+    case "harika":
+      return <HarikaDemo />;
+    case "vayucast":
+      return <VayuCastDemo />;
   }
 }
 
@@ -99,7 +114,7 @@ export function Desktop({ hasResume }: { hasResume: boolean }) {
   if (!on) return null;
 
   const visible = windows.filter((w) => !w.min);
-  const cells = mission ? missionCells(DOCK_APPS.concat("about").filter((a) => visible.some((w) => w.app === a)), vw, vh) : null;
+  const cells = mission ? missionCells(ALL_APPS.filter((a) => visible.some((w) => w.app === a)), vw, vh) : null;
 
   const icons: { id: string; label: string; kind: string; open: () => void }[] = [
     { id: "work", label: "work", kind: "folder", open: () => openApp("finder") },
@@ -170,7 +185,29 @@ export function Desktop({ hasResume }: { hasResume: boolean }) {
 
       <nav className="dock" aria-label="Dock">
         <ul>
-          {DOCK_APPS.map((app) => {
+          {SYSTEM_APPS.map((app) => {
+            const win = windows.find((w) => w.app === app);
+            return (
+              <li key={app}>
+                <button
+                  type="button"
+                  data-dock-app={app}
+                  data-running={win ? "on" : undefined}
+                  aria-label={`${APPS[app].name}${win ? (win.min ? " (minimised)" : " (open)") : ""}`}
+                  onClick={() => {
+                    if (!win) openApp(app);
+                    else if (!win.min && focused === app) minimiseApp(app);
+                    else focusApp(app);
+                  }}
+                >
+                  <DockIcon app={app} />
+                  <span className="dock-tip" aria-hidden="true">{APPS[app].name}</span>
+                </button>
+              </li>
+            );
+          })}
+          <li className="dock-sep" aria-hidden="true" />
+          {DEMO_APPS.map((app) => {
             const win = windows.find((w) => w.app === app);
             return (
               <li key={app}>

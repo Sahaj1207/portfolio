@@ -1,0 +1,450 @@
+{
+  "fetchedAt": "2026-11-11",
+  "trainedAt": "2026-11-08",
+  "test": {
+    "1": {
+      "mae": 15.771,
+      "category": 0.782,
+      "coverage": 0.761
+    },
+    "2": {
+      "mae": 21.2,
+      "category": 0.72,
+      "coverage": 0.743
+    },
+    "3": {
+      "mae": 22.785,
+      "category": 0.686,
+      "coverage": 0.728
+    }
+  },
+  "vsBaseline": {
+    "1": 16.2,
+    "2": 22.8,
+    "3": 28.4
+  },
+  "cityMae": {
+    "Belagavi": 7.38,
+    "Bengaluru": 7.51,
+    "Delhi": 49.57,
+    "Hyderabad": 9.84,
+    "Kolhapur": 8.95,
+    "Kurnool": 8.49,
+    "Lucknow": 27.67,
+    "Mumbai": 14.11,
+    "Pune": 8.42
+  },
+  "live": {
+    "checkedAt": "2026-11-11",
+    "scored": 81,
+    "mae": 19.42,
+    "coverage": 0.691
+  },
+  "cities": {
+    "belagavi": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 40,
+          "low": 28,
+          "high": 53
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 47,
+          "low": 28,
+          "high": 64
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 57,
+          "low": 28,
+          "high": 76
+        }
+      ],
+      "drivers": [
+        [
+          "aqi_1d_ago",
+          2.91
+        ],
+        [
+          "wind_speed_target_day",
+          2.68
+        ],
+        [
+          "pm2_5_today",
+          2.09
+        ],
+        [
+          "aqi_today",
+          1.93
+        ],
+        [
+          "wind_change",
+          1.54
+        ]
+      ]
+    },
+    "bengaluru": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 69,
+          "low": 53,
+          "high": 86
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 61,
+          "low": 42,
+          "high": 85
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 55,
+          "low": 37,
+          "high": 80
+        }
+      ],
+      "drivers": [
+        [
+          "aqi_1d_ago",
+          2.93
+        ],
+        [
+          "wind_speed_target_day",
+          2.57
+        ],
+        [
+          "pm2_5_today",
+          2.01
+        ],
+        [
+          "aqi_today",
+          1.87
+        ],
+        [
+          "wind_change",
+          1.51
+        ]
+      ]
+    },
+    "delhi": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 300,
+          "low": 262,
+          "high": 334
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 324,
+          "low": 241,
+          "high": 337
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 334,
+          "low": 244,
+          "high": 339
+        }
+      ],
+      "drivers": [
+        [
+          "aqi_today",
+          17.07
+        ],
+        [
+          "pm2_5_today",
+          12.01
+        ],
+        [
+          "aqi_1d_ago",
+          10.8
+        ],
+        [
+          "wind_speed_target_day",
+          9.29
+        ],
+        [
+          "aqi_mean_30d",
+          7.39
+        ]
+      ]
+    },
+    "hyderabad": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 55,
+          "low": 40,
+          "high": 69
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 57,
+          "low": 39,
+          "high": 74
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 70,
+          "low": 40,
+          "high": 83
+        }
+      ],
+      "drivers": [
+        [
+          "wind_speed_target_day",
+          3.38
+        ],
+        [
+          "aqi_1d_ago",
+          2.92
+        ],
+        [
+          "pm2_5_today",
+          2.09
+        ],
+        [
+          "aqi_today",
+          1.77
+        ],
+        [
+          "wind_change",
+          1.42
+        ]
+      ]
+    },
+    "kolhapur": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 48,
+          "low": 35,
+          "high": 63
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 54,
+          "low": 35,
+          "high": 73
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 60,
+          "low": 34,
+          "high": 77
+        }
+      ],
+      "drivers": [
+        [
+          "aqi_1d_ago",
+          3.38
+        ],
+        [
+          "wind_speed_target_day",
+          2.81
+        ],
+        [
+          "pm2_5_today",
+          2.21
+        ],
+        [
+          "aqi_today",
+          1.99
+        ],
+        [
+          "wind_change",
+          1.55
+        ]
+      ]
+    },
+    "kurnool": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 36,
+          "low": 25,
+          "high": 52
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 45,
+          "low": 27,
+          "high": 69
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 56,
+          "low": 30,
+          "high": 84
+        }
+      ],
+      "drivers": [
+        [
+          "aqi_1d_ago",
+          3.06
+        ],
+        [
+          "wind_speed_target_day",
+          2.55
+        ],
+        [
+          "pm2_5_today",
+          2.03
+        ],
+        [
+          "aqi_today",
+          1.8
+        ],
+        [
+          "wind_change",
+          1.48
+        ]
+      ]
+    },
+    "lucknow": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 207,
+          "low": 140,
+          "high": 244
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 208,
+          "low": 123,
+          "high": 264
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 211,
+          "low": 117,
+          "high": 265
+        }
+      ],
+      "drivers": [
+        [
+          "pm2_5_today",
+          8.22
+        ],
+        [
+          "aqi_1d_ago",
+          6.75
+        ],
+        [
+          "aqi_today",
+          6.55
+        ],
+        [
+          "wind_speed_target_day",
+          6.42
+        ],
+        [
+          "aqi_mean_30d",
+          4.89
+        ]
+      ]
+    },
+    "mumbai": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 101,
+          "low": 72,
+          "high": 123
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 125,
+          "low": 66,
+          "high": 146
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 113,
+          "low": 60,
+          "high": 132
+        }
+      ],
+      "drivers": [
+        [
+          "aqi_1d_ago",
+          4.06
+        ],
+        [
+          "pm2_5_today",
+          3.94
+        ],
+        [
+          "wind_speed_target_day",
+          3.04
+        ],
+        [
+          "pressure_today",
+          2.98
+        ],
+        [
+          "aqi_today",
+          2.71
+        ]
+      ]
+    },
+    "pune": {
+      "madeFrom": "2026-11-10",
+      "days": [
+        {
+          "date": "2026-11-11",
+          "aqi": 64,
+          "low": 43,
+          "high": 74
+        },
+        {
+          "date": "2026-11-12",
+          "aqi": 71,
+          "low": 40,
+          "high": 85
+        },
+        {
+          "date": "2026-11-13",
+          "aqi": 71,
+          "low": 39,
+          "high": 87
+        }
+      ],
+      "drivers": [
+        [
+          "wind_speed_target_day",
+          3.76
+        ],
+        [
+          "aqi_1d_ago",
+          3.17
+        ],
+        [
+          "pm2_5_today",
+          2.39
+        ],
+        [
+          "aqi_today",
+          1.99
+        ],
+        [
+          "rain_target_day",
+          1.51
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TryDemo } from "@/components/TryDemo";
 import { type Project, hackathonBuilds, mainWork } from "@/content/projects";
 
 /** Case studies page through main work, then hackathon builds. */
@@ -27,6 +28,7 @@ export function CaseStudy({ p, inWindow = false }: { p: Project; inWindow?: bool
         <ul className="chips" aria-label="Stack">
           {p.stack.map((s) => <li key={s}>{s}</li>)}
         </ul>
+        <TryDemo slug={p.slug} />
         <div className="bento">
           {p.highlights.map((h) => (
             <div key={h.label}>

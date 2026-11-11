@@ -9,7 +9,7 @@ import { isMotionPaused, setMotionPaused } from "@/lib/motion";
 import { haptic, setHapticsOn, useHapticsOn, useHapticsSupported } from "@/lib/haptics";
 import { play, setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
-import { enterDesktop, exitDesktop, openApp, setMission, useDesktop } from "@/lib/desktop";
+import { DEMOS, enterDesktop, exitDesktop, openApp, setMission, useDesktop } from "@/lib/desktop";
 import { shutDown, toggleNotices } from "@/components/System";
 import { toggleTheme, useTheme } from "@/lib/theme";
 
@@ -78,6 +78,18 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
           },
         }),
       ),
+      ...projects
+        .filter((p) => DEMOS[p.slug])
+        .map(
+          (p): Item => ({
+            id: `try-${p.slug}`,
+            group: "Projects",
+            label: `Try ${p.name}`,
+            hint: "live demo on the desktop",
+            keywords: `demo play ${p.stack.join(" ")}`,
+            run: () => (close(), enterDesktop(DEMOS[p.slug])),
+          }),
+        ),
       ...(hasResume ? [{ id: "resume", group: "Links" as const, label: "Resume (PDF)", keywords: "cv", run: () => external("/resume.pdf") }] : []),
       { id: "github", group: "Links", label: "GitHub", hint: "github.com/Sahaj1207", run: () => external(site.links.github) },
       { id: "linkedin", group: "Links", label: "LinkedIn", run: () => external(site.links.linkedin) },

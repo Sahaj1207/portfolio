@@ -9,7 +9,7 @@ import { type Activity, clearActivity, showActivity } from "@/lib/islandBus";
 import { haptic, setHapticsOn } from "@/lib/haptics";
 import { setSoundOn } from "@/lib/sound";
 import { setViewMode } from "@/lib/viewMode";
-import { enterDesktop, exitDesktop, isDesktopOn } from "@/lib/desktop";
+import { DEMOS, enterDesktop, exitDesktop, isDesktopOn } from "@/lib/desktop";
 import { setThemePref } from "@/lib/theme";
 
 /**
@@ -58,6 +58,7 @@ const COMMANDS = [
   "cat profile.txt",
   "sudo mode --developer",
   "startx",
+  "try",
   "logout",
   "theme",
 ];
@@ -238,6 +239,7 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
             ["sound on|off", "the sound of sahaj.os"],
             ["haptics on|off", "feel it, on phones"],
             ["startx", "boot the desktop: windows, dock, the lot"],
+            ["try <project>", "a live demo: float, pie, harika, vayucast"],
             ["clear", "clear the screen"],
           ].map(([c, d]) => (
             <><span className="v">{c.padEnd(16)}</span> <span className="k">{d}</span></>
@@ -356,6 +358,13 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
         if (t !== "light" && t !== "dark" && t !== "auto") return print(<span className="k">usage: theme &lt;light | dark | auto&gt;</span>);
         setThemePref(t);
         return print(<span className="g">{t === "auto" ? "following your device" : `${t} mode on`}</span>);
+      }
+      case "try": {
+        const q = (args[0] ?? "").toLowerCase();
+        const app = DEMOS[q] ?? DEMOS[Object.keys(DEMOS).find((k) => k.startsWith(q) && q) ?? ""];
+        if (!app) return print(<span className="k">usage: try &lt;float | pie | harika | vayucast&gt;</span>);
+        enterDesktop(app);
+        return print(<span className="g">opening the {q || app} demo on the desktop…</span>);
       }
       case "startx":
         if (isDesktopOn()) return print(<span className="k">already on the desktop. <b className="v">logout</b> to go back to the page.</span>);

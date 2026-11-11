@@ -11,6 +11,7 @@ import { setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 import { WALLPAPERS, setWallpaper, useWallpaper } from "@/lib/wallpaper";
 import { type ThemePref, setThemePref, useThemePref } from "@/lib/theme";
+import { DEMOS, openApp } from "@/lib/desktop";
 
 /** The apps on the sahaj.os desktop. Everything they show comes from the same content as the page. */
 
@@ -73,9 +74,16 @@ export function Finder() {
             <ul className="chips" aria-label="Stack">
               {project.stack.slice(0, 5).map((s) => <li key={s}>{s}</li>)}
             </ul>
-            <button type="button" className="pill-link primary" onClick={() => open(project.slug)}>
-              Open case study
-            </button>
+            <div className="finder-actions">
+              {DEMOS[project.slug] && (
+                <button type="button" className="pill-link primary" onClick={() => openApp(DEMOS[project.slug]!)}>
+                  Try it
+                </button>
+              )}
+              <button type="button" className={`pill-link${DEMOS[project.slug] ? "" : " primary"}`} onClick={() => open(project.slug)}>
+                Case study
+              </button>
+            </div>
           </aside>
         </>
       ) : (
