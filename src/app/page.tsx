@@ -6,7 +6,7 @@ import { Terminal } from "@/components/Terminal";
 import { type Project, alsoBuilt, hackathonBuilds, internshipWork, mainWork, projects, timeline } from "@/content/projects";
 import { site } from "@/content/site";
 
-const flagships = ["float", "pie", "vayucast"].map((s) => projects.find((p) => p.slug === s)!);
+const flagships = ["float", "harika", "vayucast"].map((s) => projects.find((p) => p.slug === s)!);
 
 /**
  * FLOAT and the Meta hackathon span the row; other cards are halves. A hackathon card with

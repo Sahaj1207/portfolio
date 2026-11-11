@@ -1,5 +1,10 @@
 [
   {
+    "hash": "49e53b5",
+    "date": "2026-11-11",
+    "subject": "Antmark internship group, Meta-led hackathon card, one spacing system, sound only on desktop transitions"
+  },
+  {
     "hash": "521519e",
     "date": "2026-11-11",
     "subject": "Desktop behaviours and a phone home screen"
@@ -53,10 +58,5 @@
     "hash": "3771600",
     "date": "2026-11-04",
     "subject": "The sound of sahaj.os"
-  },
-  {
-    "hash": "f5664a4",
-    "date": "2026-11-04",
-    "subject": "OS layer: menu bar and case studies as windows"
   }
 ]
