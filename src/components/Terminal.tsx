@@ -368,7 +368,7 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
       }
       case "startx":
         if (isDesktopOn()) return print(<span className="k">already on the desktop. <b className="v">logout</b> to go back to the page.</span>);
-        enterDesktop("finder");
+        enterDesktop("finder", { boot: true });
         return print(<span className="g">starting sahaj.os desktop…</span>);
       case "logout":
         if (!isDesktopOn()) return print(<span className="k">not on the desktop. Try <b className="v">startx</b>.</span>);

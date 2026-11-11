@@ -1,5 +1,10 @@
 [
   {
+    "hash": "17e06c5",
+    "date": "2026-11-11",
+    "subject": "Desktop demo apps: FLOAT, PIE, HARIKA, VayuCast"
+  },
+  {
     "hash": "09589c6",
     "date": "2026-11-11",
     "subject": "Content: VayuCast, Crumb, HARIKA rewrite, hackathon group, email, first-visit choice"
@@ -53,10 +58,5 @@
     "hash": "84ce489",
     "date": "2026-11-04",
     "subject": "The world: atmosphere and the entrance into sahaj.os"
-  },
-  {
-    "hash": "99d7aee",
-    "date": "2026-11-04",
-    "subject": "Cinematic type and a human voice"
   }
 ]

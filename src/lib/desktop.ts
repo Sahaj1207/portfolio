@@ -14,7 +14,8 @@ import { play } from "@/lib/sound";
 export type AppId =
   | "finder" | "terminal" | "photos" | "notes" | "contact" | "settings" | "about"
   | "float" | "pie" | "harika" | "vayucast";
-export type Snap = "left" | "right" | "max" | null;
+/** Halves, quarters or the whole screen. */
+export type Snap = "left" | "right" | "max" | "tl" | "tr" | "bl" | "br" | null;
 
 export type Win = {
   app: AppId;
@@ -27,7 +28,7 @@ export type Win = {
   snap: Snap;
 };
 
-export type DesktopState = { on: boolean; windows: Win[]; mission: boolean; focused: AppId | null };
+export type DesktopState = { on: boolean; windows: Win[]; mission: boolean; focused: AppId | null; booting: boolean };
 
 export const APPS: Record<AppId, { name: string; title: string; w: number; h: number }> = {
   finder: { name: "Finder", title: "~/work", w: 860, h: 540 },
@@ -52,7 +53,7 @@ export const DOCK = 92;
 const KEY = "sahaj:desktop";
 
 const listeners = new Set<() => void>();
-let state: DesktopState = { on: false, windows: [], mission: false, focused: null };
+let state: DesktopState = { on: false, windows: [], mission: false, focused: null, booting: false };
 let topZ = 1;
 let restored = false;
 
@@ -79,7 +80,7 @@ function restore() {
     if (!saved?.on) return;
     topZ = Math.max(1, ...saved.windows.map((w) => w.z));
     const front = [...saved.windows].filter((w) => !w.min).sort((a, b) => b.z - a.z)[0];
-    set({ on: true, windows: saved.windows, focused: front?.app ?? null });
+    set({ on: true, windows: saved.windows, focused: front?.app ?? null, booting: false });
   } catch {
     /* corrupt or missing: start fresh */
   }
@@ -101,13 +102,35 @@ function place(app: AppId): Win {
 const update = (app: AppId, patch: Partial<Win>) =>
   set({ windows: state.windows.map((w) => (w.app === app ? { ...w, ...patch } : w)) });
 
-export function enterDesktop(app?: AppId) {
+/**
+ * Turns the desktop on. `boot` plays the short boot log first (from `startx` or the
+ * first-visit "Boot the desktop"), unless the visitor prefers reduced motion.
+ */
+export function enterDesktop(app?: AppId, { boot = false } = {}) {
   if (!state.on) {
-    play("welcome");
-    haptic("firm");
-    set({ on: true, mission: false });
+    const booting = boot && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!booting) {
+      play("welcome");
+      haptic("firm");
+    }
+    set({ on: true, mission: false, booting });
   }
   if (app) openApp(app);
+}
+
+/** The boot log has finished (or was skipped). */
+export function endBoot() {
+  if (!state.booting) return;
+  play("welcome");
+  haptic("firm");
+  set({ booting: false });
+}
+
+/** Snaps a window to a half, a quarter or the whole screen. */
+export function snapApp(app: AppId, snap: Snap) {
+  haptic("tick");
+  update(app, { snap, z: ++topZ, min: false });
+  set({ focused: app });
 }
 
 export function exitDesktop() {
@@ -184,4 +207,4 @@ export function useDesktop(): DesktopState {
     () => SERVER,
   );
 }
-const SERVER: DesktopState = { on: false, windows: [], mission: false, focused: null };
+const SERVER: DesktopState = { on: false, windows: [], mission: false, focused: null, booting: false };

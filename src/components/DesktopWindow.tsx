@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { type PointerEvent as ReactPointerEvent, type ReactNode, useRef, useState } from "react";
+import { type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import {
   APPS,
   type AppId,
@@ -15,6 +15,7 @@ import {
   moveApp,
   resizeApp,
   setMission,
+  snapApp,
   toggleMax,
 } from "@/lib/desktop";
 
@@ -25,12 +26,59 @@ const MIN_H = 240;
 const GAP = 8;
 
 /** Where a window actually sits: its own rect, or the half / whole screen it is snapped to. */
-export function frameOf(win: Win, vw: number, vh: number): Rect {
+export function snapRect(snap: Exclude<Snap, null>, vw: number, vh: number): Rect {
   const h = vh - TOP - DOCK;
-  if (win.snap === "max") return { x: GAP, y: TOP, w: vw - GAP * 2, h };
-  if (win.snap === "left") return { x: GAP, y: TOP, w: (vw - GAP * 3) / 2, h };
-  if (win.snap === "right") return { x: (vw + GAP) / 2, y: TOP, w: (vw - GAP * 3) / 2, h };
-  return { x: win.x, y: win.y, w: win.w, h: win.h };
+  const halfW = (vw - GAP * 3) / 2;
+  const halfH = (h - GAP) / 2;
+  const right = (vw + GAP) / 2;
+  switch (snap) {
+    case "max":
+      return { x: GAP, y: TOP, w: vw - GAP * 2, h };
+    case "left":
+      return { x: GAP, y: TOP, w: halfW, h };
+    case "right":
+      return { x: right, y: TOP, w: halfW, h };
+    case "tl":
+      return { x: GAP, y: TOP, w: halfW, h: halfH };
+    case "tr":
+      return { x: right, y: TOP, w: halfW, h: halfH };
+    case "bl":
+      return { x: GAP, y: TOP + halfH + GAP, w: halfW, h: halfH };
+    case "br":
+      return { x: right, y: TOP + halfH + GAP, w: halfW, h: halfH };
+  }
+}
+
+export function frameOf(win: Win, vw: number, vh: number): Rect {
+  return win.snap ? snapRect(win.snap, vw, vh) : { x: win.x, y: win.y, w: win.w, h: win.h };
+}
+
+/** Windows-style snap layouts, shown when the pointer rests on the green button. */
+const LAYOUTS: { label: string; cells: [Exclude<Snap, null>, string][] }[] = [
+  { label: "Halves", cells: [["left", "1 / 1 / 3 / 2"], ["right", "1 / 2 / 3 / 3"]] },
+  { label: "Full", cells: [["max", "1 / 1 / 3 / 3"]] },
+  { label: "Quarters", cells: [["tl", "1 / 1 / 2 / 2"], ["tr", "1 / 2 / 2 / 3"], ["bl", "2 / 1 / 3 / 2"], ["br", "2 / 2 / 3 / 3"]] },
+];
+
+function SnapFlyout({ app, onDone }: { app: AppId; onDone: () => void }) {
+  return (
+    <div className="snap-flyout" role="menu" aria-label="Snap layouts" onPointerDown={(e) => e.stopPropagation()}>
+      {LAYOUTS.map((l) => (
+        <div key={l.label} className="snap-layout" aria-label={l.label}>
+          {l.cells.map(([snap, area]) => (
+            <button
+              key={snap}
+              type="button"
+              role="menuitem"
+              aria-label={`Snap to ${snap === "max" ? "full screen" : snap === "left" ? "left half" : snap === "right" ? "right half" : `${snap[0] === "t" ? "top" : "bottom"} ${snap[1] === "l" ? "left" : "right"} quarter`}`}
+              style={{ gridArea: area }}
+              onClick={() => (snapApp(app, snap), onDone())}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 /** The edge snap a drag would land on, from where the pointer is. */
@@ -59,7 +107,20 @@ type Props = {
  */
 export function DesktopWindow({ win, vw, vh, focused, cell, narrow, onSnapPreview, children }: Props) {
   const { app } = win;
-  const frame = narrow ? { x: GAP, y: TOP, w: vw - GAP * 2, h: vh - TOP - DOCK } : frameOf(win, vw, vh);
+  // Phones: every app fills the screen under the island, with a home bar at the bottom.
+  const frame = narrow ? { x: 6, y: TOP, w: vw - 12, h: vh - TOP - 6 } : frameOf(win, vw, vh);
+  const [flyout, setFlyout] = useState(false);
+  const flyoutTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(flyoutTimer.current), []);
+  const showFlyout = () => {
+    clearTimeout(flyoutTimer.current);
+    flyoutTimer.current = setTimeout(() => setFlyout(true), 420);
+  };
+  const hideFlyout = () => {
+    clearTimeout(flyoutTimer.current);
+    flyoutTimer.current = setTimeout(() => setFlyout(false), 260);
+  };
+  const swipe = useRef<number | null>(null);
   const drag = useRef<{ dx: number; dy: number; snap: Snap } | null>(null);
   const size = useRef<{ edge: string; x0: number; y0: number; w0: number; h0: number } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -167,13 +228,31 @@ export function DesktopWindow({ win, vw, vh, focused, cell, narrow, onSnapPrevie
         <div className="window-lights">
           <button type="button" className="light red" onClick={() => closeApp(app)} aria-label={`Close ${APPS[app].name}`} />
           <button type="button" className="light yellow" onClick={() => minimiseApp(app)} aria-label={`Minimise ${APPS[app].name} to the dock`} />
-          <button type="button" className="light green" onClick={() => toggleMax(app)} aria-label={win.snap === "max" ? "Restore size" : "Fill the screen"} />
+          <span className="light-wrap" onPointerEnter={() => !narrow && !cell && showFlyout()} onPointerLeave={hideFlyout}>
+            <button type="button" className="light green" onClick={() => toggleMax(app)} aria-label={win.snap === "max" ? "Restore size" : "Fill the screen"} />
+            {flyout && <SnapFlyout app={app} onDone={() => setFlyout(false)} />}
+          </span>
         </div>
         <span className="dwin-title">{APPS[app].title}</span>
         <span />
       </div>
       <div className="dwin-body">{children}</div>
       {cell && <span className="dwin-label">{APPS[app].name}</span>}
+      {narrow && (
+        <button
+          type="button"
+          className="home-bar"
+          aria-label="Go home"
+          // A tap or a swipe up goes home; Enter or Space too.
+          onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), minimiseApp(app))}
+          onPointerDown={(e) => (swipe.current = e.clientY)}
+          onPointerUp={(e) => {
+            const start = swipe.current;
+            swipe.current = null;
+            if (start !== null && (start - e.clientY > 30 || Math.abs(start - e.clientY) < 10)) minimiseApp(app);
+          }}
+        />
+      )}
       {!narrow &&
         edges.map((edge) => (
           <div

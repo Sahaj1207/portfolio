@@ -240,3 +240,102 @@ html[data-theme="light"] .pie-stage { background: #e6e0d6; }
 @media (prefers-reduced-motion: reduce) {
   .fd-island, .fd-marquee span, .fd-eq.on i, .hd-orb { transition: none; animation: none; }
 }
+
+/* ── Desktop behaviours ───────────────────────────────────────── */
+
+/* Icons sit wherever you leave them. */
+.desktop-icons { position: absolute; inset: 0; top: 0; right: 0; display: block; pointer-events: none; }
+.desktop-icons li { position: absolute; pointer-events: auto; transition: left 0.25s var(--spring), top 0.25s var(--spring); }
+.desktop-icons li[data-dragging] { transition: none; z-index: 2; opacity: 0.85; }
+.desktop-icons button { touch-action: none; }
+.fx-demos { height: 40px; margin-top: 8px; border-radius: 4px 6px 6px 6px; background: linear-gradient(135deg, #8a6bff, #00c2e8); }
+.fx-demos::before { content: ""; position: absolute; top: -6px; left: 0; width: 20px; height: 8px; border-radius: 4px 4px 0 0; background: #7a5cf0; }
+.fx-demos::after { content: "▶"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 14px; }
+.lasso { position: absolute; z-index: 1; border: 1px solid #9cc3ffaa; background: #9cc3ff1f; border-radius: 3px; pointer-events: none; }
+
+/* Snap layouts flyout on the green button */
+.light-wrap { position: relative; display: inline-flex; }
+.snap-flyout {
+  position: absolute; top: 22px; left: -8px; z-index: 5;
+  display: grid; grid-template-columns: repeat(3, 64px); gap: 8px; padding: 10px;
+  border-radius: 12px; background: #121c2ff2; backdrop-filter: blur(20px);
+  box-shadow: 0 0 0 1px #ffffff1c, 0 16px 40px #000a; animation: menu-in 0.14s ease-out;
+}
+.snap-layout { display: grid; grid-template: 1fr 1fr / 1fr 1fr; gap: 3px; height: 44px; }
+.snap-layout button { appearance: none; border: 0; padding: 0; border-radius: 4px; cursor: pointer; background: #ffffff1f; transition: background 0.15s; }
+.snap-layout button:hover, .snap-layout button:focus-visible { background: var(--accent); outline: none; }
+
+/* Window switcher: Alt + ` */
+.switcher {
+  position: absolute; left: 50%; top: 50%; z-index: 200000; transform: translate(-50%, -50%);
+  display: flex; gap: 10px; padding: 14px; border-radius: 22px; max-width: calc(100vw - 32px); overflow-x: auto;
+  background: #0b1322d9; backdrop-filter: blur(24px); box-shadow: 0 0 0 1px #ffffff1c, 0 30px 80px #000b;
+  animation: menu-in 0.12s ease-out;
+}
+.switcher button {
+  appearance: none; border: 0; cursor: pointer; display: grid; justify-items: center; gap: 8px;
+  padding: 12px 12px 10px; border-radius: 14px; background: none; color: var(--ink-soft); font: 500 12px/1 var(--sans);
+}
+.switcher .dock-icon { width: 58px; height: 58px; border-radius: 15px; }
+.switcher button[aria-selected="true"] { background: #ffffff1a; color: var(--ink); }
+
+/* Phones: a home screen, full-screen apps, a home bar */
+.home-screen { position: absolute; inset: 70px 0 0; padding: 12px 18px 32px; overflow: auto; display: grid; align-content: start; gap: 12px; }
+.home-label { font: 600 12px/1 var(--sans); color: var(--ink-mute); letter-spacing: 0.04em; margin-top: 6px; }
+.home-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 8px; }
+.home-grid button {
+  appearance: none; border: 0; background: none; cursor: pointer; width: 100%;
+  display: grid; justify-items: center; gap: 7px; color: var(--ink); font: 500 11.5px/1.2 var(--sans);
+}
+.home-grid .dock-icon { width: 58px; height: 58px; border-radius: 15px; }
+.home-grid button:active .dock-icon { transform: scale(0.92); }
+.home-exit {
+  justify-self: center; margin-top: 18px; appearance: none; cursor: pointer; padding: 10px 18px; border-radius: 999px;
+  border: 1px solid var(--line-strong); background: none; color: var(--ink); font: 500 14px/1 var(--sans);
+}
+.home-bar {
+  position: absolute; left: 50%; bottom: 6px; z-index: 3; transform: translateX(-50%);
+  appearance: none; border: 0; cursor: pointer; width: 134px; height: 22px; padding: 0; background: none; touch-action: none;
+}
+.home-bar::before { content: ""; display: block; height: 5px; margin: 0 auto; border-radius: 3px; background: var(--ink-soft); opacity: 0.8; }
+.desktop[data-narrow] .dwin { border-radius: 18px; }
+.desktop[data-narrow] .dwin-body { padding-bottom: 26px; }
+.desktop[data-narrow] .dwin[data-min] { transform: scale(0.6) translateY(40%) !important; }
+
+/* Boot log, screensaver, lock screen */
+.boot-log {
+  position: fixed; inset: 0; z-index: 98; background: #020308; color: #9fb0c8;
+  display: grid; align-content: center; justify-items: start; padding: clamp(20px, 8vw, 120px);
+  animation: fade-in 0.2s ease;
+}
+.boot-log pre { margin: 0; font: 400 clamp(12px, 1.4vw, 14px)/1.8 var(--mono); white-space: pre-wrap; }
+.boot-log .ok { color: #c9d4e6; }
+.boot-caret { display: inline-block; width: 8px; height: 15px; vertical-align: -2px; background: #00d4ff; animation: blink 1s steps(1) infinite; }
+.boot-skip { position: absolute; right: 20px; bottom: 16px; font: 400 12px/1 var(--mono); color: #55627a; }
+.screensaver { position: fixed; inset: 0; z-index: 96; width: 100vw; height: 100vh; animation: fade-in 1.2s ease; cursor: none; }
+.lock {
+  position: fixed; inset: 0; z-index: 97; display: grid; justify-items: center; align-content: center; gap: 6px;
+  background: #04060dd9; backdrop-filter: blur(30px) saturate(1.2); color: #f1ece3; animation: fade-in 0.5s ease;
+}
+.lock[data-leaving] { animation: lock-out 0.42s ease forwards; }
+@keyframes lock-out { to { opacity: 0; transform: translateY(-24px); } }
+.lock-date { font: 500 18px/1 var(--sans); color: #c3c8d2; }
+.lock-time { font: 400 clamp(80px, 12vw, 132px)/1 var(--serif); letter-spacing: -0.02em; }
+.lock-user {
+  appearance: none; border: 0; background: none; cursor: pointer; margin-top: 8vh;
+  display: grid; justify-items: center; gap: 8px; color: #f1ece3; font: inherit; padding: 12px 20px; border-radius: 18px;
+}
+.lock-user img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; object-position: center 22%; box-shadow: 0 0 0 2px #ffffff2e; }
+.lock-user strong { font-size: 16px; font-weight: 600; }
+.lock-user span { font-size: 13px; color: #9aa3b5; }
+.lock-user:hover, .lock-user:focus-visible { background: #ffffff0f; outline: none; }
+
+html[data-theme="light"] .snap-flyout { background: #f8f6f2f2; box-shadow: 0 0 0 1px #0000001a, 0 16px 40px #2a201038; }
+html[data-theme="light"] .snap-layout button { background: #00000017; }
+html[data-theme="light"] .switcher { background: #f8f6f2e6; box-shadow: 0 0 0 1px #0000001a, 0 30px 80px #2a201038; }
+html[data-theme="light"] .switcher button[aria-selected="true"] { background: #0000000f; }
+html[data-theme="light"] .lasso { border-color: #2d55c899; background: #2d55c814; }
+@media (prefers-reduced-motion: reduce) {
+  .desktop-icons li, .boot-log, .lock, .screensaver { transition: none; animation: none; }
+}
+.desktop[data-narrow] .dwin { background: var(--bg-raised); backdrop-filter: none; }
