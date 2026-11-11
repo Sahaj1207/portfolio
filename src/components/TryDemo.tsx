@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { DEMOS, enterDesktop } from "@/lib/desktop";
 
-/** On a case study, opens the project's live demo on the desktop (if it has one). */
-export function TryDemo({ slug }: { slug: string }) {
+/** Opens a project's live demo on the desktop (if it has one): on case studies and work cards. */
+export function TryDemo({ slug, small = false }: { slug: string; small?: boolean }) {
   const router = useRouter();
   const app = DEMOS[slug];
   if (!app) return null;
@@ -16,7 +16,7 @@ export function TryDemo({ slug }: { slug: string }) {
     } else enterDesktop(app);
   };
   return (
-    <button type="button" className="pill-link primary try-demo" onClick={open}>
+    <button type="button" className={`pill-link primary try-demo${small ? " small" : ""}`} onClick={open}>
       Try it live <span aria-hidden="true">→</span>
     </button>
   );

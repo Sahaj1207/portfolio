@@ -57,7 +57,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
       ["work", "Work", "projects selected"],
       ["float", "FLOAT chapter", "dynamic island windows"],
       ["portrait", "Code portrait", "particles photo who made this"],
-      ["timeline", "Timeline", "history year"],
+      ["timeline", "Where I've been", "experience education internship antmark hackathons recognition makers conclave"],
       ["about", "About & terminal", "shell bio"],
       ["contact", "Contact", "email reach hire"],
     ];

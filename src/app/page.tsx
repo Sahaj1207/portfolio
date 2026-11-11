@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { ContactLinks, hasResume } from "@/components/ContactLinks";
 import { PortraitParticles } from "@/components/PortraitParticles";
+import { Activity } from "@/components/Activity";
 import { ProjectCard } from "@/components/ProjectCard";
+import { TryDemo } from "@/components/TryDemo";
+import { FloatDemo } from "@/components/demos/FloatDemo";
 import { Terminal } from "@/components/Terminal";
-import { type Project, alsoBuilt, hackathonBuilds, internshipWork, mainWork, projects, timeline } from "@/content/projects";
+import { education, experience, recognition, skills } from "@/content/journey";
+import { type Project, alsoBuilt, hackathonBuilds, internshipWork, mainWork, projects } from "@/content/projects";
 import { site } from "@/content/site";
 
 const flagships = ["float", "harika", "vayucast"].map((s) => projects.find((p) => p.slug === s)!);
@@ -15,7 +19,7 @@ const flagships = ["float", "harika", "vayucast"].map((s) => projects.find((p) =
 function WorkCard({ p }: { p: Project }) {
   const wide = p.slug === "float" || !!p.event;
   return (
-    <ProjectCard slug={p.slug} className={`work-card${wide ? " wide" : ""}${p.event ? " event" : ""}`}>
+    <ProjectCard slug={p.slug} name={p.name} className={`work-card${wide ? " wide" : ""}${p.event ? " event" : ""}`}>
       {p.event ? (
         <div className="card-event">
           <p className="card-meta">{p.event.detail}</p>
@@ -40,9 +44,24 @@ function WorkCard({ p }: { p: Project }) {
           </div>
         ))}
       </div>
-      <span className="more">Read the case study <i aria-hidden="true">→</i></span>
+      <div className="card-actions">
+        <span className="more">Read the case study <i aria-hidden="true">→</i></span>
+        <TryDemo slug={p.slug} small />
+      </div>
     </ProjectCard>
   );
+}
+
+function JourneyEntry({ e }: { e: (typeof recognition)[number] }) {
+  const body = (
+    <>
+      <p className="entry-kicker">{e.kicker}</p>
+      <p className="entry-title">{e.title}</p>
+      <p className="entry-place">{e.place}</p>
+      {e.detail && <p className="entry-detail">{e.detail}</p>}
+    </>
+  );
+  return <li className="entry">{e.href ? <a href={e.href}>{body}</a> : body}</li>;
 }
 
 const personJsonLd = {
@@ -70,6 +89,7 @@ export default function Home() {
             </h1>
             <p className="lede">{site.positioning}</p>
             <ContactLinks />
+            <Activity />
           </div>
           <div className="hero-side">
             <p className="eyebrow">the ones I&rsquo;m proudest of</p>
@@ -129,48 +149,12 @@ export default function Home() {
               The island at the top of this page <em>started on Windows</em>.
             </h2>
             <p className="lede">
-              FLOAT is a Dynamic Island for Windows. It lives in four states and moves between them on its own.
+              FLOAT is a Dynamic Island for Windows. This is its state machine, running here: play music, send a
+              notification, or leave it alone.
             </p>
           </div>
-          <div className="states">
-            <article className="state">
-              <div className="state-stage" aria-hidden="true">
-                <div className="mini pill"><span className="dot" /> 9:41</div>
-              </div>
-              <h3>Compact pill</h3>
-              <p>Hangs from the top of the screen, always within reach.</p>
-            </article>
-            <article className="state">
-              <div className="state-stage" aria-hidden="true">
-                <div className="mini orb" />
-              </div>
-              <h3>Ambient orb</h3>
-              <p>After about three seconds untouched it shrinks to a 48×48 orb.</p>
-            </article>
-            <article className="state">
-              <div className="state-stage" aria-hidden="true">
-                <div className="mini banner">
-                  <span className="dot" />
-                  <span style={{ display: "grid", gap: 4, flex: 1 }}>
-                    <span className="bar" style={{ width: "70%" }} />
-                    <span className="bar" style={{ width: "45%" }} />
-                  </span>
-                </div>
-              </div>
-              <h3>Notification banner</h3>
-              <p>A toast previews for about 3.5 s, then the exact previous state returns.</p>
-            </article>
-            <article className="state">
-              <div className="state-stage" aria-hidden="true">
-                <div className="mini expanded">
-                  <span className="dot" />
-                  <span className="bar" style={{ width: "80%" }} />
-                  <span className="bar" style={{ width: "55%" }} />
-                </div>
-              </div>
-              <h3>Expanded surface</h3>
-              <p>Media, notifications and settings, one click away.</p>
-            </article>
+          <div className="inline-demo">
+            <FloatDemo />
           </div>
           <p className="chapter-more">
             <Link className="more" href="/work/float">How FLOAT works →</Link>
@@ -204,25 +188,31 @@ export default function Home() {
         <PortraitParticles />
       </section>
 
-      {/* 5 · Timeline */}
-      <section id="timeline" className="chapter" data-island-slot="timeline" aria-labelledby="timeline-title">
+      {/* 5 · Where I've been: experience, education, recognition */}
+      <section id="timeline" className="chapter" data-island-slot="timeline" aria-labelledby="journey-title">
         <div className="wrap">
           <div className="chapter-head">
             <p className="eyebrow">the story so far</p>
-            <h2 id="timeline-title" className="headline">A <em>busy</em> year.</h2>
+            <h2 id="journey-title" className="headline">Where I&rsquo;ve <em>been</em>.</h2>
           </div>
-          <ol className="timeline">
-            {timeline.map((t) => (
-              <li key={t.title}>
-                <time>{t.date}</time>
-                <span className="node" aria-hidden="true" />
-                <div>
-                  <h3>{t.title}</h3>
-                  <p>{t.detail}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <div className="journey">
+            <div className="journey-col">
+              <h3 className="journey-label">Experience</h3>
+              <ul className="entries">
+                {experience.map((e) => <JourneyEntry key={e.title + e.place} e={e} />)}
+              </ul>
+              <h3 className="journey-label">Education</h3>
+              <ul className="entries">
+                {education.map((e) => <JourneyEntry key={e.title} e={e} />)}
+              </ul>
+            </div>
+            <div className="journey-col">
+              <h3 className="journey-label">Recognition &amp; hackathons</h3>
+              <ul className="entries">
+                {recognition.map((e) => <JourneyEntry key={e.title} e={e} />)}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -239,9 +229,16 @@ export default function Home() {
               React Native and C++, AI systems in Python, and the web. I care about software that feels fast, native and
               effortless to use.
             </p>
-            <ul className="chips" aria-label="Stack">
-              {site.stack.map((s) => <li key={s}>{s}</li>)}
-            </ul>
+            <dl className="skills">
+              {skills.map((g) => (
+                <div key={g.area}>
+                  <dt>{g.area}</dt>
+                  <dd>
+                    <ul className="chips">{g.items.map((s) => <li key={s}>{s}</li>)}</ul>
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
           <Terminal hasResume={hasResume} />
         </div>
