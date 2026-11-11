@@ -427,7 +427,9 @@ export function Island() {
 
     const sp = springs.current;
     const retargetHero = () => {
-      const t = expandedRef.current ? 1 : Math.min(Math.max(window.scrollY / (window.innerHeight * 0.55), 0), 1);
+      const scrollT = Math.min(Math.max(window.scrollY / (window.innerHeight * 0.55), 0), 1);
+      const docked = expandedRef.current;
+      const t = docked ? 1 : scrollT;
       heroT.current = t;
       const e = smooth(0, 1, t);
       const navCy = TOP + sp.h.target / 2;
@@ -444,7 +446,9 @@ export function Island() {
       // The real nav fades in as the slab docks; the name fades as the slab leaves it.
       root.style.setProperty("--nav-reveal", smooth(0.8, 1, t).toFixed(3));
       shell.style.pointerEvents = t > 0.9 ? "" : "none";
-      slotEl.style.opacity = (1 - smooth(0.12, 0.45, t)).toFixed(3);
+      // Opening the menu docks the slab but leaves the name readable on the page itself.
+      slotEl.style.opacity = docked ? "" : (1 - smooth(0.12, 0.45, t)).toFixed(3);
+      root.dataset.hero = docked ? "docked" : "on";
 
       if (t < 1 && !heroMode.current) {
         heroMode.current = true;
@@ -534,19 +538,23 @@ export function Island() {
   // First measurement, a frame after hydration so its forced layout doesn't extend React's
   // startup task; it snaps into place without animating from the placeholder size.
   const measured = useRef(false);
+  // Always the current view's retarget: the view can change (e.g. a restored desktop) before
+  // the first measurement runs.
+  const retargetRef = useRef(retarget);
+  retargetRef.current = retarget;
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
       measure();
-      retarget(true);
+      retargetRef.current(true);
       measured.current = true;
     });
     document.fonts?.ready.then(() => {
       measure();
-      retarget(true);
+      retargetRef.current(true);
     });
     const onResize = () => {
       measure();
-      retarget();
+      retargetRef.current();
     };
     window.addEventListener("resize", onResize);
     return () => {
