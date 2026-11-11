@@ -1,5 +1,10 @@
 [
   {
+    "hash": "af73ffb",
+    "date": "2026-11-11",
+    "subject": "Fix phone bugs: hero name vanishing, island stuck wide on a restored desktop"
+  },
+  {
     "hash": "e53f48b",
     "date": "2026-11-11",
     "subject": "Skill Island: eight area icons, one morphing island of skills with where each was used"
@@ -53,10 +58,5 @@
     "hash": "9ed93aa",
     "date": "2026-11-05",
     "subject": "Work cards: aligned grid and one rhythm inside every card"
-  },
-  {
-    "hash": "bdf68a2",
-    "date": "2026-11-05",
-    "subject": "Light mode: warm paper and navy ink, matched contrast"
   }
 ]

@@ -13,3 +13,6 @@ tools/particles/preview.png
 
 .vercel
 .env*
+
+# Resume sources and PDFs (contain a phone number; kept out of the public repo)
+/resume/

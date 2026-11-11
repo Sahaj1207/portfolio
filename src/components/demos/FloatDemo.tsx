@@ -14,7 +14,7 @@ type Toast = { app: string; title: string; body: string };
 
 const TOASTS: Toast[] = [
   { app: "R", title: "Riya", body: "Lunch at 1?" },
-  { app: "G", title: "GitHub", body: "CI passed on FLOAT · v2.3" },
+  { app: "G", title: "GitHub", body: "CI passed on FLOAT · v3.1" },
   { app: "C", title: "Calendar", body: "Standup in 5 minutes" },
   { app: "M", title: "Mail", body: "Your build artifacts are ready" },
 ];

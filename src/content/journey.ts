@@ -26,7 +26,7 @@ export const education: Entry[] = [
 
 export const recognition: Entry[] = [
   {
-    kicker: "Finalist",
+    kicker: "Finalist · team of 3",
     title: "Makers Conclave 2026",
     place: "NIAT",
     detail: "Presented a low-cost water monitoring and management system, with Wi-Fi sensors that gather every reading in one place.",

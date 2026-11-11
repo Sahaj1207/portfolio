@@ -43,7 +43,7 @@ export const projects: Project[] = [
     year: "2026",
     stack: ["Tauri", "Rust", "React", "TypeScript", "Vite"],
     highlights: [
-      { value: "v2.3", label: "shipped releases, with a changelog" },
+      { value: "v3.1", label: "shipped releases, with a changelog" },
       { value: "4", label: "island states: pill, orb, banner, expanded" },
       { value: "Ctrl+Alt+V", label: "clipboard history anywhere" },
     ],
@@ -375,7 +375,7 @@ export const projects: Project[] = [
         body: "Every save goes through the same queue, so a newer save can never be overwritten by an older one.",
       },
     ],
-    role: "Built as an intern at Antmark.",
+    role: "Built as an intern at Antmark, end to end from the product brief (each intern built their own version).",
     links: [{ label: "Source on GitHub", href: "https://github.com/Sahaj1207/PhotoProof" }],
     pending: [],
   },
