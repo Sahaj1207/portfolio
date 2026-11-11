@@ -3,10 +3,11 @@ import { ContactLinks, hasResume } from "@/components/ContactLinks";
 import { PortraitParticles } from "@/components/PortraitParticles";
 import { Activity } from "@/components/Activity";
 import { ProjectCard } from "@/components/ProjectCard";
+import { SkillIsland } from "@/components/SkillIsland";
 import { TryDemo } from "@/components/TryDemo";
 import { FloatDemo } from "@/components/demos/FloatDemo";
 import { Terminal } from "@/components/Terminal";
-import { education, experience, recognition, skills } from "@/content/journey";
+import { education, experience, recognition } from "@/content/journey";
 import { type Project, alsoBuilt, hackathonBuilds, internshipWork, mainWork, projects, timeline } from "@/content/projects";
 import { site } from "@/content/site";
 
@@ -252,16 +253,7 @@ export default function Home() {
               effortless to use.
             </p>
           </div>
-          <dl className="skills" aria-label="Skills">
-            {skills.map((g) => (
-              <div key={g.area}>
-                <dt>{g.area}</dt>
-                <dd>
-                  <ul>{g.items.map((s) => <li key={s}>{s}</li>)}</ul>
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <SkillIsland />
           <Terminal hasResume={hasResume} />
         </div>
       </section>

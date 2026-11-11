@@ -1,5 +1,10 @@
 [
   {
+    "hash": "c8b7d9a",
+    "date": "2026-11-11",
+    "subject": "Calmer phone OS, island pill and Control Centre, Welcome app, skills grid"
+  },
+  {
     "hash": "31e4031",
     "date": "2026-11-11",
     "subject": "Phone OS, Mac-like window motion, more skills, the year back, hydration fix"
@@ -53,10 +58,5 @@
     "hash": "932832c",
     "date": "2026-11-05",
     "subject": "sahaj.os desktop: windows you can move, a dock, Mission Control"
-  },
-  {
-    "hash": "91ae10a",
-    "date": "2026-11-04",
-    "subject": "Split the terminal into tmux panes: profile, developer mode, shell"
   }
 ]
