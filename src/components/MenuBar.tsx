@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import gitlog from "@/content/gitlog.json";
 import { openSystemMenu, toggleNotices } from "@/components/System";
 import { ThemeToggle } from "@/components/ViewToggle";
 import { APPS, enterDesktop, exitDesktop, useDesktop } from "@/lib/desktop";
@@ -10,11 +9,9 @@ import { useActiveSlot } from "@/lib/useActiveSlot";
 
 /**
  * The OS menu bar, either side of the island: the sahaj.os menu and the focused app on the
- * left; the desktop switch, light/dark, the live build and the clock (notification centre) on the right.
+ * left; the desktop switch, light/dark and the clock (notification centre) on the right.
  */
 
-const BUILD = gitlog[0]?.hash ?? "dev";
-const REPO = "https://github.com/Sahaj1207/portfolio";
 
 function useClock() {
   const [now, setNow] = useState<Date | null>(null);
@@ -64,10 +61,6 @@ export function MenuBar() {
           {desktop ? "page" : "desktop"}
         </button>
         <ThemeToggle className="menubar-theme" />
-        <a href={`${REPO}/commit/${BUILD}`} target="_blank" rel="noreferrer" title="This build on GitHub">
-          <span className="menubar-dot" aria-hidden="true" />
-          build {BUILD}
-        </a>
         <button type="button" className="menubar-clock" data-notices-toggle onClick={toggleNotices} aria-label="Notification centre">
           <time suppressHydrationWarning>
             {day} {time}

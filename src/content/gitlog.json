@@ -1,5 +1,10 @@
 [
   {
+    "hash": "938eafd",
+    "date": "2026-11-11",
+    "subject": "Hero: HARIKA replaces PIE in 'the ones I'm proudest of'"
+  },
+  {
     "hash": "49e53b5",
     "date": "2026-11-11",
     "subject": "Antmark internship group, Meta-led hackathon card, one spacing system, sound only on desktop transitions"
@@ -53,10 +58,5 @@
     "hash": "e457748",
     "date": "2026-11-04",
     "subject": "Apple-style sound and haptics; a heartbeat when the code becomes you"
-  },
-  {
-    "hash": "3771600",
-    "date": "2026-11-04",
-    "subject": "The sound of sahaj.os"
   }
 ]

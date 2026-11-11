@@ -37,6 +37,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* The serif has one weight: never let the browser fake a bold. */
+  font-synthesis-weight: none;
   scroll-padding-top: 96px;
 }
 
@@ -591,10 +593,13 @@ html[data-palette="on"] .island-canvas { opacity: 0 !important; pointer-events: 
   border-top: 1px solid var(--line);
 }
 .work-card.wide .stat-row { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 760px; }
+.stat { min-width: 0; container-type: inline-size; }
 .stat strong {
   display: block;
   font-family: var(--serif);
-  font-size: 26px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+  font-size: clamp(20px, 15cqi, 26px);
   line-height: 1.05;
   color: var(--ink);
 }
@@ -959,12 +964,15 @@ html[data-view="live"] .island:focus-within { opacity: 1; }
   margin: 12px 0 0;
 }
 .bento div {
+  min-width: 0;
   padding: 28px 24px;
   border-radius: var(--radius);
   background: var(--bg-raised);
   border: 1px solid var(--line);
+  container-type: inline-size;
 }
-.bento strong { display: block; font-family: var(--serif); font-size: clamp(34px, 4vw, 52px); line-height: 1; }
+/* Sized to the tile, so long values like Ctrl+Shift+Space always fit. */
+.bento strong { display: block; font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 11cqi, 48px); line-height: 1.05; letter-spacing: -0.01em; overflow-wrap: anywhere; }
 .bento span { display: block; margin-top: 10px; color: var(--ink-mute); font-size: 15px; }
 
 .case-body { display: grid; gap: 0; }

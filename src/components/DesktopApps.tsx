@@ -33,7 +33,7 @@ export function Finder() {
         </button>
         <p>Locations</p>
         <a href={site.links.github} target="_blank" rel="noreferrer">
-          <i className="fi fi-disk" aria-hidden="true" /> github.com/Sahaj1207
+          <i className="fi fi-disk" aria-hidden="true" /> GitHub
         </a>
       </nav>
 
