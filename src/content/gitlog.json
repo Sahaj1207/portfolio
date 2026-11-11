@@ -1,5 +1,10 @@
 [
   {
+    "hash": "31e4031",
+    "date": "2026-11-11",
+    "subject": "Phone OS, Mac-like window motion, more skills, the year back, hydration fix"
+  },
+  {
     "hash": "07748db",
     "date": "2026-11-11",
     "subject": "Denser page: where I've been, live FLOAT, Try it on cards, recent pushes, grouped skills"
@@ -53,10 +58,5 @@
     "hash": "91ae10a",
     "date": "2026-11-04",
     "subject": "Split the terminal into tmux panes: profile, developer mode, shell"
-  },
-  {
-    "hash": "6c9d61c",
-    "date": "2026-11-04",
-    "subject": "Terminal shows the developer side again at boot"
   }
 ]

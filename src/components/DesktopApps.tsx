@@ -10,7 +10,7 @@ import { setMotionPaused, useMotionPaused } from "@/lib/motion";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 import { WALLPAPERS, setWallpaper, useWallpaper } from "@/lib/wallpaper";
 import { type ThemePref, setThemePref, useThemePref } from "@/lib/theme";
-import { DEMOS, openApp } from "@/lib/desktop";
+import { type AppId, DEMOS, openApp } from "@/lib/desktop";
 
 /** The apps on the sahaj.os desktop. Everything they show comes from the same content as the page. */
 
@@ -255,6 +255,51 @@ export function About() {
       <a className="pill-link" href="https://github.com/Sahaj1207/portfolio" target="_blank" rel="noreferrer">
         View source
       </a>
+    </div>
+  );
+}
+
+const TRY: { app: AppId; name: string; line: string }[] = [
+  { app: "float", name: "FLOAT", line: "The Dynamic Island for Windows" },
+  { app: "harika", name: "HARIKA", line: "An AI that lives on your desktop" },
+  { app: "vayucast", name: "VayuCast", line: "Tomorrow's air, from real forecasts" },
+  { app: "pie", name: "PIE", line: "Edit the words inside a photo" },
+];
+
+/** The first window on the desktop: who this is, and the four demos to try. */
+export function Welcome() {
+  return (
+    <div className="welcome-app">
+      <p className="eyebrow">welcome to sahaj.os</p>
+      <h2>
+        Hi, I&rsquo;m <em>Sahaj</em>.
+      </h2>
+      <p className="wa-lede">
+        A software engineer building AI, desktop and mobile software. This desktop is my portfolio: every project
+        below runs right here.
+      </p>
+      <p className="demo-label">Try a project</p>
+      <ul className="wa-try">
+        {TRY.map((t) => (
+          <li key={t.app}>
+            <button type="button" onClick={() => openApp(t.app)}>
+              <i className={`dock-icon di-${t.app}`} aria-hidden="true" />
+              <span>
+                <strong>{t.name}</strong>
+                <small>{t.line}</small>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="demo-label">Or look around</p>
+      <div className="wa-more">
+        <button type="button" onClick={() => openApp("finder")}>All work</button>
+        <button type="button" onClick={() => openApp("notes")}>About me</button>
+        <button type="button" onClick={() => openApp("terminal")}>Terminal</button>
+        <button type="button" onClick={() => openApp("contact")}>Contact</button>
+      </div>
+      <p className="wa-tip">Drag windows by their title bar, snap them to an edge, and press <kbd>F3</kbd> to see them all.</p>
     </div>
   );
 }

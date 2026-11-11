@@ -251,17 +251,17 @@ export default function Home() {
               React Native and C++, AI systems in Python, and the web. I care about software that feels fast, native and
               effortless to use.
             </p>
-            <dl className="skills">
-              {skills.map((g) => (
-                <div key={g.area}>
-                  <dt>{g.area}</dt>
-                  <dd>
-                    <ul className="chips">{g.items.map((s) => <li key={s}>{s}</li>)}</ul>
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
+          <dl className="skills" aria-label="Skills">
+            {skills.map((g) => (
+              <div key={g.area}>
+                <dt>{g.area}</dt>
+                <dd>
+                  <ul>{g.items.map((s) => <li key={s}>{s}</li>)}</ul>
+                </dd>
+              </div>
+            ))}
+          </dl>
           <Terminal hasResume={hasResume} />
         </div>
       </section>

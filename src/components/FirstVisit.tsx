@@ -52,7 +52,7 @@ export function FirstVisit() {
     }
     setOpen(false);
     haptic("light");
-    if (how === "desktop") enterDesktop("finder", { boot: true });
+    if (how === "desktop") enterDesktop("welcome", { boot: true });
   };
 
   if (!open) return null;

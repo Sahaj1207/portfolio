@@ -55,7 +55,7 @@ export function MenuBar() {
           type="button"
           className="menubar-desk"
           aria-pressed={desktop}
-          onClick={() => (desktop ? exitDesktop() : enterDesktop("finder"))}
+          onClick={() => (desktop ? exitDesktop() : enterDesktop("welcome"))}
           title={desktop ? "Back to the page" : "Open the sahaj.os desktop"}
         >
           {desktop ? "page" : "desktop"}

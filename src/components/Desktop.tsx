@@ -2,7 +2,7 @@
 
 import { type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { About, Contact, Finder, Notes, Photos, Settings } from "@/components/DesktopApps";
+import { About, Contact, Finder, Notes, Photos, Settings, Welcome } from "@/components/DesktopApps";
 import { DesktopWindow, type Rect, SWITCHER, snapRect } from "@/components/DesktopWindow";
 import { AppSwitcher, PhoneHome, PhoneStatus } from "@/components/PhoneOS";
 import { BootLog, LockScreen, ScreenSaver } from "@/components/DesktopSession";
@@ -24,7 +24,7 @@ import { haptic } from "@/lib/haptics";
 const SYSTEM_APPS: AppId[] = ["finder", "terminal", "photos", "notes", "contact", "settings"];
 /** Project demos sit in their own group on the dock. */
 const DEMO_APPS: AppId[] = ["float", "pie", "harika", "vayucast"];
-const ALL_APPS: AppId[] = [...SYSTEM_APPS, ...DEMO_APPS, "about"];
+const ALL_APPS: AppId[] = ["welcome", ...SYSTEM_APPS, ...DEMO_APPS, "about"];
 
 const ICON_W = 92;
 const ICON_H = 88;
@@ -63,6 +63,8 @@ function missionCells(apps: AppId[], vw: number, vh: number): Map<AppId, Rect> {
 
 function AppBody({ app, hasResume }: { app: AppId; hasResume: boolean }): ReactNode {
   switch (app) {
+    case "welcome":
+      return <Welcome />;
     case "finder":
       return <Finder />;
     case "terminal":

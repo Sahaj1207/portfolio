@@ -1,20 +1,17 @@
 "use client";
 
 import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
-import { REPO_NAMES } from "@/components/Activity";
-import github from "@/content/github.json";
 import vayucast from "@/content/vayucast.json";
-import { site } from "@/content/site";
-import { APPS, type AppId, type Win, closeApp, exitDesktop, focusApp, openApp } from "@/lib/desktop";
+import { APPS, type AppId, type Win, closeApp, focusApp, openApp } from "@/lib/desktop";
 import { haptic } from "@/lib/haptics";
 
 /**
- * sahaj.os on a phone: a status bar beside the island, a home screen with widgets, an app
- * grid and a dock of favourites, and an app switcher (hold the home bar in any app).
+ * sahaj.os on a phone: a status bar beside the island, a home screen with two widgets, an
+ * app grid and a dock of favourites, Control Centre from the island, and an app switcher (hold the home bar in any app).
  * Apps open full screen, zooming out of their icon.
  */
 
-const GRID: AppId[] = ["photos", "notes", "settings", "about", "pie", "harika", "vayucast"];
+const GRID: AppId[] = ["welcome", "notes", "photos", "settings", "pie", "harika", "vayucast", "about"];
 const DOCK: AppId[] = ["finder", "terminal", "float", "contact"];
 
 function useClock() {
@@ -64,32 +61,21 @@ function Widgets() {
   const city = (vayucast.cities as Record<string, { days: { date: string; aqi: number }[] }>).belagavi;
   const next = city?.days[0];
   const b = next ? band(next.aqi) : null;
-  const recent = github.recent.filter((r) => r.repo !== "portfolio")[0];
   return (
     <div className="widgets">
-      <div className="widget w-clock">
+      <div className="widget w-clock" aria-label="Today">
         <p className="wc-day">{now?.toLocaleDateString([], { weekday: "long" })}</p>
         <p className="wc-date">{now?.getDate()}</p>
         <p className="wc-month">{now?.toLocaleDateString([], { month: "long" })}</p>
       </div>
       {next && b && (
-        <button type="button" className="widget w-aqi" onClick={() => openApp("vayucast")}>
-          <span className="wa-label">VayuCast · Belagavi</span>
+        <button type="button" className="widget w-aqi" onClick={() => openApp("vayucast")} aria-label={`VayuCast: Belagavi AQI ${next.aqi}, ${b.name}`}>
+          <span className="wa-label">Belagavi</span>
           <span className="wa-aqi">{next.aqi}</span>
-          <span className="wa-chip" style={{ background: b.bg, color: b.ink }}>{b.name}</span>
-          <span className="wa-note">forecast, 1 day ahead</span>
+          <span className="wa-band"><i style={{ background: b.bg }} />{b.name}</span>
+          <span className="wa-note">AQI forecast · VayuCast</span>
         </button>
       )}
-      <button type="button" className="widget w-wide" onClick={() => openApp("harika")}>
-        <span className="hd-orb" aria-hidden="true" />
-        <span className="ww-text">
-          <strong>{site.name}</strong>
-          <span>
-            <span className="live-dot" aria-hidden="true" />
-            Now building HARIKA{recent ? ` · last push: ${REPO_NAMES[recent.repo] ?? recent.repo}` : ""}
-          </span>
-        </span>
-      </button>
     </div>
   );
 }
@@ -104,13 +90,8 @@ export function PhoneHome() {
             <AppIcon app={app} />
           </li>
         ))}
-        <li>
-          <button type="button" className="phone-app" onClick={exitDesktop}>
-            <i className="dock-icon di-exit" aria-hidden="true" />
-            <span>Page</span>
-          </button>
-        </li>
       </ul>
+      <p className="phone-hint">Tap the island for Control Centre</p>
       <nav className="phone-dock" aria-label="Favourites">
         {DOCK.map((app) => (
           <AppIcon key={app} app={app} />

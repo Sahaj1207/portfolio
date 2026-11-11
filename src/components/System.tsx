@@ -134,9 +134,9 @@ function NotificationCentre({ onClose }: { onClose: () => void }) {
           <strong>Motion</strong>
           <span>{paused ? "Paused" : "On"}</span>
         </button>
-        <button type="button" aria-pressed={desktop} onClick={() => (desktop ? exitDesktop() : enterDesktop("finder"))}>
-          <strong>Desktop</strong>
-          <span>{desktop ? "On" : "Off"}</span>
+        <button type="button" aria-pressed={desktop} onClick={() => (desktop ? exitDesktop() : enterDesktop("welcome"))}>
+          <strong>{desktop ? "Back to the page" : "Open the desktop"}</strong>
+          <span>{desktop ? "Leave sahaj.os" : "Windows, dock, demos"}</span>
         </button>
         <button type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
           <strong>Appearance</strong>
@@ -300,7 +300,7 @@ export function System() {
   const systemItems: Entry[] = [
     { label: "About sahaj.os", run: about },
     "-",
-    desktop ? { label: "Back to the page", run: exitDesktop } : { label: "Open the desktop", run: () => enterDesktop("finder") },
+    desktop ? { label: "Back to the page", run: exitDesktop } : { label: "Open the desktop", run: () => enterDesktop("welcome") },
     { label: "Mission Control", hint: "F3", run: () => setMission(true) },
     { label: "Command palette", hint: "Ctrl K", run: openPalette },
     { label: "Notification centre", run: () => setNotices(true) },
@@ -316,7 +316,7 @@ export function System() {
           { label: "Mission Control", hint: "F3", run: () => setMission(true) },
         ]
       : [
-          { label: "Open the desktop", run: () => enterDesktop("finder") },
+          { label: "Open the desktop", run: () => enterDesktop("welcome") },
           { label: "Open a Terminal window", run: () => enterDesktop("terminal") },
         ]),
     "-",

@@ -6,7 +6,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { IslandRenderer, type Shape } from "@/lib/islandGL";
 import { Spring, SpringLoop, calmSpring, ghostSpring, heroSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
-import { useDesktop } from "@/lib/desktop";
+import { enterDesktop, useDesktop } from "@/lib/desktop";
+import { toggleNotices } from "@/components/System";
 import { hackathonBuilds, internshipWork, mainWork } from "@/content/projects";
 import { openPalette } from "@/components/Palette";
 import { type Activity, useActivity } from "@/lib/islandBus";
@@ -17,7 +18,8 @@ import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
 /**
  * The island. Plain view renders it as a DOM capsule whose size is driven by springs;
  * each page chapter (a `[data-island-slot]` section) gives it a different state.
- * Hover, focus or tap always opens the navigation state.
+ * Hover, focus or tap always opens the navigation state. On the sahaj.os desktop it rests as
+ * a small "sahaj.os" pill instead, and a tap opens the Control Centre.
  */
 
 type View =
@@ -33,7 +35,8 @@ type View =
   | "act-harika"
   | "act-mtb"
   | "act-pie"
-  | "notify";
+  | "notify"
+  | "os";
 
 const VIEWS: View[] = [
   "nav",
@@ -49,6 +52,7 @@ const VIEWS: View[] = [
   "act-mtb",
   "act-pie",
   "notify",
+  "os",
 ];
 
 /** Island views for activities sent from elsewhere on the page (see lib/islandBus). */
@@ -70,9 +74,9 @@ const SLOT_VIEW: Record<string, View> = {
   timeline: "timeline",
   terminal: "terminal",
   case: "case",
-  // On the desktop the page is hidden, so the island rests as a small orb (it still
-  // grows for notifications), leaving room for the menu bar or the phone's status bar.
-  desktop: "float-orb",
+  // On the desktop the page is hidden: the island rests as a small pill (it still grows
+  // for notifications), leaving room for the menu bar or the phone's status bar.
+  desktop: "os",
 };
 
 /** FLOAT's own rhythm: media, then a notification that holds ~3.5 s, then the ambient orb. */
@@ -152,7 +156,7 @@ export function Island() {
   // Which view the island should show right now.
   const activity = useActivity();
   const slotView = SLOT_VIEW[slot] ?? "nav";
-  const view: View = expanded
+  const view: View = expanded && !desktop
     ? "nav"
     : activity
       ? ACTIVITY_VIEW[activity.kind]
@@ -636,7 +640,7 @@ export function Island() {
       data-island
       data-view={view}
       style={{ width: INITIAL.w, height: INITIAL.h }}
-      onPointerEnter={(e) => e.pointerType === "mouse" && setExpanded(true)}
+      onPointerEnter={(e) => e.pointerType === "mouse" && !desktop && setExpanded(true)}
       onPointerLeave={(e) => {
         if (e.pointerType === "mouse") setExpanded(false);
         press(false);
@@ -646,8 +650,8 @@ export function Island() {
         touchDown(e);
       }}
       onPointerUp={() => press(false)}
-      onClick={() => !expanded && setExpanded(true)}
-      onFocus={() => setExpanded(true)}
+      onClick={() => (desktop ? toggleNotices() : !expanded && setExpanded(true))}
+      onFocus={() => !desktop && setExpanded(true)}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setExpanded(false);
       }}
@@ -661,11 +665,23 @@ export function Island() {
             <Link href="/#about">About</Link>
             <Link href="/#contact">Contact</Link>
           </nav>
+          <button type="button" className="island-os" onClick={() => enterDesktop("welcome", { boot: true })} aria-label="Open the sahaj.os desktop">
+            <i aria-hidden="true" />
+          </button>
           <button type="button" className="island-search" onClick={openPalette} aria-label="Open command palette (Ctrl or Command + K)">
             <kbd>⌘K</kbd>
           </button>
         </div>,
         false,
+      )}
+
+      {layer(
+        "os",
+        <div className="island-content i-os">
+          <span className="island-mark">S</span>
+          <span className="i-label">sahaj<em>.os</em></span>
+          <span className="i-dot" />
+        </div>,
       )}
 
       {layer(

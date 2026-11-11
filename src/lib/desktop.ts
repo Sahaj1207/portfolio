@@ -12,7 +12,7 @@ import { transition } from "@/lib/sound";
  */
 
 export type AppId =
-  | "finder" | "terminal" | "photos" | "notes" | "contact" | "settings" | "about"
+  | "welcome" | "finder" | "terminal" | "photos" | "notes" | "contact" | "settings" | "about"
   | "float" | "pie" | "harika" | "vayucast";
 /** Halves, quarters or the whole screen. */
 export type Snap = "left" | "right" | "max" | "tl" | "tr" | "bl" | "br" | null;
@@ -33,6 +33,7 @@ export type Win = {
 export type DesktopState = { on: boolean; windows: Win[]; mission: boolean; focused: AppId | null; booting: boolean };
 
 export const APPS: Record<AppId, { name: string; title: string; w: number; h: number }> = {
+  welcome: { name: "Welcome", title: "Welcome to sahaj.os", w: 760, h: 540 },
   finder: { name: "Finder", title: "~/work", w: 860, h: 540 },
   terminal: { name: "Terminal", title: "~/sahaj — tmux", w: 820, h: 600 },
   photos: { name: "Photos", title: "portrait.webp", w: 560, h: 640 },
@@ -109,6 +110,8 @@ const update = (app: AppId, patch: Partial<Win>) =>
  * first-visit "Boot the desktop"), unless the visitor prefers reduced motion.
  */
 export function enterDesktop(app?: AppId, { boot = false } = {}) {
+  // Phones land on their home screen; the welcome window is for bigger screens.
+  if (app === "welcome" && window.innerWidth < 720) app = undefined;
   if (!state.on) {
     const booting = boot && !matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!booting) {

@@ -360,40 +360,46 @@ html[data-theme="light"] .lasso { border-color: #2d55c899; background: #2d55c814
 .ps-battery { width: 24px; height: 11px; border-radius: 3px; background: none !important; box-shadow: inset 0 0 0 1.5px currentColor; position: relative; }
 .ps-battery::after { content: ""; position: absolute; inset: 2.5px 6px 2.5px 2.5px; border-radius: 1.5px; background: currentColor; }
 
-.phone-home { position: absolute; inset: 64px 0 0; display: grid; grid-template-rows: auto 1fr auto; gap: 18px; padding: 10px 18px 14px; }
-.widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* Home screen, after iOS: 24px margins, two square widgets, a 4-column grid with room
+   between rows, a floating dock. One quiet hint, nothing else. */
+.phone-home {
+  position: absolute; inset: 62px 0 0; padding: 14px 24px calc(12px + env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr auto auto; gap: 0;
+}
+.widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
 .widget {
   appearance: none; border: 0; font: inherit; color: var(--ink); text-align: left; cursor: pointer;
-  border-radius: 22px; padding: 14px 16px; background: color-mix(in srgb, var(--bg-raised) 72%, transparent);
-  backdrop-filter: blur(20px) saturate(1.3); box-shadow: inset 0 0 0 1px #ffffff14;
-  display: grid; align-content: start; gap: 4px; min-height: 150px;
-  transition: transform 0.3s var(--spring);
+  aspect-ratio: 1; border-radius: 24px; padding: 16px;
+  background: color-mix(in srgb, var(--bg-raised) 78%, transparent);
+  backdrop-filter: blur(24px) saturate(1.4);
+  display: grid; align-content: space-between; transition: transform 0.3s var(--spring);
 }
-.widget:active { transform: scale(0.97); }
-.w-clock { cursor: default; }
-.wc-day { font: 600 13px/1.2 var(--sans); color: #ff6b6b; text-transform: uppercase; letter-spacing: 0.04em; }
-.wc-date { font: 400 64px/1 var(--serif); margin-top: 4px; }
-.wc-month { font-size: 14px; color: var(--ink-soft); }
-.wa-label { font: 600 12px/1.3 var(--sans); color: var(--ink-mute); }
-.wa-aqi { font: 400 52px/1 var(--serif); margin-top: 6px; }
-.wa-chip { justify-self: start; padding: 3px 9px; border-radius: 999px; font: 600 11.5px/1.3 var(--sans); }
-.wa-note { font-size: 12px; color: var(--ink-mute); margin-top: 2px; }
-.w-wide { grid-column: 1 / -1; min-height: 0; display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
-.w-wide .hd-orb { width: 38px; height: 38px; flex: none; }
-.ww-text { display: grid; gap: 3px; }
-.ww-text strong { font: 600 15px/1.2 var(--sans); }
-.ww-text > span { font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; }
-.phone-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 6px; align-content: start; }
+.widget:active { transform: scale(0.96); }
+.w-clock { cursor: default; align-content: start; gap: 2px; }
+.wc-day { font: 600 12px/1.2 var(--sans); color: #ff5f57; text-transform: uppercase; letter-spacing: 0.06em; }
+.wc-date { font: 400 60px/1 var(--serif); margin-top: 2px; }
+.wc-month { font: 500 14px/1.2 var(--sans); color: var(--ink-soft); }
+.wa-label { font: 600 13px/1.2 var(--sans); color: var(--ink); }
+.wa-aqi { font: 400 52px/1 var(--serif); }
+.wa-band { display: flex; align-items: center; gap: 6px; font: 600 13px/1.2 var(--sans); }
+.wa-band i { width: 8px; height: 8px; border-radius: 50%; }
+.wa-note { font-size: 11px; color: var(--ink-mute); }
+.phone-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(4, 62px); justify-content: space-between; row-gap: 24px; align-content: start;
+}
 .phone-app {
   appearance: none; border: 0; background: none; cursor: pointer; width: 100%; padding: 0;
-  display: grid; justify-items: center; gap: 7px; color: var(--ink); font: 500 11.5px/1.2 var(--sans);
+  display: grid; justify-items: center; gap: 6px; color: var(--ink); font: 500 11px/1.2 var(--sans);
 }
-.phone-app .dock-icon { width: 60px; height: 60px; border-radius: 16px; transition: transform 0.25s var(--spring); }
+.phone-app span { white-space: nowrap; }
+.phone-app .dock-icon { width: 60px; height: 60px; border-radius: 15px; transition: transform 0.25s var(--spring); }
 .phone-app:active .dock-icon { transform: scale(0.9); }
+.phone-hint { grid-row: 4; justify-self: center; margin-bottom: 14px; font: 500 12px/1 var(--sans); color: var(--ink-mute); }
 .phone-dock {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 14px 12px 12px; border-radius: 30px;
-  background: color-mix(in srgb, var(--bg-raised) 60%, transparent); backdrop-filter: blur(24px) saturate(1.3);
-  box-shadow: inset 0 0 0 1px #ffffff14;
+  grid-row: 5; display: grid; grid-template-columns: repeat(4, 62px); justify-content: space-between;
+  padding: 14px 16px; margin: 0 -10px; border-radius: 32px;
+  background: color-mix(in srgb, var(--bg-raised) 55%, transparent); backdrop-filter: blur(28px) saturate(1.4);
 }
 .phone-dock .phone-app span { display: none; }
 
@@ -424,3 +430,53 @@ html[data-theme="light"] .widget, html[data-theme="light"] .phone-dock { box-sha
 .di-about::before { content: ""; width: 20px; height: 20px; border-radius: 5px; transform: rotate(45deg); background: linear-gradient(135deg, #7c5cff, #00d4ff); box-shadow: 0 0 12px #7c5cff88; }
 /* Phone apps close with the home bar, not traffic lights. */
 .desktop[data-narrow] .dwin-bar .window-lights { visibility: hidden; }
+
+/* Island on the desktop: a compact "sahaj.os" pill; tap for Control Centre. */
+.i-os { gap: 8px; padding: 0 14px 0 6px; }
+.i-os .i-label em { color: #9cc3ff; font-style: normal; }
+.i-dot { width: 6px; height: 6px; border-radius: 50%; background: #34c759; box-shadow: 0 0 6px #34c759; }
+.island-os {
+  appearance: none; border: 0; cursor: pointer; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; background: #ffffff14; flex: none;
+}
+.island-os:hover { background: #ffffff26; }
+.island-os i {
+  width: 14px; height: 14px;
+  background: linear-gradient(#f5f5f7 0 0) 0 0 / 6px 6px no-repeat, linear-gradient(#f5f5f7 0 0) 100% 0 / 6px 6px no-repeat,
+    linear-gradient(#f5f5f7 0 0) 0 100% / 6px 6px no-repeat, linear-gradient(#9cc3ff 0 0) 100% 100% / 6px 6px no-repeat;
+}
+/* On touch screens the palette shortcut means nothing; the desktop button takes its place. */
+@media (pointer: coarse) { .island-search { display: none; } }
+
+/* Control Centre on phones: a full-width sheet under the island. */
+@media (max-width: 720px) {
+  .notices { left: 12px; right: 12px; width: auto; top: 62px; }
+}
+
+/* Welcome */
+.welcome-app { padding: clamp(22px, 4vw, 36px); display: grid; gap: 12px; align-content: start; }
+.welcome-app h2 { font: 400 clamp(36px, 5vw, 48px)/1.02 var(--serif); letter-spacing: -0.015em; }
+.welcome-app h2 em { color: var(--accent); }
+.wa-lede { color: var(--ink-soft); font-size: 16px; line-height: 1.55; max-width: 52ch; margin-bottom: 8px; }
+.wa-try { list-style: none; margin: 0 0 8px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.wa-try button {
+  appearance: none; cursor: pointer; width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+  padding: 12px; border-radius: 16px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit;
+  transition: border-color 0.2s, transform 0.3s var(--spring);
+}
+.wa-try button:hover { border-color: var(--accent); transform: translateY(-2px); }
+.wa-try .dock-icon { width: 42px; height: 42px; border-radius: 11px; flex: none; }
+.wa-try strong { display: block; font: 600 15px/1.2 var(--sans); }
+.wa-try small { display: block; font-size: 12.5px; color: var(--ink-mute); margin-top: 2px; }
+.wa-more { display: flex; flex-wrap: wrap; gap: 8px; }
+.wa-more button {
+  appearance: none; cursor: pointer; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line-strong);
+  background: none; color: var(--ink); font: 500 13.5px/1 var(--sans);
+}
+.wa-more button:hover { border-color: var(--accent); }
+.wa-tip { margin-top: 8px; font-size: 12.5px; color: var(--ink-mute); }
+.wa-tip kbd { font: 600 11px/1 var(--mono); padding: 2px 6px; border-radius: 5px; background: #ffffff14; }
+@container (max-width: 520px) { .wa-try { grid-template-columns: minmax(0, 1fr); } }
+.di-welcome { background: linear-gradient(160deg, #1b2440, #0c1220); }
+.di-welcome::before { content: "S"; font: 400 30px/1 var(--serif); color: #f1ece3; }
+.di-welcome::after { content: ""; position: absolute; right: 9px; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: #34c759; }

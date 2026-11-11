@@ -107,7 +107,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
         run: () => {
           close();
           if (desktop) exitDesktop();
-          else enterDesktop("finder");
+          else enterDesktop("welcome");
         },
       },
       ...(
