@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { haptic } from "@/lib/haptics";
-import { play } from "@/lib/sound";
+import { transition } from "@/lib/sound";
 
 /**
  * Desktop mode: the page becomes a desktop with a dock and real windows you can drag,
@@ -110,7 +110,7 @@ export function enterDesktop(app?: AppId, { boot = false } = {}) {
   if (!state.on) {
     const booting = boot && !matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!booting) {
-      play("welcome");
+      transition("in");
       haptic("firm");
     }
     set({ on: true, mission: false, booting });
@@ -121,7 +121,7 @@ export function enterDesktop(app?: AppId, { boot = false } = {}) {
 /** The boot log has finished (or was skipped). */
 export function endBoot() {
   if (!state.booting) return;
-  play("welcome");
+  transition("in");
   haptic("firm");
   set({ booting: false });
 }
@@ -135,7 +135,7 @@ export function snapApp(app: AppId, snap: Snap) {
 
 export function exitDesktop() {
   if (!state.on) return;
-  play("close");
+  transition("out");
   haptic("light");
   set({ on: false, mission: false });
 }
@@ -144,13 +144,11 @@ export function openApp(app: AppId) {
   if (!state.on) set({ on: true });
   const existing = state.windows.find((w) => w.app === app);
   if (existing) return focusApp(app);
-  play("open");
   haptic("light");
   set({ windows: [...state.windows, place(app)], focused: app, mission: false });
 }
 
 export function closeApp(app: AppId) {
-  play("close");
   haptic("light");
   const windows = state.windows.filter((w) => w.app !== app);
   const front = windows.filter((w) => !w.min).sort((a, b) => b.z - a.z)[0];
@@ -168,7 +166,6 @@ export function focusApp(app: AppId) {
 }
 
 export function minimiseApp(app: AppId) {
-  play("close");
   haptic("light");
   const windows = state.windows.map((w) => (w.app === app ? { ...w, min: true } : w));
   const front = windows.filter((w) => !w.min).sort((a, b) => b.z - a.z)[0];
@@ -189,7 +186,6 @@ export const resizeApp = (app: AppId, w: number, h: number) => update(app, { w, 
 export function setMission(on: boolean) {
   if (on === state.mission) return;
   if (on && !state.on) set({ on: true });
-  play(on ? "open" : "close");
   haptic("light");
   set({ mission: on });
 }

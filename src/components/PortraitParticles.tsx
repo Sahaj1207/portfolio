@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import { haptic } from "@/lib/haptics";
 import { isMotionPaused } from "@/lib/motion";
-import { play } from "@/lib/sound";
 import { type ParticleRenderer, revealAt } from "@/lib/particlesGL";
 import { useReducedMotion } from "@/lib/useActiveSlot";
 import { useViewMode } from "@/lib/viewMode";
@@ -79,7 +78,6 @@ export function PortraitParticles() {
       const showing = revealAt(progress).photo;
       if (!beat && showing > 0.08) {
         beat = true;
-        play("heartbeat");
         haptic("heartbeat");
       } else if (beat && showing < 0.02) {
         beat = false;

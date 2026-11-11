@@ -6,7 +6,6 @@ import { enterDesktop, exitDesktop, openApp, setMission, useDesktop } from "@/li
 import { clearNotices, showActivity, useNotices } from "@/lib/islandBus";
 import { haptic } from "@/lib/haptics";
 import { setMotionPaused, useMotionPaused } from "@/lib/motion";
-import { play, setSoundOn, useSoundOn } from "@/lib/sound";
 import { cycleWallpaper, useWallpaper } from "@/lib/wallpaper";
 import { toggleTheme, useTheme } from "@/lib/theme";
 
@@ -100,7 +99,6 @@ function ago(ms: number) {
 
 function NotificationCentre({ onClose }: { onClose: () => void }) {
   const notices = useNotices();
-  const sound = useSoundOn();
   const paused = useMotionPaused();
   const { on: desktop } = useDesktop();
   const theme = useTheme();
@@ -132,10 +130,6 @@ function NotificationCentre({ onClose }: { onClose: () => void }) {
         <h2>{date.toLocaleDateString([], { day: "numeric", month: "long" })}</h2>
       </header>
       <div className="notices-controls">
-        <button type="button" aria-pressed={sound} onClick={() => setSoundOn(!sound)}>
-          <strong>Sound</strong>
-          <span>{sound ? "On" : "Off"}</span>
-        </button>
         <button type="button" aria-pressed={!paused} onClick={() => setMotionPaused(!paused)}>
           <strong>Motion</strong>
           <span>{paused ? "Paused" : "On"}</span>
@@ -283,7 +277,6 @@ export function System() {
     if (power) root.dataset.power = power;
     else delete root.dataset.power;
     if (power === "closing") {
-      play("close");
       haptic("firm");
       setMenu(null);
       setNotices(false);
@@ -294,7 +287,6 @@ export function System() {
       return () => clearTimeout(id);
     }
     if (power === "booting") {
-      play("welcome");
       haptic("success");
       const id = setTimeout(() => {
         setPower(null);

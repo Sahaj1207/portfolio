@@ -7,7 +7,6 @@ import { alsoBuilt, projects, timeline } from "@/content/projects";
 import { site } from "@/content/site";
 import { haptic, setHapticsOn, useHapticsOn, useHapticsSupported } from "@/lib/haptics";
 import { setMotionPaused, useMotionPaused } from "@/lib/motion";
-import { setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 import { WALLPAPERS, setWallpaper, useWallpaper } from "@/lib/wallpaper";
 import { type ThemePref, setThemePref, useThemePref } from "@/lib/theme";
@@ -189,7 +188,6 @@ function Toggle({ label, hint, on, set }: { label: string; hint: string; on: boo
 export function Settings() {
   const view = useViewMode();
   const paused = useMotionPaused();
-  const sound = useSoundOn();
   const hapticsOn = useHapticsOn();
   const hapticsSupported = useHapticsSupported();
   const wallpaper = useWallpaper();
@@ -218,7 +216,6 @@ export function Settings() {
       <ul className="toggles">
         <Toggle label="Live view" hint="The WebGL island and the code portrait" on={view === "live"} set={(v) => setViewMode(v ? "live" : "plain")} />
         <Toggle label="Motion" hint="Animations across sahaj.os" on={!paused} set={(v) => setMotionPaused(!v)} />
-        <Toggle label="Sound" hint="Soft system sounds" on={sound} set={setSoundOn} />
         {hapticsSupported && <Toggle label="Haptics" hint="Taps you can feel" on={hapticsOn} set={setHapticsOn} />}
       </ul>
     </div>

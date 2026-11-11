@@ -6,7 +6,7 @@ import { hasResume } from "@/components/ContactLinks";
 import { Island } from "@/components/Island";
 import { MenuBar } from "@/components/MenuBar";
 import { Palette } from "@/components/Palette";
-import { HapticsToggle, MotionToggle, SoundToggle, ThemeToggle, ViewToggle } from "@/components/ViewToggle";
+import { HapticsToggle, MotionToggle, ThemeToggle, ViewToggle } from "@/components/ViewToggle";
 import { Atmosphere, Entrance } from "@/components/World";
 import { Desktop } from "@/components/Desktop";
 import { System } from "@/components/System";
@@ -52,7 +52,7 @@ export default function RootLayout({ children, modal }: { children: React.ReactN
           <div className="wrap">
             <span>© {new Date().getFullYear()} {site.name}</span>
             <span>
-              Built from scratch · <a href={site.links.github}>Source on GitHub</a> · <ThemeToggle /> · <ViewToggle /> · <MotionToggle /> · <SoundToggle />
+              Built from scratch · <a href={site.links.github}>Source on GitHub</a> · <ThemeToggle /> · <ViewToggle /> · <MotionToggle />
               <HapticsToggle />
             </span>
           </div>

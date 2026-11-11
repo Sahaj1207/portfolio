@@ -7,7 +7,6 @@ import { site } from "@/content/site";
 import { showActivity } from "@/lib/islandBus";
 import { isMotionPaused, setMotionPaused } from "@/lib/motion";
 import { haptic, setHapticsOn, useHapticsOn, useHapticsSupported } from "@/lib/haptics";
-import { play, setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 import { DEMOS, enterDesktop, exitDesktop, openApp, setMission, useDesktop } from "@/lib/desktop";
 import { shutDown, toggleNotices } from "@/components/System";
@@ -29,7 +28,6 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const mode = useViewMode();
-  const soundOn = useSoundOn();
   const hapticsOn = useHapticsOn();
   const hapticsSupported = useHapticsSupported();
   const desktop = useDesktop().on;
@@ -143,16 +141,6 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
           close();
         },
       },
-      {
-        id: "sound",
-        group: "Actions",
-        label: soundOn ? "Turn sound off" : "Turn sound on",
-        keywords: "audio ambience music mute",
-        run: () => {
-          setSoundOn(!soundOn);
-          close();
-        },
-      },
       ...(hapticsSupported
         ? [
             {
@@ -190,7 +178,7 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
       },
     ];
     // Rebuilt when the route or view changes, so labels stay current.
-  }, [pathname, mode, hasResume, soundOn, hapticsOn, hapticsSupported, desktop, theme]);
+  }, [pathname, mode, hasResume, hapticsOn, hapticsSupported, desktop, theme]);
 
   const results = useMemo(() => {
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -221,7 +209,6 @@ export function Palette({ hasResume }: { hasResume: boolean }) {
   useEffect(() => {
     const root = document.documentElement;
     if (open) {
-      play("open");
       haptic("firm");
       returnFocus.current = document.activeElement as HTMLElement | null;
       root.dataset.palette = "on";

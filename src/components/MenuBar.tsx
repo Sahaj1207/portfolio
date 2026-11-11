@@ -4,13 +4,13 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import gitlog from "@/content/gitlog.json";
 import { openSystemMenu, toggleNotices } from "@/components/System";
-import { SoundToggle, ThemeToggle } from "@/components/ViewToggle";
+import { ThemeToggle } from "@/components/ViewToggle";
 import { APPS, enterDesktop, exitDesktop, useDesktop } from "@/lib/desktop";
 import { useActiveSlot } from "@/lib/useActiveSlot";
 
 /**
  * The OS menu bar, either side of the island: the sahaj.os menu and the focused app on the
- * left; the desktop switch, sound, the live build and the clock (notification centre) on the right.
+ * left; the desktop switch, light/dark, the live build and the clock (notification centre) on the right.
  */
 
 const BUILD = gitlog[0]?.hash ?? "dev";
@@ -64,7 +64,6 @@ export function MenuBar() {
           {desktop ? "page" : "desktop"}
         </button>
         <ThemeToggle className="menubar-theme" />
-        <SoundToggle className="menubar-sound" />
         <a href={`${REPO}/commit/${BUILD}`} target="_blank" rel="noreferrer" title="This build on GitHub">
           <span className="menubar-dot" aria-hidden="true" />
           build {BUILD}

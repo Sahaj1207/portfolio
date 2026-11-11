@@ -1,32 +1,13 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-
 /**
- * The sound of sahaj.os, synthesised live with the Web Audio API — no audio files.
- * Apple's lesson: silent until you act, and every sound short, quiet and from one family.
- * Off by default; the visitor's choice is remembered. Browsers only allow audio after a
- * gesture, so a remembered "on" waits for the first click or key.
- *
- *   tock       the island changes shape — a soft wooden key
- *   open       a window or the palette opens — two glassy notes a fifth apart, rising
- *   close      it closes — the same notes, gliding down
- *   chime      a notification — two soft bell notes
- *   welcome    sound is turned on — a warm chord that opens up
- *   heartbeat  the code becomes the photo — lub… dub, then a warm note
+ * The only sound in sahaj.os: a soft transition between the page and the desktop,
+ * synthesised with the Web Audio API (no audio files). It always follows a click or a key,
+ * so browsers allow it. "in" rises and opens up; "out" settles back down.
  */
 
-export type Cue = "tock" | "open" | "close" | "chime" | "welcome" | "heartbeat";
-
-const KEY = "sahaj:sound";
-const listeners = new Set<() => void>();
-let on = false;
-let started = false;
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
-let lastTock = 0;
-
-const emit = () => listeners.forEach((l) => l());
 
 function ensureContext() {
   if (ctx) return ctx;
@@ -34,150 +15,62 @@ function ensureContext() {
   if (!AC) return null;
   ctx = new AC();
   master = ctx.createGain();
-  master.gain.value = 0.85;
+  master.gain.value = 0.7;
   master.connect(ctx.destination);
   return ctx;
 }
 
-function noise(seconds: number) {
-  const c = ctx!;
-  const buf = c.createBuffer(1, Math.floor(c.sampleRate * seconds), c.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-  return buf;
-}
-
-/** One enveloped oscillator; `attack` defaults to a near-instant pluck. */
-function tone(freq: number, at: number, dur: number, gain: number, opts: { type?: OscillatorType; to?: number; attack?: number } = {}) {
+/** One enveloped oscillator with a slow attack. */
+function tone(freq: number, at: number, dur: number, gain: number, attack: number, to?: number) {
   const c = ctx!;
   const o = c.createOscillator();
-  o.type = opts.type ?? "sine";
+  o.type = "sine";
   o.frequency.setValueAtTime(freq, at);
-  if (opts.to) o.frequency.exponentialRampToValueAtTime(opts.to, at + dur);
+  if (to) o.frequency.exponentialRampToValueAtTime(to, at + dur);
   const g = c.createGain();
   g.gain.setValueAtTime(0, at);
-  g.gain.linearRampToValueAtTime(gain, at + (opts.attack ?? Math.min(0.008, dur / 5)));
+  g.gain.linearRampToValueAtTime(gain, at + attack);
   g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
   o.connect(g).connect(master!);
   o.start(at);
   o.stop(at + dur + 0.05);
 }
 
-/** A short filtered noise burst. */
-function burst(at: number, dur: number, gain: number, freq: number, q = 1, type: BiquadFilterType = "bandpass") {
+/** A breath of filtered noise whose colour sweeps up or down. */
+function air(at: number, dur: number, gain: number, from: number, to: number) {
   const c = ctx!;
+  const buf = c.createBuffer(1, Math.floor(c.sampleRate * (dur + 0.05)), c.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   const src = c.createBufferSource();
-  src.buffer = noise(dur + 0.05);
+  src.buffer = buf;
   const f = c.createBiquadFilter();
-  f.type = type;
-  f.frequency.value = freq;
-  f.Q.value = q;
+  f.type = "bandpass";
+  f.Q.value = 0.8;
+  f.frequency.setValueAtTime(from, at);
+  f.frequency.exponentialRampToValueAtTime(to, at + dur);
   const g = c.createGain();
-  g.gain.setValueAtTime(gain, at);
+  g.gain.setValueAtTime(0, at);
+  g.gain.linearRampToValueAtTime(gain, at + dur * 0.45);
   g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
   src.connect(f).connect(g).connect(master!);
   src.start(at);
   src.stop(at + dur + 0.05);
 }
 
-const thump = (at: number, gain: number) => {
-  tone(70, at, 0.22, gain, { to: 42 });
-  burst(at, 0.06, gain * 0.5, 160, 1, "lowpass");
-};
-
-/** Plays a cue if sound is on. Cheap to call freely; tocks are rate-limited. */
-export function play(cue: Cue) {
-  if (!on || !ctx || ctx.state !== "running") return;
-  const t = ctx.currentTime + 0.01;
-  switch (cue) {
-    case "tock": {
-      const now = performance.now();
-      if (now - lastTock < 90) return;
-      lastTock = now;
-      burst(t, 0.045, 0.35, 1900, 4);
-      tone(1700, t, 0.05, 0.12, { to: 900 });
-      break;
-    }
-    case "open":
-      tone(880, t, 0.38, 0.07, { to: 900 });
-      tone(1320, t + 0.03, 0.34, 0.05, { to: 1340 });
-      tone(2640, t + 0.05, 0.22, 0.015);
-      break;
-    case "close":
-      tone(1320, t, 0.22, 0.05, { to: 1250 });
-      tone(880, t + 0.05, 0.26, 0.06, { to: 830 });
-      break;
-    case "chime":
-      tone(1046.5, t, 0.7, 0.07);
-      tone(1046.5, t, 0.5, 0.02, { type: "triangle" });
-      tone(1568, t + 0.13, 0.9, 0.06);
-      tone(1568, t + 0.13, 0.6, 0.015, { type: "triangle" });
-      break;
-    case "welcome":
-      [220, 329.6, 440, 659.3].forEach((f, i) => tone(f, t, 2.1, 0.045 / (1 + i * 0.3), { attack: 0.45 + i * 0.05 }));
-      break;
-    case "heartbeat":
-      thump(t, 0.55);
-      thump(t + 0.22, 0.38);
-      tone(392, t + 0.75, 1.6, 0.05, { attack: 0.18 });
-      tone(587.3, t + 0.82, 1.5, 0.03, { attack: 0.2 });
-      tone(784, t + 0.9, 1.3, 0.015, { attack: 0.25 });
-      break;
-  }
-}
-
-async function apply(next: boolean, greet: boolean) {
-  on = next;
-  emit();
-  if (!next) return;
+export function transition(direction: "in" | "out") {
   const c = ensureContext();
   if (!c) return;
-  if (c.state !== "running") await c.resume().catch(() => {});
-  if (greet) play("welcome");
-}
-
-/** Called from a click or key, so the browser lets audio start. */
-export function setSoundOn(next: boolean) {
-  try {
-    if (next) localStorage.setItem(KEY, "on");
-    else localStorage.removeItem(KEY);
-  } catch {
-    /* not remembered in private mode */
-  }
-  void apply(next, next);
-}
-
-function start() {
-  if (started || typeof window === "undefined") return;
-  started = true;
-  let remembered = false;
-  try {
-    remembered = localStorage.getItem(KEY) === "on";
-  } catch {
-    /* ignore */
-  }
-  if (!remembered) return;
-  on = true;
-  // Audio may only start after a gesture: resume quietly on the first click or key.
-  const wake = () => {
-    removeEventListener("pointerdown", wake);
-    removeEventListener("keydown", wake);
-    void apply(true, false);
+  const go = () => {
+    const t = c.currentTime + 0.02;
+    if (direction === "in") {
+      air(t, 0.7, 0.05, 500, 3200);
+      [261.6, 392, 523.3, 784].forEach((f, i) => tone(f, t + 0.08 + i * 0.04, 1.4, 0.035 / (1 + i * 0.35), 0.25));
+    } else {
+      air(t, 0.55, 0.04, 2600, 420);
+      [523.3, 392, 261.6].forEach((f, i) => tone(f, t + i * 0.05, 0.9, 0.03 / (1 + i * 0.3), 0.08, f * 0.94));
+    }
   };
-  addEventListener("pointerdown", wake);
-  addEventListener("keydown", wake);
-}
-
-export const isSoundOn = () => on;
-
-export function useSoundOn(): boolean {
-  return useSyncExternalStore(
-    (cb) => {
-      start();
-      listeners.add(cb);
-      return () => listeners.delete(cb);
-    },
-    () => on,
-    () => false,
-  );
+  if (c.state === "running") go();
+  else void c.resume().then(go, () => {});
 }

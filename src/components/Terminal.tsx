@@ -7,7 +7,6 @@ import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { type Activity, clearActivity, showActivity } from "@/lib/islandBus";
 import { haptic, setHapticsOn } from "@/lib/haptics";
-import { setSoundOn } from "@/lib/sound";
 import { setViewMode } from "@/lib/viewMode";
 import { DEMOS, enterDesktop, exitDesktop, isDesktopOn } from "@/lib/desktop";
 import { setThemePref } from "@/lib/theme";
@@ -47,7 +46,6 @@ const COMMANDS = [
   "island",
   "portrait",
   "view",
-  "sound",
   "haptics",
   "neofetch",
   "sudo hire-me",
@@ -236,7 +234,6 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
             ["portrait", "jump to the code portrait"],
             ["view plain|live", "switch the site's view"],
             ["theme light|dark", "light or dark mode"],
-            ["sound on|off", "the sound of sahaj.os"],
             ["haptics on|off", "feel it, on phones"],
             ["startx", "boot the desktop: windows, dock, the lot"],
             ["try <project>", "a live demo: float, pie, harika, vayucast"],
@@ -307,12 +304,6 @@ export function Terminal({ hasResume }: { hasResume: boolean }) {
           return print(<span className="g">switched to {args[0]} view</span>);
         }
         return print(<span className="k">usage: view plain | live</span>);
-      case "sound":
-        if (args[0] === "on" || args[0] === "off") {
-          setSoundOn(args[0] === "on");
-          return print(<span className="g">sound {args[0]}{args[0] === "on" ? " — welcome to sahaj.os" : ""}</span>);
-        }
-        return print(<span className="k">usage: sound on | off</span>);
       case "haptics":
         if (args[0] === "on" || args[0] === "off") {
           setHapticsOn(args[0] === "on");

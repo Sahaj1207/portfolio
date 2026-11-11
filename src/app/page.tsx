@@ -3,20 +3,30 @@ import { ContactLinks, hasResume } from "@/components/ContactLinks";
 import { PortraitParticles } from "@/components/PortraitParticles";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Terminal } from "@/components/Terminal";
-import { type Project, alsoBuilt, hackathonBuilds, mainWork, projects, timeline } from "@/content/projects";
+import { type Project, alsoBuilt, hackathonBuilds, internshipWork, mainWork, projects, timeline } from "@/content/projects";
 import { site } from "@/content/site";
 
 const flagships = ["float", "pie", "vayucast"].map((s) => projects.find((p) => p.slug === s)!);
 
-/** FLOAT spans the row; every other card is a third. */
+/**
+ * FLOAT and the Meta hackathon span the row; other cards are halves. A hackathon card with
+ * an `event` leads with the event, with the project underneath.
+ */
 function WorkCard({ p }: { p: Project }) {
-  const wide = p.slug === "float";
+  const wide = p.slug === "float" || !!p.event;
   return (
-    <ProjectCard slug={p.slug} className={`work-card ${wide ? "wide" : "third"}`}>
-      <p className="card-meta">
-        {p.status === "building" && <span className="live-dot" aria-hidden="true" />}
-        {p.context ?? p.stack.slice(0, 3).join(" · ")}
-      </p>
+    <ProjectCard slug={p.slug} className={`work-card${wide ? " wide" : ""}${p.event ? " event" : ""}`}>
+      {p.event ? (
+        <div className="card-event">
+          <p className="card-meta">{p.event.detail}</p>
+          <p className="event-name">{p.event.name}</p>
+        </div>
+      ) : (
+        <p className="card-meta">
+          {p.status === "building" && <span className="live-dot" aria-hidden="true" />}
+          {p.context ?? p.stack.slice(0, 3).join(" · ")}
+        </p>
+      )}
       <div className="card-head">
         <h3>{p.name}</h3>
         {p.fullName && <p className="full-name">{p.fullName}</p>}
@@ -61,8 +71,8 @@ export default function Home() {
             <p className="lede">{site.positioning}</p>
             <ContactLinks />
           </div>
-          <div>
-            <p className="eyebrow" style={{ marginBottom: 14 }}>the ones I&rsquo;m proudest of</p>
+          <div className="hero-side">
+            <p className="eyebrow">the ones I&rsquo;m proudest of</p>
             <ul className="flagships">
               {flagships.map((p) => (
                 <li key={p.slug}>
@@ -89,9 +99,18 @@ export default function Home() {
           <div className="work-grid">
             {mainWork.map((p) => <WorkCard key={p.slug} p={p} />)}
           </div>
-          <div className="chapter-head hackathon-head">
+          <div className="chapter-head group-head">
+            <p className="eyebrow">internship</p>
+            <h3 className="headline group-title">
+              Intern at <em>Antmark</em>.
+            </h3>
+          </div>
+          <div className="work-grid">
+            {internshipWork.map((p) => <WorkCard key={p.slug} p={p} />)}
+          </div>
+          <div className="chapter-head group-head">
             <p className="eyebrow">made against the clock</p>
-            <h3 className="headline" style={{ fontSize: "clamp(28px, 3.6vw, 44px)" }}>
+            <h3 className="headline group-title">
               Hackathon <em>builds</em>.
             </h3>
           </div>
@@ -153,7 +172,7 @@ export default function Home() {
               <p>Media, notifications and settings, one click away.</p>
             </article>
           </div>
-          <p style={{ marginTop: 32 }}>
+          <p className="chapter-more">
             <Link className="more" href="/work/float">How FLOAT works →</Link>
           </p>
         </div>
@@ -233,7 +252,7 @@ export default function Home() {
         <div className="wrap">
           <div className="chapter-head">
             <p className="eyebrow">and a few more</p>
-            <h2 id="also-title" className="headline" style={{ fontSize: "clamp(28px, 3.6vw, 44px)" }}>Smaller builds.</h2>
+            <h2 id="also-title" className="headline group-title">Smaller builds.</h2>
           </div>
           <ul className="also">
             {alsoBuilt.map((a) => (

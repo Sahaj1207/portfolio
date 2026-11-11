@@ -15,8 +15,10 @@ export type Project = {
   tagline: string;
   /** One line for cards on the home page. */
   summary: string;
-  /** Hackathon builds are listed in their own group below the main work. */
-  group?: "hackathon";
+  /** Internship and hackathon work are listed in their own groups below the main work. */
+  group?: "internship" | "hackathon";
+  /** For hackathon builds where the event leads the card: the event, then its track. */
+  event?: { name: string; detail: string };
   /** Shown with a live dot while the project is still being built. */
   status?: "building";
   year: string;
@@ -74,6 +76,8 @@ export const projects: Project[] = [
   },
   {
     slug: "pie",
+    group: "internship",
+    context: "Intern at Antmark",
     name: "PIE",
     tagline: "Edit the text inside PDFs and photos. Entirely on your phone.",
     summary: "An offline PDF and image editor for Android and iOS that edits existing text while matching the original font and layout.",
@@ -107,7 +111,7 @@ export const projects: Project[] = [
         body: "Rebuilding image backgrounds without AI keeps results predictable, private and fully offline.",
       },
     ],
-    role: "Solo — app, native modules and C++ engine.",
+    role: "Built as an intern at Antmark: the app, native modules and the C++ engine.",
     links: [{ label: "Source on GitHub", href: "https://github.com/Sahaj1207/PIE" }],
     pending: ["phone screen recording", "performance numbers (open/edit/save times, app size)"],
   },
@@ -163,6 +167,7 @@ export const projects: Project[] = [
     year: "2026",
     context: "Meta Global AI Developer Hackathon · Indie Dev track · Oct 27 – Nov 4, 2026",
     group: "hackathon",
+    event: { name: "Meta Global AI Developer Hackathon", detail: "Indie Dev track · Oct 27 – Nov 4, 2026" },
     stack: ["React", "Vite", "Supabase", "Python", "Meta Model API", "Modal"],
     highlights: [
       { value: "8", label: "languages, from Telugu to Basque" },
@@ -333,28 +338,69 @@ export const projects: Project[] = [
     ],
     pending: ["demo video", "placement (if any)"],
   },
+  {
+    slug: "photoproof",
+    name: "PhotoProof",
+    tagline: "Offline photo reports for inspections, move-ins and damage surveys.",
+    summary: "A mobile app for timestamped, GPS-tagged photos, organised into reports, annotated, and exported as a PDF, all on the device.",
+    year: "2026",
+    context: "Intern at Antmark",
+    group: "internship",
+    stack: ["Expo", "React Native", "TypeScript", "expo-camera", "expo-print"],
+    highlights: [
+      { value: "Offline", label: "no account and no internet needed" },
+      { value: "Untouched", label: "original photos; edits live in metadata" },
+    ],
+    problem:
+      "Inspectors, landlords and tenants need dated, located photo evidence and a clean report, often somewhere with no signal.",
+    approach: [
+      "Fast capture: flash, front and back cameras, pinch or slider zoom, and rapid shooting, with every photo numbered in shutter order.",
+      "Each photo records its time, GPS position and street address. Location is tracked only while the camera is open.",
+      "Reports start from templates (Move-in, Move-out, Inspection, Damage); each photo gets a category and notes, saved as you go.",
+      "Crop and rotate without touching the original: the editor, the in-app preview and the exported PDF share the same geometry.",
+      "An A4 PDF with a cover page and one evidence card per photo, shared through the phone's share sheet.",
+    ],
+    architecture: [
+      "Expo SDK 57, React Native 0.86, React 19 and TypeScript, with React Navigation.",
+      "Photos are copied into the app's private storage; report data is JSON in AsyncStorage, written through a single ordered queue.",
+      "PDFs are rendered from an HTML template with expo-print and shared with expo-sharing.",
+    ],
+    decisions: [
+      {
+        title: "Evidence stays untouched",
+        body: "Photos are saved exactly as the camera produced them. Crops, rotation and notes are metadata, applied only when the PDF is made.",
+      },
+      {
+        title: "One ordered write queue",
+        body: "Every save goes through the same queue, so a newer save can never be overwritten by an older one.",
+      },
+    ],
+    role: "Built as an intern at Antmark.",
+    links: [{ label: "Source on GitHub", href: "https://github.com/Sahaj1207/PhotoProof" }],
+    pending: [],
+  },
 ];
 
-/** Main work, then hackathon builds. */
-export const mainWork = projects.filter((p) => p.group !== "hackathon");
-export const hackathonBuilds = projects.filter((p) => p.group === "hackathon");
+/** Main work, then internship work, then hackathon builds (the Meta hackathon first). */
+export const mainWork = projects.filter((p) => !p.group);
+export const internshipWork = projects.filter((p) => p.group === "internship");
+export const hackathonBuilds = projects
+  .filter((p) => p.group === "hackathon")
+  .sort((a, b) => Number(!!b.event) - Number(!!a.event));
 
 export const alsoBuilt: { name: string; what: string; href: string; live?: string }[] = [
   { name: "ReconIQ", what: "Cybersecurity investigation platform with ATT&CK mapping", href: "https://github.com/Sahaj1207/ReconIQ", live: "https://reconiq.vercel.app" },
-  { name: "Meridian Hospital", what: "Hospital platform with booking engine and staff console", href: "https://github.com/Sahaj1207/meridian-hospital" },
   { name: "Aurelis Estates", what: "Luxury real-estate site with GSAP and Lenis motion", href: "https://github.com/Sahaj1207/aurelis-estates", live: "https://aurelis-estates.vercel.app" },
-  { name: "ResumePilot AI", what: "ATS resume analyser and career assistant on Gemini", href: "https://github.com/Sahaj1207/ResumePilot-AI" },
-  { name: "PhotoProof", what: "Offline inspection photos with GPS, notes and PDF reports (Expo)", href: "https://github.com/Sahaj1207/PhotoProof" },
+  { name: "ResumePilot AI", what: "ATS resume analyser and career assistant on Gemini", href: "https://github.com/Sahaj1207/ResumePilot-AI", live: "https://resumepilot-ai-f6qrpmmgnz9tqqgtdgdeq5.streamlit.app/" },
 ];
 
 /** Milestones, dated from each repository's creation. */
 export const timeline: { date: string; title: string; detail: string }[] = [
   { date: "Jul 2026", title: "ResumePilot AI & ReconIQ", detail: "First AI and security products." },
   { date: "Aug 2026", title: "HARIKA, FLOAT & VERITY", detail: "Desktop AI, a Windows Dynamic Island, and the Razorpay AI Buildathon." },
-  { date: "Sep 2026", title: "Aurelis Estates & Meridian Hospital", detail: "Production-grade web platforms with real backends." },
-  { date: "Oct 2026", title: "PIE", detail: "Offline PDF and image editing with a shared C++ engine." },
+  { date: "Sep 2026", title: "Aurelis Estates", detail: "A luxury real-estate site with GSAP and Lenis motion." },
   { date: "Oct–Nov 2026", title: "MotherTongue Books", detail: "Meta Global AI Developer Hackathon." },
-  { date: "Nov 2026", title: "VayuCast, Crumb & PhotoProof", detail: "An ML forecasting system, the PayPal AI Hackathon, and an offline inspection app." },
+  { date: "Nov 2026", title: "VayuCast & Crumb", detail: "An ML forecasting system, and the PayPal AI Hackathon." },
 ];
 
 export const getProject = (slug: string) => projects.find((p) => p.slug === slug);

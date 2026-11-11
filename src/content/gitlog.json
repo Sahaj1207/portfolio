@@ -1,5 +1,10 @@
 [
   {
+    "hash": "521519e",
+    "date": "2026-11-11",
+    "subject": "Desktop behaviours and a phone home screen"
+  },
+  {
     "hash": "17e06c5",
     "date": "2026-11-11",
     "subject": "Desktop demo apps: FLOAT, PIE, HARIKA, VayuCast"
@@ -53,10 +58,5 @@
     "hash": "f5664a4",
     "date": "2026-11-04",
     "subject": "OS layer: menu bar and case studies as windows"
-  },
-  {
-    "hash": "84ce489",
-    "date": "2026-11-04",
-    "subject": "The world: atmosphere and the entrance into sahaj.os"
   }
 ]

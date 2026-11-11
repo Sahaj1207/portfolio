@@ -2,7 +2,6 @@
 
 import { setMotionPaused, useMotionPaused } from "@/lib/motion";
 import { setHapticsOn, useHapticsOn, useHapticsSupported } from "@/lib/haptics";
-import { setSoundOn, useSoundOn } from "@/lib/sound";
 import { setViewMode, useViewMode } from "@/lib/viewMode";
 import { toggleTheme, useTheme } from "@/lib/theme";
 
@@ -34,14 +33,6 @@ export function MotionToggle() {
   );
 }
 
-export function SoundToggle({ className = "view-toggle" }: { className?: string }) {
-  const on = useSoundOn();
-  return (
-    <button type="button" className={className} aria-pressed={on} onClick={() => setSoundOn(!on)}>
-      {on ? "Sound on" : "Sound off"}
-    </button>
-  );
-}
 
 /** Only shown on devices that can produce haptics (phones). */
 export function HapticsToggle() {

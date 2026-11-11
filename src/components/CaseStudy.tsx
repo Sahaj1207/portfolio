@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { TryDemo } from "@/components/TryDemo";
-import { type Project, hackathonBuilds, mainWork } from "@/content/projects";
+import { type Project, hackathonBuilds, internshipWork, mainWork } from "@/content/projects";
 
-/** Case studies page through main work, then hackathon builds. */
-const order = [...mainWork, ...hackathonBuilds];
+/** Case studies page through main work, internship work, then hackathon builds. */
+const order = [...mainWork, ...internshipWork, ...hackathonBuilds];
 
 /**
  * A project's case study. Rendered as a full page at /work/[slug], and inside a window

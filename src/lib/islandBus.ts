@@ -2,7 +2,6 @@
 
 import { useSyncExternalStore } from "react";
 import { haptic } from "@/lib/haptics";
-import { play } from "@/lib/sound";
 
 /**
  * Lets anything on the page take over the island for a moment — project cards show
@@ -38,7 +37,6 @@ export function showActivity(activity: Activity, owner: string, ms?: number) {
   clearTimeout(timer);
   current = { activity, owner };
   if (activity.kind === "notify") {
-    play("chime");
     haptic("success");
     notices = [{ id: noticeId++, title: activity.title, body: activity.body, at: Date.now() }, ...notices].slice(0, 30);
   }

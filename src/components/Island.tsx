@@ -7,12 +7,11 @@ import { IslandRenderer, type Shape } from "@/lib/islandGL";
 import { Spring, SpringLoop, calmSpring, ghostSpring, heroSpring, islandSpring, nubSpring, rippleSpring } from "@/lib/spring";
 import { useActiveSlot, useReducedMotion } from "@/lib/useActiveSlot";
 import { useDesktop } from "@/lib/desktop";
-import { hackathonBuilds, mainWork } from "@/content/projects";
+import { hackathonBuilds, internshipWork, mainWork } from "@/content/projects";
 import { openPalette } from "@/components/Palette";
 import { type Activity, useActivity } from "@/lib/islandBus";
 import { useMotionPaused } from "@/lib/motion";
 import { haptic } from "@/lib/haptics";
-import { play } from "@/lib/sound";
 import { fallBackToPlain, useViewMode } from "@/lib/viewMode";
 
 /**
@@ -605,16 +604,6 @@ export function Island() {
   // Close the nav after navigating.
   useEffect(() => setExpanded(false), [pathname]);
 
-  // A tiny click each time the island changes shape (when sound is on).
-  const firstView = useRef(true);
-  useEffect(() => {
-    if (firstView.current) {
-      firstView.current = false;
-      return;
-    }
-    play("tock");
-  }, [view]);
-
   const press = (down: boolean) => {
     if (reduced) return;
     springs.current.s.target = down ? 0.96 : 1;
@@ -681,7 +670,7 @@ export function Island() {
         <div className="island-content">
           <span className="island-mark" />
           <span className="i-label">Selected work</span>
-          <span className="i-meta">{mainWork.length} projects · {hackathonBuilds.length} hackathon builds</span>
+          <span className="i-meta">{mainWork.length + internshipWork.length} projects · {hackathonBuilds.length} hackathon builds</span>
         </div>,
       )}
 

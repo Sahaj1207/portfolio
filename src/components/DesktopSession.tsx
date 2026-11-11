@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import gitlog from "@/content/gitlog.json";
-import { mainWork } from "@/content/projects";
+import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { endBoot } from "@/lib/desktop";
 import { haptic } from "@/lib/haptics";
@@ -14,7 +14,7 @@ import { haptic } from "@/lib/haptics";
 
 const BOOT = [
   `sahaj.os · build ${gitlog[0]?.hash ?? "dev"}`,
-  `[ ok ] mounting ~/work · ${mainWork.length} projects`,
+  `[ ok ] mounting ~/work · ${projects.length} projects`,
   "[ ok ] starting the island compositor · WebGL2",
   "[ ok ] loading the dock · Finder, Terminal, FLOAT, PIE, HARIKA, VayuCast",
   "[ ok ] recent commits:",
